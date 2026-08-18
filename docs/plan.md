@@ -492,6 +492,24 @@ CREATE TRIGGER on_auth_user_created
 - Prettier 설정 (`.prettierrc`)
 - ESLint 규칙 보강 (import 순서, 레이어 간 의존 규칙 등)
 
+### Phase 1-1: MCP 연결
+
+**개발 도구 MCP 서버를 연결하여 Claude Code에서 외부 서비스를 직접 조작할 수 있게 한다.**
+
+- **Supabase MCP** — DB 스키마 조회, 마이그레이션 실행, RLS 디버깅, Edge Functions 관리
+- **Vercel MCP** — 배포 상태 확인, 로그 조회, 환경 변수 관리, 프로젝트 설정
+- **Playwright MCP** — 브라우저 자동화로 E2E UI 검증, 모바일 뷰포트 테스트
+- **GitHub MCP** — PR 생성/리뷰, 이슈 관리, 브랜치 작업
+
+### Phase 1-2: MCP 참조 문서 작성
+
+**각 MCP 서버의 사용법과 주요 도구를 정리한 참조 문서를 생성한다.**
+
+- `docs/mcp/supabase.md` — 연결 정보, 주요 도구(스키마 조회, 마이그레이션, RLS 테스트 등), 사용 예시
+- `docs/mcp/vercel.md` — 연결 정보, 주요 도구(배포, 환경 변수, 로그 등), 사용 예시
+- `docs/mcp/playwright.md` — 연결 정보, 주요 도구(브라우저 실행, 스크린샷, 모바일 뷰포트 등), 사용 예시
+- `docs/mcp/github.md` — 연결 정보, 주요 도구(PR, 이슈, 브랜치 등), 사용 예시
+
 ### Phase 2: 라이브러리 설정 로직 세팅
 
 - `shared/lib/supabase/`: 클라이언트 3종 (`client.ts`, `server.ts`, `admin.ts`)
