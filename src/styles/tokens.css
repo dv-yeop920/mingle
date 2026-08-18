@@ -1,0 +1,94 @@
+/* ═══════════════════════════════════════════
+   MINGLE — Primitive Tokens
+   Design Token 원시 값 정의 (색상, 그림자, 라디우스)
+   ═══════════════════════════════════════════ */
+
+@theme {
+
+  /* ── Brand / Primary (Green) ───────────── */
+
+  --color-green-50: #DCF0E1;
+  --color-green-100: #8FD9A8;
+  --color-green-200: #3FB273;
+  --color-green-300: #2E7A4E;
+  --color-green-border: #7FD39B;
+
+  /* ── Neutral ───────────────────────────── */
+
+  --color-neutral-50: #F5FAF3;
+  --color-neutral-100: #F0F5F0;
+  --color-neutral-200: #E6EFE6;
+  --color-neutral-300: #DCE8DD;
+  --color-neutral-400: #C3D2C7;
+  --color-neutral-500: #A9B8AC;
+  --color-neutral-600: #9AAB9F;
+  --color-neutral-700: #6E8375;
+  --color-neutral-800: #4E6355;
+  --color-neutral-900: #26382C;
+  --color-white: #FFFFFF;
+
+  /* ── MBTI Accent — Analysts ────────────── */
+
+  --color-analyst-bg: #EDE6FF;
+  --color-analyst-fg: #6B5AA8;
+  --color-analyst-border: #E4D9FF;
+
+  /* ── MBTI Accent — Diplomats ───────────── */
+
+  --color-diplomat-bg: #DFF3E3;
+  --color-diplomat-fg: #3F8B5C;
+  --color-diplomat-border: #CDEBD4;
+
+  /* ── MBTI Accent — Sentinels ───────────── */
+
+  --color-sentinel-bg: #E6EFF8;
+  --color-sentinel-fg: #4A7E9E;
+  --color-sentinel-border: #D6E6F2;
+
+  /* ── MBTI Accent — Explorers ───────────── */
+
+  --color-explorer-bg: #FDEDE0;
+  --color-explorer-fg: #B5794C;
+  --color-explorer-border: #F7E0CD;
+
+  /* ── Status — Positive ─────────────────── */
+
+  --color-positive-bg: #DCF0E1;
+  --color-positive-fg: #2E7A4E;
+
+  /* ── Status — Caution ──────────────────── */
+
+  --color-caution-bg: #FFF6E6;
+  --color-caution-fg: #E0A24C;
+  --color-caution-text: #8A6320;
+
+  /* ── Status — Insight ──────────────────── */
+
+  --color-insight-bg: #F1EDFB;
+  --color-insight-fg: #6B5AA8;
+  --color-insight-text: #3B3159;
+
+  /* ── Status — Info ─────────────────────── */
+
+  --color-info-bg: #E6EFF8;
+  --color-info-fg: #4A7E9E;
+  --color-info-text: #27455C;
+
+  /* ── Shadow ────────────────────────────── */
+
+  --shadow-sm: 0 5px 14px rgba(76, 120, 90, 0.06);
+  --shadow-md: 0 6px 16px rgba(76, 120, 90, 0.07);
+  --shadow-lg: 0 10px 22px rgba(63, 178, 115, 0.28);
+  --shadow-hero: 0 14px 30px rgba(90, 170, 120, 0.24);
+  --shadow-sheet: 0 -12px 34px rgba(30, 70, 45, 0.14);
+
+  /* ── Radius ────────────────────────────── */
+
+  --radius-field: 20px;
+  --radius-card: 22px;
+  --radius-card-lg: 26px;
+  --radius-hero: 30px;
+  --radius-sheet: 32px;
+  --radius-pill: 999px;
+  --radius-frame: 40px;
+}

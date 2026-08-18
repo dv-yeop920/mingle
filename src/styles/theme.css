@@ -1,0 +1,138 @@
+/* ═══════════════════════════════════════════
+   MINGLE — Semantic Tokens + Tailwind Bridge
+   Primitive → Semantic 역할 매핑 → Tailwind 유틸리티 연결
+   ═══════════════════════════════════════════ */
+
+/* ── 1. Semantic Tokens (역할 기반) ──────── */
+
+:root {
+  /* Layout */
+  --background: var(--color-neutral-50);
+  --foreground: var(--color-neutral-900);
+  --surface: var(--color-white);
+
+  /* Primary */
+  --primary: var(--color-green-200);
+  --primary-foreground: var(--color-white);
+  --primary-hero: var(--color-green-100);
+  --primary-tonal: var(--color-green-50);
+  --primary-deep: var(--color-green-300);
+
+  /* Muted */
+  --muted: var(--color-neutral-700);
+  --muted-alt: var(--color-neutral-800);
+  --hint: var(--color-neutral-600);
+
+  /* Border */
+  --border: var(--color-neutral-200);
+  --border-inner: var(--color-neutral-100);
+  --border-focus: var(--color-green-border);
+
+  /* Disabled */
+  --disabled: var(--color-neutral-300);
+  --disabled-foreground: var(--color-neutral-500);
+  --disabled-icon: var(--color-neutral-400);
+
+  /* Status — Positive */
+  --positive: var(--color-positive-fg);
+  --positive-surface: var(--color-positive-bg);
+
+  /* Status — Caution */
+  --caution: var(--color-caution-fg);
+  --caution-surface: var(--color-caution-bg);
+  --caution-foreground: var(--color-caution-text);
+
+  /* Status — Insight */
+  --insight: var(--color-insight-fg);
+  --insight-surface: var(--color-insight-bg);
+  --insight-foreground: var(--color-insight-text);
+
+  /* Status — Info */
+  --info: var(--color-info-fg);
+  --info-surface: var(--color-info-bg);
+  --info-foreground: var(--color-info-text);
+
+  /* Font Family */
+  --font-family-gothic: var(--font-gothic-a1), system-ui, sans-serif;
+  --font-family-nunito: var(--font-nunito), system-ui, sans-serif;
+}
+
+/* ── 2. Tailwind Bridge ──────────────────── */
+
+@theme inline {
+
+  /* Color — Layout */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+
+  /* Color — Primary */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hero: var(--primary-hero);
+  --color-primary-tonal: var(--primary-tonal);
+  --color-primary-deep: var(--primary-deep);
+
+  /* Color — Muted */
+  --color-muted: var(--muted);
+  --color-muted-alt: var(--muted-alt);
+  --color-hint: var(--hint);
+
+  /* Color — Border */
+  --color-border: var(--border);
+  --color-border-inner: var(--border-inner);
+  --color-border-focus: var(--border-focus);
+
+  /* Color — Disabled */
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
+  --color-disabled-icon: var(--disabled-icon);
+
+  /* Color — Status */
+  --color-positive: var(--positive);
+  --color-positive-surface: var(--positive-surface);
+  --color-caution: var(--caution);
+  --color-caution-surface: var(--caution-surface);
+  --color-caution-foreground: var(--caution-foreground);
+  --color-insight: var(--insight);
+  --color-insight-surface: var(--insight-surface);
+  --color-insight-foreground: var(--insight-foreground);
+  --color-info: var(--info);
+  --color-info-surface: var(--info-surface);
+  --color-info-foreground: var(--info-foreground);
+
+  /* Font Family */
+  --font-gothic: var(--font-family-gothic);
+  --font-nunito: var(--font-family-nunito);
+
+  /* Typography — Font Size + Line Height */
+  --text-display: 52px;
+  --text-display--line-height: 1.0;
+
+  --text-title1: 30px;
+  --text-title1--line-height: 1.32;
+
+  --text-title2: 23px;
+  --text-title2--line-height: 1.34;
+
+  --text-section: 16.5px;
+  --text-section--line-height: 1.4;
+
+  --text-quote: 16px;
+  --text-quote--line-height: 1.5;
+
+  --text-body: 13.5px;
+  --text-body--line-height: 1.65;
+
+  --text-caption: 12px;
+  --text-caption--line-height: 1.4;
+
+  --text-label: 12px;
+  --text-label--line-height: 1.2;
+
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 1.2;
+
+  /* Letter Spacing */
+  --tracking-title: -0.02em;
+}
