@@ -9,8 +9,9 @@ MINGLE은 MBTI 그룹 케미 시뮬레이터로, 여러 명의 MBTI를 입력하
 - **Next.js 16.3.1** + React 19 + Tailwind CSS v4 (CSS-first `@theme`)
 - React Compiler 활성화, 폰트(Gothic A1 + Nunito) 설정 완료
 - **디자인 토큰 완성**: `src/styles/tokens.css`(원시값) + `src/styles/theme.css`(시맨틱 + Tailwind 브릿지)
-- 그 외 앱 코드 없음 — `page.tsx`는 기본 스타터 그대로
-- Supabase 미설치, 컴포넌트·라우트·API·인증 전무
+- **Phase 3 완료**: 전체 UI 구현 완료 (shared/ui → entities → features → widgets → views → app 라우팅)
+- 13개 라우트 + 3개 route group 레이아웃 연결, 목업 데이터 기반 전체 네비게이션 동작
+- Supabase 미설치, 비즈니스 로직·API·인증 미구현
 
 Next.js 16 주요 변경: `middleware.ts` → **`proxy.ts`** (export `proxy`), `LayoutProps<"/">` 타입 라우트.
 
@@ -33,30 +34,29 @@ src/
 │   ├── globals.css
 │   ├── layout.tsx                        # 루트 레이아웃 (폰트, viewport)
 │   ├── providers.tsx                     # 루트 Provider 조합 (QueryProvider 등)
-│   ├── page.tsx                          # "/" Splash
 │   ├── not-found.tsx
 │   │
-│   ├── (auth)/
-│   │   ├── layout.tsx                    # 인증 레이아웃 (로고, 중앙 정렬)
+│   ├── (auth)/                           # ✅ 구현 완료
+│   │   ├── layout.tsx                    # MobileFrame 래퍼
+│   │   ├── page.tsx                      # "/" → SplashView
 │   │   ├── login/
 │   │   │   └── page.tsx                  # → views/login/LoginView
 │   │   └── signup/
 │   │       └── page.tsx                  # → views/signup/SignupView
 │   │
-│   ├── (main)/
-│   │   ├── layout.tsx                    # BottomNav 레이아웃
+│   ├── (main)/                           # ✅ 구현 완료
+│   │   ├── layout.tsx                    # MobileFrame + BottomNav 레이아웃
 │   │   ├── home/
 │   │   │   └── page.tsx                  # → views/home/HomeView
 │   │   ├── history/
 │   │   │   └── page.tsx                  # → views/history/HistoryView
 │   │   └── mypage/
-│   │       ├── page.tsx                  # → views/mypage/MyPageView
+│   │       ├── page.tsx                  # → views/mypage/MyPageContainerView
 │   │       └── settings/
 │   │           └── page.tsx              # → views/mypage/SettingsView
 │   │
-│   ├── (test)/
-│   │   ├── layout.tsx                    # StepHeader 레이아웃
-│   │   ├── provider.tsx                  # 테스트 플로우 전용 Provider (필요 시)
+│   ├── (test)/                           # ✅ 구현 완료
+│   │   ├── layout.tsx                    # MobileFrame 래퍼
 │   │   ├── group-type/
 │   │   │   └── page.tsx                  # → views/group-type/GroupTypeView
 │   │   ├── members/
@@ -67,11 +67,10 @@ src/
 │   │       ├── page.tsx                  # → views/result/ResultView
 │   │       ├── atmosphere/
 │   │       │   └── page.tsx              # → views/result/AtmosphereView
-│   │       └── pair/
-│   │           └── [pairId]/
-│   │               └── page.tsx          # → views/result/PairDetailView
+│   │       └── pair-detail/
+│   │           └── page.tsx              # → views/result/PairDetailView
 │   │
-│   └── api/
+│   └── api/                              # Phase 5에서 구현
 │       └── analyze/
 │           └── route.ts                  # → entities/analysis/api 호출
 │
@@ -357,7 +356,7 @@ app ──→ views ──→ widgets ──→ features ──→ entities ─�
 | 10  | `/analyzing`            | Analysis Loading           | Client               | AI API 호출 + 애니메이션, Step 3/3           |
 | 11  | `/result`               | Analysis Result            | Client               | 스크롤 리포트 (게이지, 지표, 역할, Pair)     |
 | 12  | `/result/atmosphere`    | Group Atmosphere Detail    | Client               | 분위기/의사결정/갈등/Best moment             |
-| 13  | `/result/pair/[pairId]` | Pair Detail                | Client               | 두 명 케미 상세                              |
+| 13  | `/result/pair-detail`   | Pair Detail                | Client               | 두 명 케미 상세                              |
 | —   | `/api/analyze`          | —                          | Server               | POST, AI 분석 + DB 저장                      |
 
 **Route Group 레이아웃:**
@@ -478,92 +477,11 @@ CREATE TRIGGER on_auth_user_created
 
 ## 4. 구현 순서
 
-### Phase 0: 규칙 및 개발 환경 설정
+### Phase 0~3: 완료 ✅
 
-**이 플랜 확정 후 가장 먼저 진행. 코드 작성 전에 규칙부터 세팅한다.**
+규칙/환경 설정 → 패키지/MCP/Lint → 라이브러리 세팅(Supabase 클라이언트, React Query, proxy.ts) → 전체 UI 구현(shared/ui → entities → features → widgets → views → app 라우팅). 13개 라우트 + 3개 route group 레이아웃, 목업 데이터 기반 빌드 통과.
 
-- `CLAUDE.md`, `AGENTS.md` 갱신 — 레이어 의존 규칙, 네이밍 컨벤션, import 규칙 명시
-- Claude Code agents, skills, hooks 설정
-- 폴더 뼈대 생성 (shared, entities, features, widgets, views, app Route Groups)
-
-### Phase 1: 패키지 설치 + Prettier & Lint 설정
-
-- 패키지 설치:
-  - 런타임: `@supabase/supabase-js`, `@supabase/ssr`, `zod`, `openai`, `@tanstack/react-query`, `zustand`
-  - 개발: `prettier`, `eslint-config-prettier` 등
-- Prettier 설정 (`.prettierrc`)
-- ESLint 규칙 보강 (import 순서, 레이어 간 의존 규칙 등)
-
-### Phase 1-1: MCP 연결
-
-**개발 도구 MCP 서버를 연결하여 Claude Code에서 외부 서비스를 직접 조작할 수 있게 한다.**
-
-- **Supabase MCP** — DB 스키마 조회, 마이그레이션 실행, RLS 디버깅, Edge Functions 관리
-- **Playwright MCP** — 브라우저 자동화로 E2E UI 검증, 모바일 뷰포트 테스트
-
-### Phase 1-2: MCP 참조 문서 작성
-
-**각 MCP 서버의 사용법과 주요 도구를 정리한 참조 문서를 생성한다.**
-
-- `docs/mcp/supabase.md` — 연결 정보, 주요 도구(스키마 조회, 마이그레이션, RLS 테스트 등), 사용 예시
-- `docs/mcp/playwright.md` — 연결 정보, 주요 도구(브라우저 실행, 스크린샷, 모바일 뷰포트 등), 사용 예시
-
-### Phase 2: 라이브러리 설정 로직 세팅
-
-- `shared/lib/supabase/`: 클라이언트 2종 (`client.ts`, `server.ts`)
-- `shared/config/query-keys.ts`: React Query key factory
-- `app/providers.tsx`: QueryClientProvider 등 루트 Provider 조합
-- `app/layout.tsx`에 providers 연결
-- `src/proxy.ts`: 인증 가드 (공개/보호 경로 분기)
-- `.env.local`: 환경 변수 (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`)
-- Supabase 타입 생성 → `shared/types/database.ts`
-
-### Phase 3: UI 구현 — 도메인 흐름순 (디자인 시스템 → 화면)
-
-**모든 UI를 먼저 구현한다. 비즈니스 로직 없이 목업 데이터로 화면을 완성.**
-
-**3-1. shared/ui — 공통 UI 프리미티브**
-
-- `Button` (Primary/Secondary/Tonal/Dashed/Disabled)
-- `TextField` (기본/포커스/에러)
-- `Chip` (필터 칩)
-- `BottomSheet` (포탈 기반)
-- `ProgressBar`
-
-**3-2. entities — 도메인 단위 UI**
-
-- `entities/mbti/`: model(types, constants) + ui(Badge)
-- `entities/user/`: model(types) + ui(Avatar)
-- `entities/group/`: model(types, constants) + ui(GroupTypeCard)
-- `entities/member/`: model(types, schemas) + ui(MemberCard)
-- `entities/analysis/`: model(types) + ui(ScoreGauge, MetricBar, RoleCard, PairCard, InsightCard, WarningCard, ResultSummaryCard)
-
-**3-3. widgets — 레이아웃 블록**
-
-- `widgets/bottom-nav/BottomNav.tsx`
-- `widgets/step-header/StepHeader.tsx`
-- `widgets/mobile-frame/MobileFrame.tsx`
-
-**3-4. features — 복합 UI (목업 데이터 기반)**
-
-- `features/auth/ui/`: LoginForm, SignupForm (폼 UI만, Server Action 미연결)
-- `features/home/ui/`: HeroCard, RecentTests
-- `features/test-flow/ui/`: GroupTypeSelector, MemberSetupForm, MBTIPicker, AnalysisAnimation
-- `features/analysis-result/ui/`: ResultReport, AtmosphereDetail, PairDetail, ShareButton
-- `features/history/ui/`: HistoryList, HistoryFilter
-- `features/profile/ui/`: MyPageView, SettingsForm, StatRow
-
-**3-5. views — 페이지 뷰 조합**
-
-- 각 화면별 View 컴포넌트 (features + entities + widgets 조합)
-- `app/` page.tsx에서 View import하여 렌더링
-
-**3-6. 레이아웃 + 라우팅 연결**
-
-- `app/(auth)/layout.tsx`, `app/(main)/layout.tsx`, `app/(test)/layout.tsx`
-- 모든 page.tsx → View 연결, 목업 데이터로 전체 네비게이션 동작 확인
-
-### Phase 4: 비즈니스 로직 구현
+### Phase 4: 비즈니스 로직 구현 ← 현재
 
 **UI가 완성된 상태에서 실제 로직을 연결한다.**
 
