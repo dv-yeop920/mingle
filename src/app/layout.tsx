@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Gothic_A1, Nunito } from "next/font/google";
+
 import "./globals.css";
+import { Providers } from "./providers";
 
 const gothicA1 = Gothic_A1({
   weight: ["400", "500", "700", "800", "900"],
@@ -28,10 +30,14 @@ export const metadata: Metadata = {
   description: "MBTI로 알아보는 우리 사이의 케미",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+const RootLayout = ({ children }: LayoutProps<"/">) => {
   return (
     <html lang="ko" className={`${gothicA1.variable} ${nunito.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

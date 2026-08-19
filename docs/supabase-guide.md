@@ -257,18 +257,18 @@ create policy "analyses_delete" on public.analyses
 
 ## 4. 코드 작성 기법
 
-### 4-1. Supabase 클라이언트 3종 (`shared/lib/supabase/`)
+### 4-1. Supabase 클라이언트 2종 (`shared/lib/supabase/`)
 
 ```typescript
 // client.ts — 브라우저 전용
 import { createBrowserClient } from '@supabase/ssr';
 
-export function createClient() {
+export const createClient = () => {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
-}
+};
 ```
 
 ```typescript
@@ -276,7 +276,7 @@ export function createClient() {
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export async function createClient() {
+export const createClient = async () => {
   const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -292,19 +292,7 @@ export async function createClient() {
       },
     },
   );
-}
-```
-
-```typescript
-// admin.ts — 서버 전용, RLS 우회 (관리 작업만)
-import { createClient } from '@supabase/supabase-js';
-
-export function createAdminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-}
+};
 ```
 
 ### 4-2. 인증 가드 (`src/proxy.ts`)

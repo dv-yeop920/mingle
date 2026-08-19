@@ -45,6 +45,19 @@ shared → entities → features → widgets → views → app
 - 폴더: `kebab-case` (`test-flow`, `bottom-nav`)
 - barrel export: 도메인별 `index.ts`
 
+### 함수 선언
+
+- **`const` 화살표 함수만 사용** — `function` 키워드 금지
+- page, layout, proxy 등 Next.js 컨벤션 파일도 동일 적용
+  ```tsx
+  // ✅
+  const Home = () => { ... };
+  export default Home;
+
+  // ❌
+  export default function Home() { ... }
+  ```
+
 ### 코드
 
 | 대상 | 규칙 | 예시 |

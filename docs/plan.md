@@ -510,7 +510,7 @@ CREATE TRIGGER on_auth_user_created
 
 ### Phase 2: 라이브러리 설정 로직 세팅
 
-- `shared/lib/supabase/`: 클라이언트 3종 (`client.ts`, `server.ts`, `admin.ts`)
+- `shared/lib/supabase/`: 클라이언트 2종 (`client.ts`, `server.ts`)
 - `shared/config/query-keys.ts`: React Query key factory
 - `app/providers.tsx`: QueryClientProvider 등 루트 Provider 조합
 - `app/layout.tsx`에 providers 연결
