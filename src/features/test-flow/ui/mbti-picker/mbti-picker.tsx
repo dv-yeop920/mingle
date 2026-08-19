@@ -43,5 +43,4 @@ const MbtiPicker = ({ isOpen, onClose, onSelect, className }: MbtiPickerProps) =
   );
 };
 
-export { MbtiPicker };
-export type { MbtiPickerProps } from './types';
+export { MbtiPicker, type MbtiPickerProps };

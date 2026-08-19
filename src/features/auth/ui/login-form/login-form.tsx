@@ -26,5 +26,4 @@ const LoginForm = ({ onSubmit, onSignupClick, className }: LoginFormProps) => {
   );
 };
 
-export { LoginForm };
-export type { LoginFormProps } from './types';
+export { LoginForm, type LoginFormProps };

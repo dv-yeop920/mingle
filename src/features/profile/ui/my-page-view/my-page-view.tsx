@@ -58,5 +58,4 @@ const MyPageView = ({ onSettingsClick, className }: MyPageViewProps) => {
   );
 };
 
-export { MyPageView };
-export type { MyPageViewProps } from './types';
+export { MyPageView, type MyPageViewProps };

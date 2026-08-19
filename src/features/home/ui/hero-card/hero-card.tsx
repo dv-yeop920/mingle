@@ -30,5 +30,4 @@ const HeroCard = ({ onClick, className }: HeroCardProps) => {
   );
 };
 
-export { HeroCard };
-export type { HeroCardProps } from './types';
+export { HeroCard, type HeroCardProps };

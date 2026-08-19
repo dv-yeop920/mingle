@@ -56,5 +56,4 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
   );
 };
 
-export { MemberSetupForm };
-export type { MemberSetupFormProps } from './types';
+export { MemberSetupForm, type MemberSetupFormProps };

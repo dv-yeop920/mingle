@@ -85,5 +85,4 @@ const ResultReport = ({
   );
 };
 
-export { ResultReport };
-export type { ResultReportProps } from './types';
+export { ResultReport, type ResultReportProps };

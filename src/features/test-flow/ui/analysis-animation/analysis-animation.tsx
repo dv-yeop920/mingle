@@ -52,5 +52,4 @@ const AnalysisAnimation = ({ className }: AnalysisAnimationProps) => {
   );
 };
 
-export { AnalysisAnimation };
-export type { AnalysisAnimationProps } from './types';
+export { AnalysisAnimation, type AnalysisAnimationProps };

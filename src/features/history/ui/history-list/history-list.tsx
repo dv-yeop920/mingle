@@ -23,5 +23,4 @@ const HistoryList = ({ className }: HistoryListProps) => {
   );
 };
 
-export { HistoryList };
-export type { HistoryListProps } from './types';
+export { HistoryList, type HistoryListProps };

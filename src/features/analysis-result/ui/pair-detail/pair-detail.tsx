@@ -79,5 +79,4 @@ const PairDetail = ({ className }: PairDetailProps) => {
   );
 };
 
-export { PairDetail };
-export type { PairDetailProps } from './types';
+export { PairDetail, type PairDetailProps };

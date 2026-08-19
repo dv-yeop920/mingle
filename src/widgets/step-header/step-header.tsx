@@ -43,5 +43,4 @@ const StepHeader = ({ currentStep, totalSteps, onBack, className }: StepHeaderPr
   );
 };
 
-export { StepHeader };
-export type { StepHeaderProps } from './types';
+export { StepHeader, type StepHeaderProps };

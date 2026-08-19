@@ -25,5 +25,4 @@ const HistoryFilter = ({ className }: HistoryFilterProps) => {
   );
 };
 
-export { HistoryFilter };
-export type { HistoryFilterProps } from './types';
+export { HistoryFilter, type HistoryFilterProps };

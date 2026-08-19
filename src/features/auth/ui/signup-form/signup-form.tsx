@@ -28,5 +28,4 @@ const SignupForm = ({ onSubmit, onLoginClick, className }: SignupFormProps) => {
   );
 };
 
-export { SignupForm };
-export type { SignupFormProps } from './types';
+export { SignupForm, type SignupFormProps };

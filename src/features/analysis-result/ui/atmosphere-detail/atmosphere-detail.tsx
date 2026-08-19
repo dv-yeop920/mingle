@@ -24,5 +24,4 @@ const AtmosphereDetail = ({ className }: AtmosphereDetailProps) => {
   );
 };
 
-export { AtmosphereDetail };
-export type { AtmosphereDetailProps } from './types';
+export { AtmosphereDetail, type AtmosphereDetailProps };

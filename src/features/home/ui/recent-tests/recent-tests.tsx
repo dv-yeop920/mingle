@@ -28,5 +28,4 @@ const RecentTests = ({ className }: RecentTestsProps) => {
   );
 };
 
-export { RecentTests };
-export type { RecentTestsProps } from './types';
+export { RecentTests, type RecentTestsProps };

@@ -52,5 +52,4 @@ const SettingsForm = ({ className }: SettingsFormProps) => {
   );
 };
 
-export { SettingsForm };
-export type { SettingsFormProps } from './types';
+export { SettingsForm, type SettingsFormProps };

@@ -27,5 +27,4 @@ const ShareButton = ({ onClick, className }: ShareButtonProps) => {
   );
 };
 
-export { ShareButton };
-export type { ShareButtonProps } from './types';
+export { ShareButton, type ShareButtonProps };

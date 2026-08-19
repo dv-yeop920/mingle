@@ -48,5 +48,4 @@ const GroupTypeSelector = ({ className }: GroupTypeSelectorProps) => {
   );
 };
 
-export { GroupTypeSelector };
-export type { GroupTypeSelectorProps } from './types';
+export { GroupTypeSelector, type GroupTypeSelectorProps };
