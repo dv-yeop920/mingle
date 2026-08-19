@@ -77,7 +77,7 @@ const ResultReport = ({
             memberB={pair.memberB}
             score={pair.score}
             summary={pair.summary}
-            onClick={() => onPairClick?.(index)}
+            onClick={onPairClick ? () => onPairClick(index) : undefined}
           />
         ))}
       </section>

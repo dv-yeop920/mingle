@@ -1,3 +1,5 @@
+'use client';
+
 import { getTemperamentStyles } from '@/shared/lib/mbti';
 import { cn } from '@/shared/lib/utils';
 

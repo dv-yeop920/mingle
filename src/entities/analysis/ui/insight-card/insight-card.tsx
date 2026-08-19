@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/shared/lib/utils';
 
 import { INSIGHT_VARIANT_STYLES } from './constants';
