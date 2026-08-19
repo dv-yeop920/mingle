@@ -5,6 +5,7 @@
 MINGLE은 MBTI 그룹 케미 시뮬레이터로, 여러 명의 MBTI를 입력하면 AI가 그룹의 관계·분위기·역할·대화 스타일을 분석해주는 모바일 웹 서비스이다.
 
 현재 프로젝트 상태:
+
 - **Next.js 16.3.1** + React 19 + Tailwind CSS v4 (CSS-first `@theme`)
 - React Compiler 활성화, 폰트(Gothic A1 + Nunito) 설정 완료
 - **디자인 토큰 완성**: `src/styles/tokens.css`(원시값) + `src/styles/theme.css`(시맨틱 + Tailwind 브릿지)
@@ -18,6 +19,7 @@ Next.js 16 주요 변경: `middleware.ts` → **`proxy.ts`** (export `proxy`), `
 ## 1. 폴더 구조 (FSD 응용 — 도메인 응집 + UI/로직 분리)
 
 설계 원칙:
+
 - **레이어 규칙**: `shared` → `entities` → `features` → `widgets` → `app` (하위 → 상위 방향만 의존)
 - **도메인 응집**: 같은 도메인의 타입, API, UI가 한 폴더에 모여 있다
 - **UI/비즈니스 분리**: 각 도메인 내 `model/`(타입·상수·스키마), `api/`(서버 액션·쿼리), `ui/`(컴포넌트) 서브폴더로 책임 분리
@@ -312,58 +314,58 @@ app ──→ views ──→ widgets ──→ features ──→ entities ─�
 
 ### 레이어별 책임
 
-| 레이어 | 핵심 역할 | 포함하는 것 | 포함하지 않는 것 |
-|---|---|---|---|
-| `app/` | **라우팅 + Provider** | page.tsx, layout.tsx, route.ts, providers.tsx | UI 정의, 비즈니스 로직 |
-| `views/` | **페이지 뷰 조합** | 하위 레이어들을 조합한 완성된 페이지 뷰 | 비즈니스 로직 직접 구현 |
-| `widgets/` | 여러 페이지에서 공유되는 레이아웃 블록 | BottomNav, StepHeader, MobileFrame | 도메인 로직 |
-| `features/` | **Mutation (쓰기)** + UI | Server Actions, Zustand store, 폼, mutation 훅, 복합 UI | data fetching, 다른 feature import |
-| `entities/` | **Data Fetching (읽기)** + UI | React Query 훅, 서버 쿼리 함수, 타입, 스키마, 단위 UI | mutation 로직, 유스케이스 로직 |
-| `shared/` | **공통 인프라** | 공통 UI(Button 등), Supabase 클라이언트, config, cn() | 도메인 지식 |
+| 레이어      | 핵심 역할                              | 포함하는 것                                             | 포함하지 않는 것                   |
+| ----------- | -------------------------------------- | ------------------------------------------------------- | ---------------------------------- |
+| `app/`      | **라우팅 + Provider**                  | page.tsx, layout.tsx, route.ts, providers.tsx           | UI 정의, 비즈니스 로직             |
+| `views/`    | **페이지 뷰 조합**                     | 하위 레이어들을 조합한 완성된 페이지 뷰                 | 비즈니스 로직 직접 구현            |
+| `widgets/`  | 여러 페이지에서 공유되는 레이아웃 블록 | BottomNav, StepHeader, MobileFrame                      | 도메인 로직                        |
+| `features/` | **Mutation (쓰기)** + UI               | Server Actions, Zustand store, 폼, mutation 훅, 복합 UI | data fetching, 다른 feature import |
+| `entities/` | **Data Fetching (읽기)** + UI          | React Query 훅, 서버 쿼리 함수, 타입, 스키마, 단위 UI   | mutation 로직, 유스케이스 로직     |
+| `shared/`   | **공통 인프라**                        | 공통 UI(Button 등), Supabase 클라이언트, config, cn()   | 도메인 지식                        |
 
 ### 핵심 결정
 
-| 항목 | 선택 | 이유 |
-|---|---|---|
-| 폴더 구조 | FSD 응용 (shared→entities→features→widgets→app) | 도메인 응집, 의존 방향 단방향 |
-| 렌더링 | Server Component 기본, Client는 인터랙티브 UI만 | RSC 데이터 패칭 + 번들 최소화 |
-| 서버 상태 | **React Query** (`@tanstack/react-query`) | 캐싱, 자동 갱신, 낙관적 업데이트 |
-| 클라이언트 전역 상태 | **Zustand** | 테스트 플로우 등 클라이언트 전용 상태 관리 |
-| 인증 | Supabase Auth (ID → `{id}@mingle.local` 매핑) | Supabase RLS/JWT 통합 활용 |
-| 세션 | `@supabase/ssr` 쿠키 기반 | SSR 호환 |
-| 인증 가드 | `src/proxy.ts` | Next.js 16 컨벤션 (구 middleware) |
-| 분석 AI | OpenAI GPT + Route Handler `/api/analyze` | 스트리밍 가능, Action 순차 제약 회피 |
-| 유효성 검사 | Zod (entities/model + features/model에 배치) | 클라이언트 + 서버 공유 스키마 |
-| 바텀 시트 | 직접 구현 → `shared/ui/BottomSheet.tsx` | 외부 UI 라이브러리 없이 유지 |
-| 결과 공유 | Web Share API + 클립보드 폴백 | 네이티브 공유, 추가 의존 없음 |
+| 항목                 | 선택                                            | 이유                                       |
+| -------------------- | ----------------------------------------------- | ------------------------------------------ |
+| 폴더 구조            | FSD 응용 (shared→entities→features→widgets→app) | 도메인 응집, 의존 방향 단방향              |
+| 렌더링               | Server Component 기본, Client는 인터랙티브 UI만 | RSC 데이터 패칭 + 번들 최소화              |
+| 서버 상태            | **React Query** (`@tanstack/react-query`)       | 캐싱, 자동 갱신, 낙관적 업데이트           |
+| 클라이언트 전역 상태 | **Zustand**                                     | 테스트 플로우 등 클라이언트 전용 상태 관리 |
+| 인증                 | Supabase Auth (ID → `{id}@mingle.local` 매핑)   | Supabase RLS/JWT 통합 활용                 |
+| 세션                 | `@supabase/ssr` 쿠키 기반                       | SSR 호환                                   |
+| 인증 가드            | `src/proxy.ts`                                  | Next.js 16 컨벤션 (구 middleware)          |
+| 분석 AI              | OpenAI GPT + Route Handler `/api/analyze`       | 스트리밍 가능, Action 순차 제약 회피       |
+| 유효성 검사          | Zod (entities/model + features/model에 배치)    | 클라이언트 + 서버 공유 스키마              |
+| 바텀 시트            | 직접 구현 → `shared/ui/BottomSheet.tsx`         | 외부 UI 라이브러리 없이 유지               |
+| 결과 공유            | Web Share API + 클립보드 폴백                   | 네이티브 공유, 추가 의존 없음              |
 
 ---
 
 ## 2. 페이지 / 라우트 목록
 
-| # | 라우트 | 화면 | RSC/CC | 설명 |
-|---|---|---|---|---|
-| 1 | `/` | Splash | Server | 세션 확인 → `/home` 또는 `/login` 리다이렉트 |
-| 2 | `/login` | Login | Client Form | ID/PW 입력, Server Action 인증 |
-| 3 | `/signup` | Sign Up | Client Form | 닉네임/ID/PW/PW확인, Zod 검증 |
-| 4 | `/home` | Home | Server | 닉네임 패칭, Hero CTA, 최근 테스트 |
-| 5 | `/history` | Test History | Server + Client 필터 | 카드 리스트, 필터 칩 (searchParams) |
-| 6 | `/mypage` | My Page | Server | 프로필, 통계, 메뉴 |
-| 7 | `/mypage/settings` | Account Settings | Client Form | 닉네임/PW/MBTI 재설정 |
-| 8 | `/group-type` | Group Type Selection | Client | 4종 카드 단일 선택, Step 1/3 |
-| 9 | `/members` | Member Setup + MBTI Picker | Client | 멤버 추가, 바텀시트 MBTI, Step 2/3 |
-| 10 | `/analyzing` | Analysis Loading | Client | AI API 호출 + 애니메이션, Step 3/3 |
-| 11 | `/result` | Analysis Result | Client | 스크롤 리포트 (게이지, 지표, 역할, Pair) |
-| 12 | `/result/atmosphere` | Group Atmosphere Detail | Client | 분위기/의사결정/갈등/Best moment |
-| 13 | `/result/pair/[pairId]` | Pair Detail | Client | 두 명 케미 상세 |
-| — | `/api/analyze` | — | Server | POST, AI 분석 + DB 저장 |
+| #   | 라우트                  | 화면                       | RSC/CC               | 설명                                         |
+| --- | ----------------------- | -------------------------- | -------------------- | -------------------------------------------- |
+| 1   | `/`                     | Splash                     | Server               | 세션 확인 → `/home` 또는 `/login` 리다이렉트 |
+| 2   | `/login`                | Login                      | Client Form          | ID/PW 입력, Server Action 인증               |
+| 3   | `/signup`               | Sign Up                    | Client Form          | 닉네임/ID/PW/PW확인, Zod 검증                |
+| 4   | `/home`                 | Home                       | Server               | 닉네임 패칭, Hero CTA, 최근 테스트           |
+| 5   | `/history`              | Test History               | Server + Client 필터 | 카드 리스트, 필터 칩 (searchParams)          |
+| 6   | `/mypage`               | My Page                    | Server               | 프로필, 통계, 메뉴                           |
+| 7   | `/mypage/settings`      | Account Settings           | Client Form          | 닉네임/PW/MBTI 재설정                        |
+| 8   | `/group-type`           | Group Type Selection       | Client               | 4종 카드 단일 선택, Step 1/3                 |
+| 9   | `/members`              | Member Setup + MBTI Picker | Client               | 멤버 추가, 바텀시트 MBTI, Step 2/3           |
+| 10  | `/analyzing`            | Analysis Loading           | Client               | AI API 호출 + 애니메이션, Step 3/3           |
+| 11  | `/result`               | Analysis Result            | Client               | 스크롤 리포트 (게이지, 지표, 역할, Pair)     |
+| 12  | `/result/atmosphere`    | Group Atmosphere Detail    | Client               | 분위기/의사결정/갈등/Best moment             |
+| 13  | `/result/pair/[pairId]` | Pair Detail                | Client               | 두 명 케미 상세                              |
+| —   | `/api/analyze`          | —                          | Server               | POST, AI 분석 + DB 저장                      |
 
 **Route Group 레이아웃:**
 
-| Group | 포함 요소 |
-|---|---|
-| `(auth)` | 로고 + 중앙 정렬, Bottom Nav 없음 |
-| `(main)` | BottomNav (Home / History / My) |
+| Group    | 포함 요소                                      |
+| -------- | ---------------------------------------------- |
+| `(auth)` | 로고 + 중앙 정렬, Bottom Nav 없음              |
+| `(main)` | BottomNav (Home / History / My)                |
 | `(test)` | StepHeader + TestFlowProvider, Bottom Nav 없음 |
 
 ---
@@ -386,51 +388,51 @@ auth.users (Supabase 관리)
 
 ### profiles (사용자 프로필)
 
-| 컬럼 | 타입 | 설명 |
-|---|---|---|
-| `id` | uuid PK, FK→auth.users.id | Supabase Auth ID |
-| `username` | text UNIQUE NOT NULL | 로그인 ID (영어+숫자) |
-| `nickname` | text NOT NULL | 표시 닉네임 (≤8자) |
-| `mbti` | text NULL | 사용자 MBTI (미설정 가능) |
-| `created_at` | timestamptz | 가입 일시 |
-| `updated_at` | timestamptz | 수정 일시 |
+| 컬럼         | 타입                      | 설명                      |
+| ------------ | ------------------------- | ------------------------- |
+| `id`         | uuid PK, FK→auth.users.id | Supabase Auth ID          |
+| `username`   | text UNIQUE NOT NULL      | 로그인 ID (영어+숫자)     |
+| `nickname`   | text NOT NULL             | 표시 닉네임 (≤8자)        |
+| `mbti`       | text NULL                 | 사용자 MBTI (미설정 가능) |
+| `created_at` | timestamptz               | 가입 일시                 |
+| `updated_at` | timestamptz               | 수정 일시                 |
 
 ### groups (테스트 그룹)
 
-| 컬럼 | 타입 | 설명 |
-|---|---|---|
-| `id` | uuid PK | 그룹 ID |
-| `user_id` | uuid FK→profiles.id NOT NULL | 생성자 |
-| `type` | text CHECK(friends/company/family/custom) | 관계 유형 |
-| `custom_name` | text NULL | 기타 유형 이름 |
-| `created_at` | timestamptz | 생성 일시 |
+| 컬럼          | 타입                                      | 설명           |
+| ------------- | ----------------------------------------- | -------------- |
+| `id`          | uuid PK                                   | 그룹 ID        |
+| `user_id`     | uuid FK→profiles.id NOT NULL              | 생성자         |
+| `type`        | text CHECK(friends/company/family/custom) | 관계 유형      |
+| `custom_name` | text NULL                                 | 기타 유형 이름 |
+| `created_at`  | timestamptz                               | 생성 일시      |
 
 ### members (그룹 멤버)
 
-| 컬럼 | 타입 | 설명 |
-|---|---|---|
-| `id` | uuid PK | 멤버 ID |
-| `group_id` | uuid FK→groups.id CASCADE | 소속 그룹 |
-| `nickname` | text NOT NULL | 멤버 닉네임 (≤8자) |
-| `gender` | text CHECK(male/female/other) | 성별 |
-| `mbti` | text NOT NULL | MBTI 타입 |
-| `is_self` | boolean DEFAULT false | 본인 여부 |
-| `order` | int2 NOT NULL | 표시 순서 |
+| 컬럼       | 타입                          | 설명               |
+| ---------- | ----------------------------- | ------------------ |
+| `id`       | uuid PK                       | 멤버 ID            |
+| `group_id` | uuid FK→groups.id CASCADE     | 소속 그룹          |
+| `nickname` | text NOT NULL                 | 멤버 닉네임 (≤8자) |
+| `gender`   | text CHECK(male/female/other) | 성별               |
+| `mbti`     | text NOT NULL                 | MBTI 타입          |
+| `is_self`  | boolean DEFAULT false         | 본인 여부          |
+| `order`    | int2 NOT NULL                 | 표시 순서          |
 
 ### analyses (분석 결과)
 
-| 컬럼 | 타입 | 설명 |
-|---|---|---|
-| `id` | uuid PK | 분석 ID |
-| `user_id` | uuid FK→profiles.id NOT NULL | 요청자 |
-| `group_id` | uuid FK→groups.id CASCADE | 대상 그룹 |
-| `chemistry_score` | int2 (0-100) | 전체 케미 점수 |
-| `metrics` | jsonb | 5개 지표 (아래 참조) |
-| `group_atmosphere` | jsonb | 분위기 분석 |
-| `member_roles` | jsonb | 멤버별 역할 |
-| `pair_chemistry` | jsonb | 쌍별 케미 |
-| `summary` | text | 한 줄 요약 인용문 |
-| `created_at` | timestamptz | 분석 일시 |
+| 컬럼               | 타입                         | 설명                 |
+| ------------------ | ---------------------------- | -------------------- |
+| `id`               | uuid PK                      | 분석 ID              |
+| `user_id`          | uuid FK→profiles.id NOT NULL | 요청자               |
+| `group_id`         | uuid FK→groups.id CASCADE    | 대상 그룹            |
+| `chemistry_score`  | int2 (0-100)                 | 전체 케미 점수       |
+| `metrics`          | jsonb                        | 5개 지표 (아래 참조) |
+| `group_atmosphere` | jsonb                        | 분위기 분석          |
+| `member_roles`     | jsonb                        | 멤버별 역할          |
+| `pair_chemistry`   | jsonb                        | 쌍별 케미            |
+| `summary`          | text                         | 한 줄 요약 인용문    |
+| `created_at`       | timestamptz                  | 분석 일시            |
 
 ### JSONB 구조
 
@@ -497,9 +499,7 @@ CREATE TRIGGER on_auth_user_created
 **개발 도구 MCP 서버를 연결하여 Claude Code에서 외부 서비스를 직접 조작할 수 있게 한다.**
 
 - **Supabase MCP** — DB 스키마 조회, 마이그레이션 실행, RLS 디버깅, Edge Functions 관리
-- **Vercel MCP** — 배포 상태 확인, 로그 조회, 환경 변수 관리, 프로젝트 설정
 - **Playwright MCP** — 브라우저 자동화로 E2E UI 검증, 모바일 뷰포트 테스트
-- **GitHub MCP** — PR 생성/리뷰, 이슈 관리, 브랜치 작업
 
 ### Phase 1-2: MCP 참조 문서 작성
 
@@ -525,6 +525,7 @@ CREATE TRIGGER on_auth_user_created
 **모든 UI를 먼저 구현한다. 비즈니스 로직 없이 목업 데이터로 화면을 완성.**
 
 **3-1. shared/ui — 공통 UI 프리미티브**
+
 - `Button` (Primary/Secondary/Tonal/Dashed/Disabled)
 - `TextField` (기본/포커스/에러)
 - `Chip` (필터 칩)
@@ -532,6 +533,7 @@ CREATE TRIGGER on_auth_user_created
 - `ProgressBar`
 
 **3-2. entities — 도메인 단위 UI**
+
 - `entities/mbti/`: model(types, constants) + ui(Badge)
 - `entities/user/`: model(types) + ui(Avatar)
 - `entities/group/`: model(types, constants) + ui(GroupTypeCard)
@@ -539,11 +541,13 @@ CREATE TRIGGER on_auth_user_created
 - `entities/analysis/`: model(types) + ui(ScoreGauge, MetricBar, RoleCard, PairCard, InsightCard, WarningCard, ResultSummaryCard)
 
 **3-3. widgets — 레이아웃 블록**
+
 - `widgets/bottom-nav/BottomNav.tsx`
 - `widgets/step-header/StepHeader.tsx`
 - `widgets/mobile-frame/MobileFrame.tsx`
 
 **3-4. features — 복합 UI (목업 데이터 기반)**
+
 - `features/auth/ui/`: LoginForm, SignupForm (폼 UI만, Server Action 미연결)
 - `features/home/ui/`: HeroCard, RecentTests
 - `features/test-flow/ui/`: GroupTypeSelector, MemberSetupForm, MBTIPicker, AnalysisAnimation
@@ -552,10 +556,12 @@ CREATE TRIGGER on_auth_user_created
 - `features/profile/ui/`: MyPageView, SettingsForm, StatRow
 
 **3-5. views — 페이지 뷰 조합**
+
 - 각 화면별 View 컴포넌트 (features + entities + widgets 조합)
 - `app/` page.tsx에서 View import하여 렌더링
 
 **3-6. 레이아웃 + 라우팅 연결**
+
 - `app/(auth)/layout.tsx`, `app/(main)/layout.tsx`, `app/(test)/layout.tsx`
 - 모든 page.tsx → View 연결, 목업 데이터로 전체 네비게이션 동작 확인
 
@@ -628,12 +634,12 @@ DELETE  → auth.uid() = user_id
 
 ### 5.3 환경 변수
 
-| 변수 | 노출 범위 | 비고 |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | 클라이언트 OK | RLS가 보호 |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 클라이언트 OK | RLS가 보호 |
-| `SUPABASE_SERVICE_ROLE_KEY` | **서버 전용** | 절대 노출 금지 |
-| `OPENAI_API_KEY` | **서버 전용** | Route Handler에서만 사용 |
+| 변수                            | 노출 범위     | 비고                     |
+| ------------------------------- | ------------- | ------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`      | 클라이언트 OK | RLS가 보호               |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 클라이언트 OK | RLS가 보호               |
+| `SUPABASE_SERVICE_ROLE_KEY`     | **서버 전용** | 절대 노출 금지           |
+| `OPENAI_API_KEY`                | **서버 전용** | Route Handler에서만 사용 |
 
 ### 5.4 API 보안 (`/api/analyze`)
 
