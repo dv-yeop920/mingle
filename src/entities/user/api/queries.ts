@@ -17,4 +17,38 @@ const fetchProfile = async () => {
   return data;
 };
 
-export { fetchProfile };
+const fetchUserStats = async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const [analysesResult, groupsResult] = await Promise.all([
+    supabase
+      .from('analyses')
+      .select('chemistry_score')
+      .eq('user_id', user.id),
+    supabase
+      .from('groups')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id),
+  ]);
+
+  const analyses = analysesResult.data ?? [];
+  const testCount = analyses.length;
+  const groupCount = groupsResult.count ?? 0;
+  const avgChemistry =
+    testCount > 0
+      ? Math.round(
+          analyses.reduce((sum, a) => sum + a.chemistry_score, 0) / testCount,
+        )
+      : 0;
+
+  return { testCount, groupCount, avgChemistry };
+};
+
+export { fetchProfile, fetchUserStats };

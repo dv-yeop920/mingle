@@ -1,11 +1,14 @@
-export type ResultViewProps = {
+type ResultViewProps = {
+  analysisId?: string;
   className?: string;
 };
 
-export type AtmosphereViewProps = {
+type AtmosphereViewProps = {
   className?: string;
 };
 
-export type PairDetailViewProps = {
+type PairDetailViewProps = {
   className?: string;
 };
+
+export type { AtmosphereViewProps, PairDetailViewProps, ResultViewProps };

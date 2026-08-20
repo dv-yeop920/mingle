@@ -1,4 +1,5 @@
 type HistoryListProps = {
+  filterType?: string;
   className?: string;
 };
 

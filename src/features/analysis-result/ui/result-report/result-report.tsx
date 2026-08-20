@@ -8,16 +8,14 @@ import {
   ScoreGauge,
 } from '@/entities/analysis';
 
-import {
-  MOCK_ATMOSPHERES,
-  MOCK_CHEMISTRY_SCORE,
-  MOCK_METRICS,
-  MOCK_PAIRS,
-  MOCK_ROLES,
-} from './constants';
 import type { ResultReportProps } from './types';
 
 const ResultReport = ({
+  chemistryScore,
+  metrics,
+  atmospheres,
+  roles,
+  pairs,
   onAtmosphereClick,
   onPairClick,
   className,
@@ -25,13 +23,13 @@ const ResultReport = ({
   return (
     <div className={cn('flex flex-col gap-8', className)}>
       <div className="flex flex-col items-center gap-3">
-        <ScoreGauge score={MOCK_CHEMISTRY_SCORE} size="lg" />
+        <ScoreGauge score={chemistryScore} size="lg" />
         <p className="text-body text-muted">그룹 케미 점수</p>
       </div>
 
       <section className="flex flex-col gap-3">
         <h3 className="text-section font-black text-foreground">상세 지표</h3>
-        {MOCK_METRICS.map((metric) => (
+        {metrics.map((metric) => (
           <MetricBar
             key={metric.label}
             label={metric.label}
@@ -43,7 +41,7 @@ const ResultReport = ({
 
       <section className="flex flex-col gap-3">
         <h3 className="text-section font-black text-foreground">그룹 분위기</h3>
-        {MOCK_ATMOSPHERES.map((atmo) => (
+        {atmospheres.map((atmo) => (
           <InsightCard
             key={atmo.title}
             variant={atmo.variant}
@@ -57,7 +55,7 @@ const ResultReport = ({
 
       <section className="flex flex-col gap-3">
         <h3 className="text-section font-black text-foreground">멤버 역할</h3>
-        {MOCK_ROLES.map((role) => (
+        {roles.map((role) => (
           <RoleCard
             key={role.memberId}
             nickname={role.nickname}
@@ -70,7 +68,7 @@ const ResultReport = ({
 
       <section className="flex flex-col gap-3">
         <h3 className="text-section font-black text-foreground">1:1 케미</h3>
-        {MOCK_PAIRS.map((pair, index) => (
+        {pairs.map((pair, index) => (
           <PairCard
             key={`${pair.memberA.nickname}-${pair.memberB.nickname}`}
             memberA={pair.memberA}

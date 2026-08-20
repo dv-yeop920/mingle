@@ -1,15 +1,23 @@
 import { getTemperamentStyles } from '@/shared/lib/mbti';
 import { cn } from '@/shared/lib/utils';
+import type { MbtiType } from '@/shared/types/mbti';
 
 import { MbtiBadge } from '@/entities/mbti';
 
 import { StatRow } from '../stat-row';
 
-import { MOCK_MENU_ITEMS, MOCK_STATS } from './constants';
+import { MENU_ITEMS } from './constants';
 import type { MyPageViewProps } from './types';
 
-const MyPageView = ({ onSettingsClick, className }: MyPageViewProps) => {
-  const styles = getTemperamentStyles('ENFP');
+const MyPageView = ({
+  nickname,
+  mbti,
+  stats,
+  onSettingsClick,
+  className,
+}: MyPageViewProps) => {
+  const displayMbti = (mbti ?? 'ENFP') as MbtiType;
+  const styles = getTemperamentStyles(displayMbti);
 
   return (
     <div className={cn('flex flex-col gap-6', className)}>
@@ -20,18 +28,22 @@ const MyPageView = ({ onSettingsClick, className }: MyPageViewProps) => {
             styles.bg,
           )}
         >
-          <span className={cn('font-nunito text-[22px] font-black', styles.fg)}>
-            민지
+          <span
+            className={cn('font-nunito text-[22px] font-black', styles.fg)}
+          >
+            {nickname.slice(0, 2)}
           </span>
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-title2 font-black text-foreground">민지</span>
-          <MbtiBadge mbti="ENFP" />
+          <span className="text-title2 font-black text-foreground">
+            {nickname}
+          </span>
+          {mbti && <MbtiBadge mbti={mbti as MbtiType} />}
         </div>
       </div>
 
       <div className="rounded-card-lg bg-surface p-4">
-        {MOCK_STATS.map((stat) => (
+        {stats.map((stat) => (
           <StatRow
             key={stat.label}
             icon={stat.icon}
@@ -42,7 +54,7 @@ const MyPageView = ({ onSettingsClick, className }: MyPageViewProps) => {
       </div>
 
       <div className="flex flex-col">
-        {MOCK_MENU_ITEMS.map((item) => (
+        {MENU_ITEMS.map((item) => (
           <button
             key={item.label}
             type="button"

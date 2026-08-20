@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
-import { fetchProfile } from '@/entities/user';
+import { fetchProfile } from '@/entities/user/api/queries';
 
 import { SettingsView } from '@/views/mypage';
 
