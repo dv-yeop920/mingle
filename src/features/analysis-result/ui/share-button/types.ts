@@ -1,5 +1,5 @@
 type ShareButtonProps = {
-  onClick?: () => void;
+  analysisId?: string;
   className?: string;
 };
 

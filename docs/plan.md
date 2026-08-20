@@ -481,7 +481,7 @@ CREATE TRIGGER on_auth_user_created
 
 규칙/환경 설정 → 패키지/MCP/Lint → 라이브러리 세팅(Supabase 클라이언트, React Query, proxy.ts) → 전체 UI 구현(shared/ui → entities → features → widgets → views → app 라우팅). 13개 라우트 + 3개 route group 레이아웃, 목업 데이터 기반 빌드 통과.
 
-### Phase 4: 비즈니스 로직 구현 ← 현재
+### Phase 4: 비즈니스 로직 구현 ✅
 
 **UI가 완성된 상태에서 실제 로직을 연결한다.**
 
@@ -494,7 +494,7 @@ CREATE TRIGGER on_auth_user_created
 - 목업 데이터 → Zustand/React Query 연결로 전환
 - `shared/styles/animations.css` + 모션 적용
 
-### Phase 5: API & DB 구현
+### Phase 5: API & DB 구현 ✅
 
 - Supabase DB 테이블 생성 (profiles, groups, members, analyses)
 - RLS 정책 설정 (섹션 5 참조)
@@ -505,12 +505,12 @@ CREATE TRIGGER on_auth_user_created
 - `entities/analysis/api/prompt.ts`: AI 프롬프트 템플릿
 - 전체 E2E 흐름 검증 (회원가입 → 로그인 → 테스트 → 결과 → 히스토리)
 
-### Phase 6: 폴리싱
+### Phase 6: 폴리싱 ✅
 
-- Error/Loading/NotFound 바운더리
+- Error/Loading/NotFound 바운더리 (global-error, not-found, 3개 route group loading)
 - 결과 공유 (Web Share API + 클립보드 폴백)
+- "멤버 추가 분석" / "다시 테스트하기" 플로우 (ResultActions 컴포넌트)
 - 접근성 (44px 터치, aria-label, 포커스)
-- "멤버 추가 분석" / "다시 테스트하기" 플로우
 - 최종 모바일 뷰포트(390×844) UI 검증
 
 ---

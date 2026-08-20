@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import { cn } from '@/shared/lib/utils';
 import type { MbtiType } from '@/shared/types/mbti';
 
@@ -11,7 +13,7 @@ import type {
 } from '@/entities/analysis';
 import { useAnalysis } from '@/entities/analysis';
 
-import { ResultReport, ShareButton } from '@/features/analysis-result';
+import { ResultActions, ResultReport, ShareButton } from '@/features/analysis-result';
 import { useTestFlowStore } from '@/features/test-flow';
 
 import type { ResultViewProps } from './types';
@@ -39,10 +41,21 @@ const ResultView = ({
   analysisId: propAnalysisId,
   className,
 }: ResultViewProps) => {
+  const router = useRouter();
   const storeAnalysisId = useTestFlowStore((s) => s.analysisId);
+  const resetStore = useTestFlowStore((s) => s.reset);
   const id = propAnalysisId ?? storeAnalysisId ?? '';
 
   const { data: analysis, isLoading } = useAnalysis(id);
+
+  const handleRetest = () => {
+    resetStore();
+    router.push('/group-type');
+  };
+
+  const handleAddMembers = () => {
+    router.push('/members');
+  };
 
   if (isLoading) {
     return (
@@ -119,7 +132,7 @@ const ResultView = ({
   }));
 
   return (
-    <div className={cn('flex flex-col gap-6', className)}>
+    <div className={cn('flex flex-col gap-6 pb-6', className)}>
       <ResultReport
         chemistryScore={analysis.chemistry_score}
         metrics={metrics}
@@ -127,7 +140,13 @@ const ResultView = ({
         roles={roles}
         pairs={pairs}
       />
-      <ShareButton />
+      <div className="flex flex-col gap-3 px-5">
+        <ShareButton analysisId={id} />
+        <ResultActions
+          onRetest={handleRetest}
+          onAddMembers={handleAddMembers}
+        />
+      </div>
     </div>
   );
 };
