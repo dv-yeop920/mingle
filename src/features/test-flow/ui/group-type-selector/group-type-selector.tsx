@@ -1,21 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { TextField } from '@/shared/ui/text-field';
 
 import { GROUP_TYPE_OPTIONS, GroupTypeCard } from '@/entities/group';
-import type { GroupType } from '@/entities/group';
+
+import { useTestFlowStore } from '@/features/test-flow/model/store';
 
 import type { GroupTypeSelectorProps } from './types';
 
-const GroupTypeSelector = ({ className }: GroupTypeSelectorProps) => {
-  const [selected, setSelected] = useState<GroupType | null>(null);
-  const [customName, setCustomName] = useState('');
+const GroupTypeSelector = ({ onNext, className }: GroupTypeSelectorProps) => {
+  const { groupType, customName, setGroupType, setCustomName } =
+    useTestFlowStore();
 
-  const isDisabled = !selected || (selected === 'custom' && !customName.trim());
+  const isDisabled = !groupType || (groupType === 'custom' && !customName.trim());
 
   return (
     <div className={cn('flex flex-col gap-5', className)}>
@@ -26,13 +25,13 @@ const GroupTypeSelector = ({ className }: GroupTypeSelectorProps) => {
             icon={option.icon}
             title={option.title}
             description={option.description}
-            isSelected={selected === option.type}
-            onClick={() => setSelected(option.type)}
+            isSelected={groupType === option.type}
+            onClick={() => setGroupType(option.type)}
           />
         ))}
       </div>
 
-      {selected === 'custom' && (
+      {groupType === 'custom' && (
         <TextField
           label="그룹 이름"
           placeholder="그룹 이름을 입력하세요"
@@ -41,7 +40,7 @@ const GroupTypeSelector = ({ className }: GroupTypeSelectorProps) => {
         />
       )}
 
-      <Button variant="primary" disabled={isDisabled}>
+      <Button variant="primary" disabled={isDisabled} onClick={onNext}>
         다음
       </Button>
     </div>

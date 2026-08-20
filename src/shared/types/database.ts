@@ -34,6 +34,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       groups: {
         Row: {
@@ -57,6 +58,7 @@ export interface Database {
           custom_name?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       members: {
         Row: {
@@ -86,6 +88,7 @@ export interface Database {
           is_self?: boolean;
           order?: number;
         };
+        Relationships: [];
       };
       analyses: {
         Row: {
@@ -124,6 +127,7 @@ export interface Database {
           summary?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

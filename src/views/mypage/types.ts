@@ -3,5 +3,7 @@ export type MyPageContainerViewProps = {
 };
 
 export type SettingsViewProps = {
+  nickname: string;
+  mbti: string | null;
   className?: string;
 };

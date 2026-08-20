@@ -1,5 +1,4 @@
 type SignupFormProps = {
-  onSubmit?: () => void;
   onLoginClick?: () => void;
   className?: string;
 };

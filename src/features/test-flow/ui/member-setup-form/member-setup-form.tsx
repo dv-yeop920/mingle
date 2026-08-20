@@ -1,24 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 
 import { MemberCard } from '@/entities/member';
 
-import { MOCK_NEW_MEMBER, MOCK_SELF } from './constants';
-import type { MockMember } from './constants';
+import { useTestFlowStore } from '@/features/test-flow/model/store';
+
 import type { MemberSetupFormProps } from './types';
 
-const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
-  const [members, setMembers] = useState<MockMember[]>([MOCK_SELF]);
+const MemberSetupForm = ({ onStartAnalysis, className }: MemberSetupFormProps) => {
+  const { members, addMember, removeMember } = useTestFlowStore();
 
   const handleAdd = () => {
-    setMembers((prev) => [
-      ...prev,
-      { ...MOCK_NEW_MEMBER, id: String(prev.length + 1) },
-    ]);
+    addMember({
+      id: crypto.randomUUID(),
+      nickname: '',
+      mbti: 'ISTJ',
+      gender: 'male',
+      isSelf: false,
+    });
   };
 
   const isDisabled = members.length < 2;
@@ -40,7 +41,7 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
             mbti={member.mbti}
             gender={member.gender}
             isSelf={member.isSelf}
-            onMore={() => {}}
+            onMore={() => removeMember(member.id)}
           />
         ))}
       </div>
@@ -49,7 +50,11 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
         + 멤버 추가
       </Button>
 
-      <Button variant="primary" disabled={isDisabled}>
+      <Button
+        variant="primary"
+        disabled={isDisabled}
+        onClick={onStartAnalysis}
+      >
         분석 시작
       </Button>
     </div>
