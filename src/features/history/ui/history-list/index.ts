@@ -1,1 +1,2 @@
-export { HistoryList, type HistoryListProps } from './history-list';
+export { HistoryList } from './history-list';
+export type { HistoryListProps } from './types';

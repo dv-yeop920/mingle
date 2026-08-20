@@ -39,4 +39,4 @@ const MyPageContainerView = ({ className }: MyPageContainerViewProps) => {
   );
 };
 
-export { MyPageContainerView, type MyPageContainerViewProps };
+export { MyPageContainerView };

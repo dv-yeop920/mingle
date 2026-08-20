@@ -12,4 +12,4 @@ const AtmosphereView = ({ className }: AtmosphereViewProps) => {
   );
 };
 
-export { AtmosphereView, type AtmosphereViewProps };
+export { AtmosphereView };

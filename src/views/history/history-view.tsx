@@ -25,4 +25,4 @@ const HistoryView = ({ className }: HistoryViewProps) => {
   );
 };
 
-export { HistoryView, type HistoryViewProps };
+export { HistoryView };

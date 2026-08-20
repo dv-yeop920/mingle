@@ -24,4 +24,4 @@ const SplashView = ({ className }: SplashViewProps) => {
   );
 };
 
-export { SplashView, type SplashViewProps };
+export { SplashView };

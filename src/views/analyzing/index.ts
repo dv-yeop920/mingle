@@ -1,1 +1,2 @@
-export { AnalyzingView, type AnalyzingViewProps } from './analyzing-view';
+export { AnalyzingView } from './analyzing-view';
+export type { AnalyzingViewProps } from './types';

@@ -24,4 +24,4 @@ const AtmosphereDetail = ({ className }: AtmosphereDetailProps) => {
   );
 };
 
-export { AtmosphereDetail, type AtmosphereDetailProps };
+export { AtmosphereDetail };

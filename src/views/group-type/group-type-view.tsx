@@ -23,4 +23,4 @@ const GroupTypeView = ({ className }: GroupTypeViewProps) => {
   );
 };
 
-export { GroupTypeView, type GroupTypeViewProps };
+export { GroupTypeView };

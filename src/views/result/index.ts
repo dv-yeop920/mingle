@@ -1,3 +1,4 @@
-export { AtmosphereView, type AtmosphereViewProps } from './atmosphere-view';
-export { PairDetailView, type PairDetailViewProps } from './pair-detail-view';
-export { ResultView, type ResultViewProps } from './result-view';
+export { AtmosphereView } from './atmosphere-view';
+export { PairDetailView } from './pair-detail-view';
+export { ResultView } from './result-view';
+export type { AtmosphereViewProps, PairDetailViewProps, ResultViewProps } from './types';

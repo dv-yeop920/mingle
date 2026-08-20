@@ -45,6 +45,24 @@ shared → entities → features → widgets → views → app
 - 폴더: `kebab-case` (`test-flow`, `bottom-nav`)
 - barrel export: 도메인별 `index.ts`
 
+### Export 규칙
+
+- **같은 파일 안에 정의된 값과 타입은 단일 라인 export** — 2줄 분리 금지
+- 다른 파일에서 import한 타입을 re-export하지 않음
+- barrel(`index.ts`)은 소스 파일별로 한 줄씩 export
+  ```ts
+  // ✅ 같은 파일에 정의된 값 + 타입 → 단일 라인
+  export { loginSchema, type LoginFormValues };
+
+  // ✅ barrel: 소스별 한 줄
+  export { MemberCard } from './member-card';
+  export type { MemberCardProps } from './types';
+
+  // ❌ 같은 파일인데 2줄 분리
+  export { loginSchema };
+  export type { LoginFormValues };
+  ```
+
 ### 함수 선언
 
 - **`const` 화살표 함수만 사용** — `function` 키워드 금지

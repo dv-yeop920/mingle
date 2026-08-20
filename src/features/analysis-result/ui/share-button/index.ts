@@ -1,1 +1,2 @@
-export { ShareButton, type ShareButtonProps } from './share-button';
+export { ShareButton } from './share-button';
+export type { ShareButtonProps } from './types';

@@ -1,1 +1,2 @@
-export { AtmosphereDetail, type AtmosphereDetailProps } from './atmosphere-detail';
+export { AtmosphereDetail } from './atmosphere-detail';
+export type { AtmosphereDetailProps } from './types';

@@ -12,4 +12,4 @@ const PairDetailView = ({ className }: PairDetailViewProps) => {
   );
 };
 
-export { PairDetailView, type PairDetailViewProps };
+export { PairDetailView };

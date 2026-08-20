@@ -1,1 +1,2 @@
-export { AnalysisAnimation, type AnalysisAnimationProps } from './analysis-animation';
+export { AnalysisAnimation } from './analysis-animation';
+export type { AnalysisAnimationProps } from './types';

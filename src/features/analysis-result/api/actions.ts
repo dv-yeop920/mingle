@@ -67,5 +67,4 @@ const deleteAnalysis = async (analysisId: string) => {
   return { data: { success: true } };
 };
 
-export { deleteAnalysis, saveAnalysis };
-export type { SaveAnalysisParams };
+export { deleteAnalysis, saveAnalysis, type SaveAnalysisParams };

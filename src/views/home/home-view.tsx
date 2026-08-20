@@ -13,4 +13,4 @@ const HomeView = ({ className }: HomeViewProps) => {
   );
 };
 
-export { HomeView, type HomeViewProps };
+export { HomeView };

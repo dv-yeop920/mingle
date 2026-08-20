@@ -25,4 +25,4 @@ const HistoryFilter = ({
   );
 };
 
-export { HistoryFilter, type HistoryFilterProps };
+export { HistoryFilter };

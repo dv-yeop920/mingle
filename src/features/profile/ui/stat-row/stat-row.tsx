@@ -12,4 +12,4 @@ const StatRow = ({ icon, label, value, className }: StatRowProps) => {
   );
 };
 
-export { StatRow, type StatRowProps };
+export { StatRow };

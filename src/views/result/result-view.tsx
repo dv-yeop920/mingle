@@ -151,4 +151,4 @@ const ResultView = ({
   );
 };
 
-export { ResultView, type ResultViewProps };
+export { ResultView };

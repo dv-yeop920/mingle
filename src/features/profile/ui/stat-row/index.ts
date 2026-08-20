@@ -1,1 +1,2 @@
-export { StatRow, type StatRowProps } from './stat-row';
+export { StatRow } from './stat-row';
+export type { StatRowProps } from './types';

@@ -10,4 +10,4 @@ const MobileFrame = ({ children, className }: MobileFrameProps) => {
   );
 };
 
-export { MobileFrame, type MobileFrameProps };
+export { MobileFrame };

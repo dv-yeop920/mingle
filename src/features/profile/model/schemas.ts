@@ -26,5 +26,4 @@ const passwordSchema = z
 type NicknameFormValues = z.infer<typeof nicknameSchema>;
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
-export { nicknameSchema, passwordSchema };
-export type { NicknameFormValues, PasswordFormValues };
+export { nicknameSchema, passwordSchema, type NicknameFormValues, type PasswordFormValues };

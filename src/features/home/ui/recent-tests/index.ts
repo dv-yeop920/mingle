@@ -1,1 +1,2 @@
-export { RecentTests, type RecentTestsProps } from './recent-tests';
+export { RecentTests } from './recent-tests';
+export type { RecentTestsProps } from './types';

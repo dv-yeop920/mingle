@@ -80,4 +80,4 @@ const LoginForm = ({ onSignupClick, className }: LoginFormProps) => {
   );
 };
 
-export { LoginForm, type LoginFormProps };
+export { LoginForm };

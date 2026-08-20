@@ -61,4 +61,4 @@ const HistoryList = ({ filterType, className }: HistoryListProps) => {
   );
 };
 
-export { HistoryList, type HistoryListProps };
+export { HistoryList };

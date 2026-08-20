@@ -47,4 +47,4 @@ const GroupTypeSelector = ({ onNext, className }: GroupTypeSelectorProps) => {
   );
 };
 
-export { GroupTypeSelector, type GroupTypeSelectorProps };
+export { GroupTypeSelector };

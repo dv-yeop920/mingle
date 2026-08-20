@@ -17,4 +17,4 @@ const SignupView = ({ className }: SignupViewProps) => {
   );
 };
 
-export { SignupView, type SignupViewProps };
+export { SignupView };

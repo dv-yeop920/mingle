@@ -1,1 +1,2 @@
-export { HistoryFilter, type HistoryFilterProps } from './history-filter';
+export { HistoryFilter } from './history-filter';
+export type { HistoryFilterProps } from './types';

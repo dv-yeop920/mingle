@@ -1,1 +1,2 @@
-export { MobileFrame, type MobileFrameProps } from './mobile-frame';
+export { MobileFrame } from './mobile-frame';
+export type { MobileFrameProps } from './types';

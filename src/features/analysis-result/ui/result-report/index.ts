@@ -1,1 +1,2 @@
-export { ResultReport, type ResultReportProps } from './result-report';
+export { ResultReport } from './result-report';
+export type { ResultReportProps } from './types';

@@ -60,4 +60,4 @@ const BottomNav = ({ className }: BottomNavProps) => {
   );
 };
 
-export { BottomNav, type BottomNavProps };
+export { BottomNav };

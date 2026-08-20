@@ -34,4 +34,4 @@ const SettingsView = ({
   );
 };
 
-export { SettingsView, type SettingsViewProps };
+export { SettingsView };

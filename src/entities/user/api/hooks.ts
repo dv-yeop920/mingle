@@ -73,5 +73,4 @@ const useUserStats = () => {
   });
 };
 
-export { useProfile, useUserStats };
-export type { UserStats };
+export { useProfile, useUserStats, type UserStats };

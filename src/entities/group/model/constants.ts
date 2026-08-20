@@ -14,5 +14,4 @@ const GROUP_TYPE_OPTIONS: GroupTypeOption[] = [
   { type: 'custom', icon: '✏️', title: '기타', description: '직접 그룹 이름을 입력해요' },
 ];
 
-export { GROUP_TYPE_OPTIONS };
-export type { GroupTypeOption };
+export { GROUP_TYPE_OPTIONS, type GroupTypeOption };

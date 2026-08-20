@@ -70,4 +70,4 @@ const MyPageView = ({
   );
 };
 
-export { MyPageView, type MyPageViewProps };
+export { MyPageView };

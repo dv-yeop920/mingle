@@ -62,4 +62,4 @@ const ShareButton = ({ analysisId, className }: ShareButtonProps) => {
   );
 };
 
-export { ShareButton, type ShareButtonProps };
+export { ShareButton };

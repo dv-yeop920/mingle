@@ -71,4 +71,4 @@ const RecentTests = ({ className }: RecentTestsProps) => {
   );
 };
 
-export { RecentTests, type RecentTestsProps };
+export { RecentTests };

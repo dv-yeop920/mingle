@@ -20,4 +20,4 @@ const ResultActions = ({
   );
 };
 
-export { ResultActions, type ResultActionsProps };
+export { ResultActions };

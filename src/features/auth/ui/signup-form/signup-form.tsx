@@ -93,4 +93,4 @@ const SignupForm = ({ onLoginClick, className }: SignupFormProps) => {
   );
 };
 
-export { SignupForm, type SignupFormProps };
+export { SignupForm };

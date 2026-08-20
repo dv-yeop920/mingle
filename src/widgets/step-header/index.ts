@@ -1,1 +1,2 @@
-export { StepHeader, type StepHeaderProps } from './step-header';
+export { StepHeader } from './step-header';
+export type { StepHeaderProps } from './types';

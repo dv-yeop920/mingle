@@ -61,4 +61,4 @@ const MemberSetupForm = ({ onStartAnalysis, className }: MemberSetupFormProps) =
   );
 };
 
-export { MemberSetupForm, type MemberSetupFormProps };
+export { MemberSetupForm };

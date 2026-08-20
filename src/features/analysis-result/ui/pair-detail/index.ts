@@ -1,1 +1,2 @@
-export { PairDetail, type PairDetailProps } from './pair-detail';
+export { PairDetail } from './pair-detail';
+export type { PairDetailProps } from './types';

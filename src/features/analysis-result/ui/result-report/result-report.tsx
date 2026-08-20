@@ -83,4 +83,4 @@ const ResultReport = ({
   );
 };
 
-export { ResultReport, type ResultReportProps };
+export { ResultReport };

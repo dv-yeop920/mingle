@@ -19,4 +19,4 @@ const LoginView = ({ className }: LoginViewProps) => {
   );
 };
 
-export { LoginView, type LoginViewProps };
+export { LoginView };

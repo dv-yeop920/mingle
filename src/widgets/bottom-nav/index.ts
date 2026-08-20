@@ -1,1 +1,2 @@
-export { BottomNav, type BottomNavProps } from './bottom-nav';
+export { BottomNav } from './bottom-nav';
+export type { BottomNavProps } from './types';

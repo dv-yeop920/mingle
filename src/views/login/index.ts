@@ -1,1 +1,2 @@
-export { LoginView, type LoginViewProps } from './login-view';
+export { LoginView } from './login-view';
+export type { LoginViewProps } from './types';

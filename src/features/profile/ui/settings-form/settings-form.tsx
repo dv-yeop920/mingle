@@ -154,4 +154,4 @@ const SettingsForm = ({
   );
 };
 
-export { SettingsForm, type SettingsFormProps };
+export { SettingsForm };

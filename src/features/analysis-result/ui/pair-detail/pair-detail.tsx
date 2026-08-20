@@ -79,4 +79,4 @@ const PairDetail = ({ className }: PairDetailProps) => {
   );
 };
 
-export { PairDetail, type PairDetailProps };
+export { PairDetail };

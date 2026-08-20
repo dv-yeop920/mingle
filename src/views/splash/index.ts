@@ -1,1 +1,2 @@
-export { SplashView, type SplashViewProps } from './splash-view';
+export { SplashView } from './splash-view';
+export type { SplashViewProps } from './types';

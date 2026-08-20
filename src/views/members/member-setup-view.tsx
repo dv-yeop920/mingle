@@ -23,4 +23,4 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
   );
 };
 
-export { MemberSetupView, type MemberSetupViewProps };
+export { MemberSetupView };

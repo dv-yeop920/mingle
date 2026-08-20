@@ -34,5 +34,4 @@ const signupSchema = z
 type LoginFormValues = z.infer<typeof loginSchema>;
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-export { loginSchema, signupSchema };
-export type { LoginFormValues, SignupFormValues };
+export { loginSchema, signupSchema, type LoginFormValues, type SignupFormValues };

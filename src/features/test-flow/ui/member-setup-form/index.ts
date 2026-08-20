@@ -1,1 +1,2 @@
-export { MemberSetupForm, type MemberSetupFormProps } from './member-setup-form';
+export { MemberSetupForm } from './member-setup-form';
+export type { MemberSetupFormProps } from './types';

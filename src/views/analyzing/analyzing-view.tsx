@@ -19,4 +19,4 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
   );
 };
 
-export { AnalyzingView, type AnalyzingViewProps };
+export { AnalyzingView };

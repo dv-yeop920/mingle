@@ -1,1 +1,2 @@
-export { HistoryView, type HistoryViewProps } from './history-view';
+export { HistoryView } from './history-view';
+export type { HistoryViewProps } from './types';

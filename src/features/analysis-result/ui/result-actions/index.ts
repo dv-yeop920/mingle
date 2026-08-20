@@ -1,1 +1,2 @@
-export { ResultActions, type ResultActionsProps } from './result-actions';
+export { ResultActions } from './result-actions';
+export type { ResultActionsProps } from './types';
