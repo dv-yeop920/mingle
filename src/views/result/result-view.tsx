@@ -114,6 +114,10 @@ const ResultView = ({
     memberB: string;
     score: number;
     summary: string;
+    description?: string;
+    conversationScore?: number;
+    conflictScore?: number;
+    recommendedSituations?: string;
   }[];
   const pairs: PairChemistry[] = rawPairs.map((p) => ({
     memberA: {
@@ -126,6 +130,10 @@ const ResultView = ({
     },
     score: p.score,
     summary: p.summary,
+    description: p.description,
+    conversationScore: p.conversationScore,
+    conflictScore: p.conflictScore,
+    recommendedSituations: p.recommendedSituations,
   }));
 
   const group = analysis.groups as {
@@ -176,7 +184,7 @@ const ResultView = ({
 
         <div className="flex flex-col items-center gap-4 px-[30px] pt-[22px]">
           <span className="text-body font-extrabold tracking-wider text-[#2E6644]">
-            우리 그룹 케미
+            {analysis.tagline ?? '우리 그룹 케미'}
           </span>
           <ScoreGauge score={analysis.chemistry_score} size="lg" />
           <p className="text-center text-quote font-extrabold leading-[1.5] text-[#1E4630]">
@@ -210,15 +218,27 @@ const ResultView = ({
           ))}
         </div>
 
-        {atmosphereSections.map((section) => (
-          <InsightCard
-            key={section.eyebrow}
-            variant={section.variant}
-            eyebrow={section.eyebrow}
-            title={section.title}
-            description=""
-          />
-        ))}
+        <button
+          type="button"
+          onClick={() => router.push(`/result/atmosphere?id=${id}`)}
+          className="cursor-pointer text-left"
+        >
+          <div className="flex flex-col gap-[10px]">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-section font-black text-foreground">그룹 분위기</h3>
+              <span className="text-[12.5px] font-extrabold text-primary">상세보기 →</span>
+            </div>
+            {atmosphereSections.slice(0, 2).map((section) => (
+              <InsightCard
+                key={section.eyebrow}
+                variant={section.variant}
+                eyebrow={section.eyebrow}
+                title={section.title}
+                description=""
+              />
+            ))}
+          </div>
+        </button>
 
         <div className="flex flex-col gap-[14px] rounded-card-lg bg-surface p-5 shadow-md">
           <h3 className="text-section font-black text-foreground">

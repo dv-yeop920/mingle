@@ -28,6 +28,7 @@ const requestSchema = z.object({
 
 const aiResponseSchema = z.object({
   chemistryScore: z.number().int().min(0).max(100),
+  tagline: z.string(),
   metrics: z.object({
     conversation: z.number().int().min(0).max(100),
     friendship: z.number().int().min(0).max(100),
@@ -55,7 +56,10 @@ const aiResponseSchema = z.object({
       memberB: z.string(),
       score: z.number().int().min(0).max(100),
       summary: z.string(),
-      detail: z.string(),
+      description: z.string(),
+      conversationScore: z.number().int().min(0).max(100),
+      conflictScore: z.number().int().min(0).max(100),
+      recommendedSituations: z.string(),
     }),
   ),
   summary: z.string(),
@@ -165,6 +169,7 @@ export const POST = async (request: Request) => {
         user_id: user.id,
         group_id: group.id,
         chemistry_score: analysisData.chemistryScore,
+        tagline: analysisData.tagline,
         metrics: analysisData.metrics,
         group_atmosphere: analysisData.groupAtmosphere,
         member_roles: analysisData.memberRoles,

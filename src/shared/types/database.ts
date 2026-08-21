@@ -23,6 +23,7 @@ export type Database = {
           metrics: Json;
           pair_chemistry: Json;
           summary: string;
+          tagline: string | null;
           user_id: string;
         };
         Insert: {
@@ -35,6 +36,7 @@ export type Database = {
           metrics: Json;
           pair_chemistry: Json;
           summary: string;
+          tagline?: string | null;
           user_id: string;
         };
         Update: {
@@ -47,6 +49,7 @@ export type Database = {
           metrics?: Json;
           pair_chemistry?: Json;
           summary?: string;
+          tagline?: string | null;
           user_id?: string;
         };
         Relationships: [

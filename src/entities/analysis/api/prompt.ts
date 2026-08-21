@@ -24,6 +24,7 @@ const SYSTEM_PROMPT = `당신은 MBTI 기반 그룹 케미 분석 전문가입�
 반드시 아래 JSON 형식으로만 응답하세요:
 {
   "chemistryScore": (0-100 정수, 그룹 전체 케미 점수),
+  "tagline": "(그룹을 한마디로 표현하는 짧은 수식어, 예: '에너지 폭발 불꽃 그룹', '따뜻한 감성 힐링 그룹')",
   "metrics": {
     "conversation": (0-100, 대화 케미),
     "friendship": (0-100, 우정/관계 깊이),
@@ -51,7 +52,10 @@ const SYSTEM_PROMPT = `당신은 MBTI 기반 그룹 케미 분석 전문가입�
       "memberB": "(멤버B 닉네임)",
       "score": (0-100, 둘 사이 케미 점수),
       "summary": "(한 줄 요약)",
-      "detail": "(상세 분석 2-3문장)"
+      "description": "(둘이 함께 있을 때의 관계 묘사 3-4문장)",
+      "conversationScore": (0-100, 대화 케미),
+      "conflictScore": (0-100, 갈등 가능성),
+      "recommendedSituations": "(이 둘이 잘 맞는 상황 3가지, 콤마 구분)"
     }
   ],
   "summary": "(그룹 전체를 한 문장으로 표현하는 인용문)"

@@ -19,6 +19,10 @@ type PairChemistry = {
   memberB: { nickname: string; mbti: MbtiType };
   score: number;
   summary: string;
+  description?: string;
+  conversationScore?: number;
+  conflictScore?: number;
+  recommendedSituations?: string;
 };
 
 type GroupAtmosphere = {
@@ -32,6 +36,7 @@ type Analysis = {
   userId: string;
   groupId: string;
   chemistryScore: number;
+  tagline: string;
   metrics: Metric[];
   groupAtmosphere: GroupAtmosphere[];
   memberRoles: MemberRole[];
