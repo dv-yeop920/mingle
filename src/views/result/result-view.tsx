@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { cn } from '@/shared/lib/utils';
@@ -46,10 +47,60 @@ const ResultView = ({
 }: ResultViewProps) => {
   const router = useRouter();
   const storeAnalysisId = useTestFlowStore((s) => s.analysisId);
+  const storeResult = useTestFlowStore((s) => s.analysisResult);
   const resetStore = useTestFlowStore((s) => s.reset);
   const id = propAnalysisId ?? storeAnalysisId ?? '';
 
-  const { data: analysis, isLoading } = useAnalysis(id);
+  const { data: dbAnalysis, isLoading } = useAnalysis(id);
+  const isGuest = !id && !!storeResult;
+
+  const normalized = useMemo(() => {
+    if (dbAnalysis) {
+      const rawMetrics = dbAnalysis.metrics as Record<string, number>;
+      const rawAtmosphere = dbAnalysis.group_atmosphere as Record<string, string>;
+      const rawRoles = dbAnalysis.member_roles as {
+        nickname: string; mbti: string; role: string; description: string;
+      }[];
+      const rawPairs = dbAnalysis.pair_chemistry as {
+        memberA: string; memberB: string; score: number; summary: string;
+        description?: string; conversationScore?: number; conflictScore?: number; recommendedSituations?: string;
+      }[];
+      const group = dbAnalysis.groups as {
+        type: string; custom_name: string | null;
+        members: { nickname: string; mbti: string; is_self: boolean }[];
+      } | null;
+
+      return {
+        chemistryScore: dbAnalysis.chemistry_score,
+        tagline: dbAnalysis.tagline as string | null,
+        summary: dbAnalysis.summary,
+        metrics: rawMetrics,
+        atmosphere: rawAtmosphere,
+        roles: rawRoles,
+        pairs: rawPairs,
+        members: group?.members ?? [],
+        groupType: group?.type ?? '',
+        customName: group?.custom_name ?? null,
+      };
+    }
+
+    if (storeResult) {
+      return {
+        chemistryScore: storeResult.chemistryScore,
+        tagline: storeResult.tagline,
+        summary: storeResult.summary,
+        metrics: storeResult.metrics,
+        atmosphere: storeResult.groupAtmosphere,
+        roles: storeResult.memberRoles,
+        pairs: storeResult.pairChemistry,
+        members: storeResult.members,
+        groupType: storeResult.groupType,
+        customName: storeResult.customName,
+      };
+    }
+
+    return null;
+  }, [dbAnalysis, storeResult]);
 
   const handleRetest = () => {
     resetStore();
@@ -60,7 +111,7 @@ const ResultView = ({
     router.push('/members');
   };
 
-  if (isLoading) {
+  if (!isGuest && isLoading) {
     return (
       <div className={cn('flex items-center justify-center py-12', className)}>
         <p className="text-body text-muted">결과를 불러오는 중...</p>
@@ -68,7 +119,7 @@ const ResultView = ({
     );
   }
 
-  if (!analysis) {
+  if (!normalized) {
     return (
       <div className={cn('flex items-center justify-center py-12', className)}>
         <p className="text-body text-muted">분석 결과를 찾을 수 없습니다</p>
@@ -76,29 +127,21 @@ const ResultView = ({
     );
   }
 
-  const rawMetrics = analysis.metrics as Record<string, number>;
-  const metrics: Metric[] = Object.entries(rawMetrics).map(([key, value]) => ({
+  const metrics: Metric[] = Object.entries(normalized.metrics).map(([key, value]) => ({
     label: METRIC_LABELS[key] ?? key,
     value,
     isCaution: key === 'conflict' && value >= 70,
   }));
 
-  const rawAtmosphere = analysis.group_atmosphere as Record<string, string>;
   const atmosphereSections = ATMOSPHERE_SECTIONS.map(
     ({ key, eyebrow, variant }) => ({
       eyebrow,
-      title: rawAtmosphere[key] ?? '',
+      title: normalized.atmosphere[key] ?? '',
       variant,
     }),
   );
 
-  const rawRoles = analysis.member_roles as {
-    nickname: string;
-    mbti: string;
-    role: string;
-    description: string;
-  }[];
-  const roles: MemberRole[] = rawRoles.map((r, i) => ({
+  const roles: MemberRole[] = normalized.roles.map((r, i) => ({
     memberId: String(i),
     nickname: r.nickname,
     mbti: r.mbti as MbtiType,
@@ -106,20 +149,9 @@ const ResultView = ({
     description: r.description,
   }));
 
-  const members = analysis.groups?.members ?? [];
-  const mbtiMap = new Map(members.map((m) => [m.nickname, m.mbti]));
+  const mbtiMap = new Map(normalized.members.map((m) => [m.nickname, m.mbti]));
 
-  const rawPairs = analysis.pair_chemistry as {
-    memberA: string;
-    memberB: string;
-    score: number;
-    summary: string;
-    description?: string;
-    conversationScore?: number;
-    conflictScore?: number;
-    recommendedSituations?: string;
-  }[];
-  const pairs: PairChemistry[] = rawPairs.map((p) => ({
+  const pairs: PairChemistry[] = normalized.pairs.map((p) => ({
     memberA: {
       nickname: p.memberA,
       mbti: (mbtiMap.get(p.memberA) ?? 'ENFP') as MbtiType,
@@ -136,20 +168,33 @@ const ResultView = ({
     recommendedSituations: p.recommendedSituations,
   }));
 
-  const group = analysis.groups as {
-    type: string;
-    custom_name: string | null;
-    members: { nickname: string; mbti: string; is_self: boolean }[];
-  } | null;
   const groupName =
-    group?.type === 'custom'
-      ? (group.custom_name ?? '기타')
-      : (GROUP_TYPE_LABELS[group?.type ?? ''] ?? '그룹');
+    normalized.groupType === 'custom'
+      ? (normalized.customName ?? '기타')
+      : (GROUP_TYPE_LABELS[normalized.groupType] ?? '그룹');
 
-  const memberMbtis = members.map((m) => m.mbti as MbtiType);
+  const memberMbtis = normalized.members.map((m) => m.mbti as MbtiType);
 
   const handlePairClick = (index: number) => {
+    if (isGuest) return;
     router.push(`/result/pair-detail?id=${id}&pair=${index}`);
+  };
+
+  const handleSave = () => {
+    if (isGuest) {
+      router.push('/signup');
+    }
+  };
+
+  const handleShare = () => {
+    const url = isGuest
+      ? `${window.location.origin}/`
+      : `${window.location.origin}/result?id=${id}`;
+    if (navigator.share) {
+      navigator.share({ title: 'MINGLE 케미 분석 결과', url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url);
+    }
   };
 
   return (
@@ -168,14 +213,7 @@ const ResultView = ({
           </span>
           <button
             type="button"
-            onClick={() => {
-              const url = `${window.location.origin}/result?id=${id}`;
-              if (navigator.share) {
-                navigator.share({ title: 'MINGLE 케미 분석 결과', url }).catch(() => {});
-              } else {
-                navigator.clipboard.writeText(url);
-              }
-            }}
+            onClick={handleShare}
             className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[15px] text-[#2E6644]"
           >
             ↗
@@ -184,11 +222,11 @@ const ResultView = ({
 
         <div className="flex flex-col items-center gap-4 px-[30px] pt-[22px]">
           <span className="text-body font-extrabold tracking-wider text-[#2E6644]">
-            {analysis.tagline ?? '우리 그룹 케미'}
+            {normalized.tagline ?? '우리 그룹 케미'}
           </span>
-          <ScoreGauge score={analysis.chemistry_score} size="lg" />
+          <ScoreGauge score={normalized.chemistryScore} size="lg" />
           <p className="text-center text-quote font-extrabold leading-[1.5] text-[#1E4630]">
-            &ldquo;{analysis.summary}&rdquo;
+            &ldquo;{normalized.summary}&rdquo;
           </p>
           {memberMbtis.length > 0 && (
             <div className="flex flex-wrap justify-center gap-[6px] pt-1">
@@ -220,13 +258,17 @@ const ResultView = ({
 
         <button
           type="button"
-          onClick={() => router.push(`/result/atmosphere?id=${id}`)}
+          onClick={() => {
+            if (!isGuest) router.push(`/result/atmosphere?id=${id}`);
+          }}
           className="cursor-pointer text-left"
         >
           <div className="flex flex-col gap-[10px]">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-section font-black text-foreground">그룹 분위기</h3>
-              <span className="text-[12.5px] font-extrabold text-primary">상세보기 →</span>
+              {!isGuest && (
+                <span className="text-[12.5px] font-extrabold text-primary">상세보기 →</span>
+              )}
             </div>
             {atmosphereSections.slice(0, 2).map((section) => (
               <InsightCard
@@ -280,22 +322,15 @@ const ResultView = ({
       <div className="flex flex-col gap-[11px] px-5 pb-[46px] pt-6">
         <button
           type="button"
-          onClick={() => {}}
+          onClick={handleSave}
           className="flex h-[60px] cursor-pointer items-center justify-center rounded-[22px] bg-primary font-extrabold text-[17px] text-primary-foreground shadow-lg"
         >
-          결과 저장하기
+          {isGuest ? '회원가입하고 결과 저장하기' : '결과 저장하기'}
         </button>
         <ResultActions onRetest={handleRetest} onAddMembers={handleAddMembers} />
         <button
           type="button"
-          onClick={() => {
-            const url = `${window.location.origin}/result?id=${id}`;
-            if (navigator.share) {
-              navigator.share({ title: 'MINGLE 케미 분석 결과', url }).catch(() => {});
-            } else {
-              navigator.clipboard.writeText(url);
-            }
-          }}
+          onClick={handleShare}
           className="flex h-[54px] cursor-pointer items-center justify-center gap-2 rounded-field bg-primary-tonal text-[14.5px] font-black text-primary-deep"
         >
           ↗ 결과 공유하기

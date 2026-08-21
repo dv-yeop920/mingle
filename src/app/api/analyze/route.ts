@@ -72,13 +72,6 @@ export const POST = async (request: Request) => {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) {
-      return NextResponse.json(
-        { error: '인증이 필요합니다' },
-        { status: 401 },
-      );
-    }
-
     const body = await request.json();
     const parsed = requestSchema.safeParse(body);
 
@@ -90,6 +83,56 @@ export const POST = async (request: Request) => {
     }
 
     const { groupType, customName, members } = parsed.data;
+
+    const { systemPrompt, userPrompt } = buildAnalysisPrompt({
+      groupType,
+      customName,
+      members,
+    });
+
+    const openai = new OpenAI();
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.8,
+    });
+
+    const rawContent = completion.choices[0].message.content;
+    if (!rawContent) {
+      return NextResponse.json(
+        { error: 'AI 응답이 비어있습니다' },
+        { status: 500 },
+      );
+    }
+
+    const aiResult = aiResponseSchema.safeParse(JSON.parse(rawContent));
+    if (!aiResult.success) {
+      return NextResponse.json(
+        { error: 'AI 응답 형식이 올바르지 않습니다' },
+        { status: 500 },
+      );
+    }
+
+    const analysisData = aiResult.data;
+
+    if (!user) {
+      return NextResponse.json({
+        data: {
+          ...analysisData,
+          members: members.map((m) => ({
+            nickname: m.nickname,
+            mbti: m.mbti,
+            is_self: m.isSelf,
+          })),
+          groupType,
+          customName: customName ?? null,
+        },
+      });
+    }
 
     const { data: group, error: groupError } = await supabase
       .from('groups')
@@ -127,41 +170,6 @@ export const POST = async (request: Request) => {
         { status: 500 },
       );
     }
-
-    const { systemPrompt, userPrompt } = buildAnalysisPrompt({
-      groupType,
-      customName,
-      members,
-    });
-
-    const openai = new OpenAI();
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.8,
-    });
-
-    const rawContent = completion.choices[0].message.content;
-    if (!rawContent) {
-      return NextResponse.json(
-        { error: 'AI 응답이 비어있습니다' },
-        { status: 500 },
-      );
-    }
-
-    const aiResult = aiResponseSchema.safeParse(JSON.parse(rawContent));
-    if (!aiResult.success) {
-      return NextResponse.json(
-        { error: 'AI 응답 형식이 올바르지 않습니다' },
-        { status: 500 },
-      );
-    }
-
-    const analysisData = aiResult.data;
 
     const { data: analysis, error: analysisError } = await supabase
       .from('analyses')

@@ -67,4 +67,74 @@ const deleteAnalysis = async (analysisId: string) => {
   return { data: { success: true } };
 };
 
-export { deleteAnalysis, saveAnalysis, type SaveAnalysisParams };
+type SaveGuestAnalysisParams = {
+  groupType: string;
+  customName: string | null;
+  members: { nickname: string; mbti: string; is_self: boolean }[];
+  chemistryScore: number;
+  tagline: string;
+  metrics: Json;
+  groupAtmosphere: Json;
+  memberRoles: Json;
+  pairChemistry: Json;
+  summary: string;
+};
+
+const saveGuestAnalysis = async (params: SaveGuestAnalysisParams) => {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: '인증이 필요합니다' };
+  }
+
+  const { data: group, error: groupError } = await supabase
+    .from('groups')
+    .insert({
+      user_id: user.id,
+      type: params.groupType,
+      custom_name: params.customName,
+    })
+    .select('id')
+    .single();
+
+  if (groupError || !group) {
+    return { error: '그룹 생성에 실패했습니다' };
+  }
+
+  const memberRows = params.members.map((m, i) => ({
+    group_id: group.id,
+    nickname: m.nickname,
+    mbti: m.mbti,
+    gender: 'other' as const,
+    is_self: m.is_self,
+    order: i,
+  }));
+
+  await supabase.from('members').insert(memberRows);
+
+  const { data, error } = await supabase
+    .from('analyses')
+    .insert({
+      user_id: user.id,
+      group_id: group.id,
+      chemistry_score: params.chemistryScore,
+      tagline: params.tagline,
+      metrics: params.metrics,
+      group_atmosphere: params.groupAtmosphere,
+      member_roles: params.memberRoles,
+      pair_chemistry: params.pairChemistry,
+      summary: params.summary,
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    return { error: '분석 결과 저장에 실패했습니다' };
+  }
+
+  revalidatePath('/history');
+  return { data: { id: data.id } };
+};
+
+export { deleteAnalysis, saveAnalysis, saveGuestAnalysis, type SaveAnalysisParams, type SaveGuestAnalysisParams };

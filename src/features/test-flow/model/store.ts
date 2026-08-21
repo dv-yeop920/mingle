@@ -13,12 +13,35 @@ type TestMember = {
   isSelf: boolean;
 };
 
+type AnalysisResult = {
+  chemistryScore: number;
+  tagline: string;
+  metrics: Record<string, number>;
+  groupAtmosphere: Record<string, string>;
+  memberRoles: { nickname: string; mbti: string; role: string; description: string }[];
+  pairChemistry: {
+    memberA: string;
+    memberB: string;
+    score: number;
+    summary: string;
+    description?: string;
+    conversationScore?: number;
+    conflictScore?: number;
+    recommendedSituations?: string;
+  }[];
+  summary: string;
+  members: { nickname: string; mbti: string; is_self: boolean }[];
+  groupType: string;
+  customName: string | null;
+};
+
 type TestFlowState = {
   groupType: GroupType | null;
   customName: string;
   members: TestMember[];
   isAnalyzing: boolean;
   analysisId: string | null;
+  analysisResult: AnalysisResult | null;
 };
 
 type TestFlowActions = {
@@ -29,6 +52,7 @@ type TestFlowActions = {
   removeMember: (id: string) => void;
   setIsAnalyzing: (value: boolean) => void;
   setAnalysisId: (id: string | null) => void;
+  setAnalysisResult: (result: AnalysisResult | null) => void;
   reset: () => void;
 };
 
@@ -38,6 +62,7 @@ const INITIAL_STATE: TestFlowState = {
   members: [],
   isAnalyzing: false,
   analysisId: null,
+  analysisResult: null,
 };
 
 const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
@@ -58,8 +83,9 @@ const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
     })),
   setIsAnalyzing: (value) => set({ isAnalyzing: value }),
   setAnalysisId: (id) => set({ analysisId: id }),
+  setAnalysisResult: (result) => set({ analysisResult: result }),
   reset: () => set(INITIAL_STATE),
 }));
 
 export { useTestFlowStore };
-export type { TestFlowActions, TestFlowState, TestMember };
+export type { AnalysisResult, TestFlowActions, TestFlowState, TestMember };

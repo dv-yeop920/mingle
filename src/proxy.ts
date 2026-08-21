@@ -2,7 +2,21 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup'];
+const PUBLIC_ROUTES = [
+  '/',
+  '/login',
+  '/signup',
+  '/group-type',
+  '/members',
+  '/analyzing',
+  '/api/analyze',
+];
+
+const PUBLIC_PREFIXES = ['/result'];
+
+const isPublicRoute = (pathname: string) =>
+  PUBLIC_ROUTES.includes(pathname) ||
+  PUBLIC_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
 const createSupabaseProxy = (request: NextRequest) => {
   let response = NextResponse.next({ request });
@@ -39,7 +53,7 @@ const updateSession = (request: NextRequest) => {
 export const proxy = async (request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
-  if (PUBLIC_ROUTES.includes(pathname)) {
+  if (isPublicRoute(pathname)) {
     return updateSession(request);
   }
 

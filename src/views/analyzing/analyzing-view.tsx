@@ -22,6 +22,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
   const customName = useTestFlowStore((s) => s.customName);
   const members = useTestFlowStore((s) => s.members);
   const setAnalysisId = useTestFlowStore((s) => s.setAnalysisId);
+  const setAnalysisResult = useTestFlowStore((s) => s.setAnalysisResult);
 
   const startAnalysis = useCallback(async () => {
     if (!groupType || members.length < 2) {
@@ -43,9 +44,15 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     }
 
     const { analysisId } = result.data;
-    setAnalysisId(analysisId);
-    router.replace(`/result?id=${analysisId}`);
-  }, [groupType, customName, members, setAnalysisId, router]);
+
+    if (analysisId) {
+      setAnalysisId(analysisId);
+      router.replace(`/result?id=${analysisId}`);
+    } else {
+      setAnalysisResult(result.data);
+      router.replace('/result');
+    }
+  }, [groupType, customName, members, setAnalysisId, setAnalysisResult, router]);
 
   useEffect(() => {
     if (hasStarted.current) return;
