@@ -1,5 +1,4 @@
 type MemberSetupFormProps = {
-  onStartAnalysis?: () => void;
   className?: string;
 };
 

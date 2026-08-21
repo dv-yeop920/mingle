@@ -38,6 +38,7 @@ type AnalysisResult = {
 type TestFlowState = {
   groupType: GroupType | null;
   customName: string;
+  memberCount: number;
   members: TestMember[];
   isAnalyzing: boolean;
   analysisId: string | null;
@@ -47,6 +48,8 @@ type TestFlowState = {
 type TestFlowActions = {
   setGroupType: (type: GroupType | null) => void;
   setCustomName: (name: string) => void;
+  setMemberCount: (count: number) => void;
+  initializeMembers: (count: number) => void;
   addMember: (member: TestMember) => void;
   updateMember: (id: string, updates: Partial<TestMember>) => void;
   removeMember: (id: string) => void;
@@ -59,6 +62,7 @@ type TestFlowActions = {
 const INITIAL_STATE: TestFlowState = {
   groupType: null,
   customName: '',
+  memberCount: 0,
   members: [],
   isAnalyzing: false,
   analysisId: null,
@@ -69,6 +73,17 @@ const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
   ...INITIAL_STATE,
   setGroupType: (type) => set({ groupType: type }),
   setCustomName: (name) => set({ customName: name }),
+  setMemberCount: (count) => set({ memberCount: count }),
+  initializeMembers: (count) => {
+    const members: TestMember[] = Array.from({ length: count }, (_, i) => ({
+      id: crypto.randomUUID(),
+      nickname: '',
+      mbti: i === 0 ? 'ENFP' : 'ISTJ',
+      gender: 'other' as Gender,
+      isSelf: i === 0,
+    }));
+    set({ members });
+  },
   addMember: (member) =>
     set((state) => ({ members: [...state.members, member] })),
   updateMember: (id, updates) =>

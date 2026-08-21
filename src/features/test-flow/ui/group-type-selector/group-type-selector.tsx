@@ -1,20 +1,42 @@
 'use client';
 
+import { useState } from 'react';
+
 import { cn } from '@/shared/lib/utils';
-import { Button } from '@/shared/ui/button';
 import { TextField } from '@/shared/ui/text-field';
 
 import { GROUP_TYPE_OPTIONS, GroupTypeCard } from '@/entities/group';
 
 import { useTestFlowStore } from '@/features/test-flow/model/store';
 
+import { MemberCountModal } from '../member-count-modal';
+
 import type { GroupTypeSelectorProps } from './types';
 
 const GroupTypeSelector = ({ onNext, className }: GroupTypeSelectorProps) => {
-  const { groupType, customName, setGroupType, setCustomName } =
+  const { groupType, customName, setGroupType, setCustomName, setMemberCount, initializeMembers } =
     useTestFlowStore();
+  const [isCountModalOpen, setIsCountModalOpen] = useState(false);
 
-  const isDisabled = !groupType || (groupType === 'custom' && !customName.trim());
+  const handleCardClick = (type: (typeof GROUP_TYPE_OPTIONS)[number]['type']) => {
+    setGroupType(type);
+    if (type !== 'custom') {
+      setIsCountModalOpen(true);
+    }
+  };
+
+  const handleCustomNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && customName.trim()) {
+      setIsCountModalOpen(true);
+    }
+  };
+
+  const handleCountConfirm = (count: number) => {
+    setMemberCount(count);
+    initializeMembers(count);
+    setIsCountModalOpen(false);
+    onNext?.();
+  };
 
   return (
     <div className={cn('flex flex-col gap-5', className)}>
@@ -26,7 +48,7 @@ const GroupTypeSelector = ({ onNext, className }: GroupTypeSelectorProps) => {
             title={option.title}
             description={option.description}
             isSelected={groupType === option.type}
-            onClick={() => setGroupType(option.type)}
+            onClick={() => handleCardClick(option.type)}
           />
         ))}
       </div>
@@ -37,12 +59,15 @@ const GroupTypeSelector = ({ onNext, className }: GroupTypeSelectorProps) => {
           placeholder="그룹 이름을 입력하세요"
           value={customName}
           onChange={(e) => setCustomName(e.target.value)}
+          onKeyDown={handleCustomNameKeyDown}
         />
       )}
 
-      <Button variant="primary" disabled={isDisabled} onClick={onNext}>
-        다음
-      </Button>
+      <MemberCountModal
+        isOpen={isCountModalOpen}
+        onClose={() => setIsCountModalOpen(false)}
+        onConfirm={handleCountConfirm}
+      />
     </div>
   );
 };
