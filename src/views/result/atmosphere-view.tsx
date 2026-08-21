@@ -16,7 +16,7 @@ const AtmosphereView = ({ analysisId, className }: AtmosphereViewProps) => {
       <button
         type="button"
         onClick={() => router.back()}
-        className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface"
+        className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface btn-press"
       >
         <svg
           width="14"

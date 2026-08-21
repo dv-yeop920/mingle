@@ -44,7 +44,7 @@ const BottomNav = ({ className }: BottomNavProps) => {
           <Link
             key={item.href}
             href={item.href}
-            className="flex flex-col items-center gap-[6px]"
+            className="flex flex-col items-center gap-[6px] btn-press"
           >
             {renderIcon(item.href, isActive)}
             <span

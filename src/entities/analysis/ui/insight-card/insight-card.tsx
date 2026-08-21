@@ -20,7 +20,7 @@ const InsightCard = ({
       className={cn(
         'rounded-card-lg p-5',
         styles.bg,
-        onClick && 'cursor-pointer',
+        onClick && 'cursor-pointer btn-press',
         className,
       )}
       onClick={onClick}

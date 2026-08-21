@@ -26,7 +26,7 @@ const MbtiPicker = ({ isOpen, onClose, onSelect, className }: MbtiPickerProps) =
                     type="button"
                     onClick={() => onSelect?.(mbti)}
                     className={cn(
-                      'cursor-pointer rounded-field py-3 text-center font-nunito text-label font-black transition-colors duration-150',
+                      'cursor-pointer rounded-field py-3 text-center font-nunito text-label font-black transition-colors duration-150 btn-press',
                       styles.bg,
                       styles.fg,
                     )}

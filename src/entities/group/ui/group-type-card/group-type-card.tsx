@@ -17,8 +17,8 @@ const GroupTypeCard = ({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex w-full cursor-pointer items-center gap-[15px] rounded-card-lg p-[18px]',
-        'bg-surface transition-all duration-200',
+        'flex w-full cursor-pointer items-center gap-[15px] rounded-card-lg p-[18px] btn-press',
+        'bg-surface transition-colors duration-200',
         isSelected
           ? 'border-2 border-border-focus shadow-[0_10px_22px_rgba(76,120,90,.10)]'
           : isDashed

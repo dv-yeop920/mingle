@@ -29,3 +29,16 @@ body {
   0%, 100% { transform: translateY(0); opacity: 0.4; }
   50% { transform: translateY(-6px); opacity: 1; }
 }
+
+@utility btn-press {
+  transition-property: transform;
+  transition-duration: 120ms;
+  &:active {
+    transform: scale(0.97);
+  }
+  &:disabled {
+    &:active {
+      transform: scale(1);
+    }
+  }
+}

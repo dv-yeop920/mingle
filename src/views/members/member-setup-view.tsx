@@ -26,7 +26,7 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
           <button
             type="button"
             onClick={() => router.push('/group-type')}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface text-[16px] font-extrabold text-[#5B7062]"
+            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface text-[16px] font-extrabold text-[#5B7062] btn-press"
           >
             ‹
           </button>

@@ -70,7 +70,7 @@ const EditableMemberCard = ({
           <button
             type="button"
             onClick={() => onDelete(id)}
-            className="shrink-0 cursor-pointer p-1 text-[18px] text-muted"
+            className="shrink-0 cursor-pointer p-1 text-[18px] text-muted btn-press"
           >
             ✕
           </button>
@@ -82,7 +82,7 @@ const EditableMemberCard = ({
           type="button"
           onClick={() => onMbtiSelect(id)}
           className={cn(
-            'cursor-pointer rounded-pill px-[9px] py-[3px] font-nunito text-label-sm font-black transition-colors duration-150',
+            'cursor-pointer rounded-pill px-[9px] py-[3px] font-nunito text-label-sm font-black transition-colors duration-150 btn-press',
             styles.bg,
             styles.fg,
           )}

@@ -139,7 +139,7 @@ const SettingsForm = ({
         <button
           type="button"
           onClick={onLogout}
-          className="cursor-pointer text-left text-caption text-caution"
+          className="cursor-pointer text-left text-caption text-caution btn-press"
         >
           로그아웃
         </button>

@@ -16,7 +16,7 @@ const PairCard = ({ memberA, memberB, score, summary, onClick, className }: Pair
     <div
       className={cn(
         'rounded-[24px] bg-surface p-4 shadow-sm',
-        onClick && 'cursor-pointer',
+        onClick && 'cursor-pointer btn-press',
         className,
       )}
       onClick={onClick}

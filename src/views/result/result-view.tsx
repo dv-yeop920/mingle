@@ -204,7 +204,7 @@ const ResultView = ({
           <button
             type="button"
             onClick={() => router.push('/')}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[16px] font-extrabold text-[#2E6644]"
+            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[16px] font-extrabold text-[#2E6644] btn-press"
           >
             ‹
           </button>
@@ -214,7 +214,7 @@ const ResultView = ({
           <button
             type="button"
             onClick={handleShare}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[15px] text-[#2E6644]"
+            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[15px] text-[#2E6644] btn-press"
           >
             ↗
           </button>
@@ -261,7 +261,7 @@ const ResultView = ({
           onClick={() => {
             if (!isGuest) router.push(`/result/atmosphere?id=${id}`);
           }}
-          className="cursor-pointer text-left"
+          className="cursor-pointer text-left btn-press"
         >
           <div className="flex flex-col gap-[10px]">
             <div className="flex items-center justify-between px-1">
@@ -323,7 +323,7 @@ const ResultView = ({
         <button
           type="button"
           onClick={handleSave}
-          className="flex h-[60px] cursor-pointer items-center justify-center rounded-[22px] bg-primary font-extrabold text-[17px] text-primary-foreground shadow-lg"
+          className="flex h-[60px] cursor-pointer items-center justify-center rounded-[22px] bg-primary font-extrabold text-[17px] text-primary-foreground shadow-lg btn-press"
         >
           {isGuest ? '회원가입하고 결과 저장하기' : '결과 저장하기'}
         </button>
@@ -331,7 +331,7 @@ const ResultView = ({
         <button
           type="button"
           onClick={handleShare}
-          className="flex h-[54px] cursor-pointer items-center justify-center gap-2 rounded-field bg-primary-tonal text-[14.5px] font-black text-primary-deep"
+          className="flex h-[54px] cursor-pointer items-center justify-center gap-2 rounded-field bg-primary-tonal text-[14.5px] font-black text-primary-deep btn-press"
         >
           ↗ 결과 공유하기
         </button>

@@ -11,7 +11,7 @@ const HeroCard = ({ onClick, className }: HeroCardProps) => {
       onClick={onClick}
       className={cn(
         'relative min-h-[180px] w-full cursor-pointer overflow-hidden rounded-hero bg-green-100 px-6 py-[26px] shadow-hero',
-        'transition-transform duration-[120ms] active:scale-[.97]',
+        'btn-press',
         className,
       )}
     >

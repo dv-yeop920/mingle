@@ -11,9 +11,9 @@ const Button = ({ variant = 'primary', disabled, children, className, ref, ...pr
       ref={ref}
       disabled={disabled}
       className={cn(
-        'w-full cursor-pointer transition-transform duration-[120ms] active:scale-[.97]',
+        'w-full cursor-pointer btn-press',
         VARIANT_STYLES[variant],
-        disabled && 'bg-disabled text-disabled-foreground shadow-none border-none cursor-not-allowed active:scale-100',
+        disabled && 'bg-disabled text-disabled-foreground shadow-none border-none cursor-not-allowed',
         className,
       )}
       {...props}

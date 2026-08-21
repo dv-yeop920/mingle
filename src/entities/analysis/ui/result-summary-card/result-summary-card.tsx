@@ -19,7 +19,7 @@ const ResultSummaryCard = ({
     <div
       className={cn(
         'flex gap-4 rounded-[24px] bg-surface p-4 shadow-md',
-        onClick && 'cursor-pointer',
+        onClick && 'cursor-pointer btn-press',
         className,
       )}
       onClick={onClick}

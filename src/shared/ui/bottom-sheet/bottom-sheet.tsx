@@ -27,11 +27,11 @@ const BottomSheetContent = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 mx-auto max-w-[390px]">
+    <div className={cn('fixed inset-0 z-50 mx-auto max-w-[390px]', !isVisible && 'pointer-events-none')}>
       <div
         className={cn(
           'absolute inset-0 bg-black/50 transition-opacity duration-[260ms] ease-out',
-          isVisible ? 'opacity-100' : 'opacity-0',
+          isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         onClick={onClose}
       />
@@ -73,6 +73,9 @@ const BottomSheet = (props: BottomSheetProps) => {
         cancelled = true;
       };
     }
+
+    const timer = setTimeout(() => setShowContent(false), 300);
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   const handleExitComplete = () => {

@@ -65,7 +65,7 @@ const MemberCard = ({
         <button
           type="button"
           onClick={onMore}
-          className="ml-auto cursor-pointer p-1 text-[18px] text-muted"
+          className="ml-auto cursor-pointer p-1 text-[18px] text-muted btn-press"
         >
           ⋮
         </button>

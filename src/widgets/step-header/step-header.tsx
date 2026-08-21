@@ -10,7 +10,7 @@ const StepHeader = ({ currentStep, totalSteps, onBack, className }: StepHeaderPr
       <button
         type="button"
         onClick={onBack}
-        className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface"
+        className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface btn-press"
       >
         <svg
           width="14"

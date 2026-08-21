@@ -17,7 +17,7 @@ const GlobalError = ({
           <p className="text-body text-muted">{error.message}</p>
           <button
             onClick={reset}
-            className="h-[54px] w-full cursor-pointer rounded-field bg-primary text-[16px] font-extrabold text-primary-foreground"
+            className="h-[54px] w-full cursor-pointer rounded-field bg-primary text-[16px] font-extrabold text-primary-foreground btn-press"
           >
             다시 시도
           </button>

@@ -58,7 +58,7 @@ const MyPageView = ({
           <button
             type="button"
             onClick={onSettingsClick}
-            className="cursor-pointer text-[12.5px] font-extrabold text-primary"
+            className="cursor-pointer text-[12.5px] font-extrabold text-primary btn-press"
           >
             수정
           </button>
@@ -88,7 +88,7 @@ const MyPageView = ({
             key={item.label}
             type="button"
             onClick={() => handleMenuClick(item.href)}
-            className="flex cursor-pointer items-center gap-[14px] rounded-card bg-surface p-[18px] shadow-sm"
+            className="flex cursor-pointer items-center gap-[14px] rounded-card bg-surface p-[18px] shadow-sm btn-press"
           >
             <div
               className={cn(
@@ -110,7 +110,7 @@ const MyPageView = ({
       <button
         type="button"
         onClick={onLogout}
-        className="cursor-pointer pt-[14px] text-center text-[13px] font-bold text-[#AFBDB3]"
+        className="cursor-pointer pt-[14px] text-center text-[13px] font-bold text-[#AFBDB3] btn-press"
       >
         로그아웃
       </button>

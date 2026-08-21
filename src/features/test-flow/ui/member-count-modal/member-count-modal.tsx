@@ -35,10 +35,10 @@ const MemberCountModal = ({ isOpen, onClose, onConfirm }: MemberCountModalProps)
             onClick={handleDecrement}
             disabled={count <= MIN_MEMBER_COUNT}
             className={cn(
-              'flex h-[48px] w-[48px] items-center justify-center rounded-full text-[24px] font-bold transition-all duration-150',
+              'flex h-[48px] w-[48px] items-center justify-center rounded-full text-[24px] font-bold btn-press',
               count <= MIN_MEMBER_COUNT
                 ? 'cursor-not-allowed bg-disabled text-disabled-foreground'
-                : 'cursor-pointer bg-surface-alt text-foreground active:scale-95',
+                : 'cursor-pointer bg-surface-alt text-foreground',
             )}
           >
             −
@@ -53,10 +53,10 @@ const MemberCountModal = ({ isOpen, onClose, onConfirm }: MemberCountModalProps)
             onClick={handleIncrement}
             disabled={count >= MAX_MEMBER_COUNT}
             className={cn(
-              'flex h-[48px] w-[48px] items-center justify-center rounded-full text-[24px] font-bold transition-all duration-150',
+              'flex h-[48px] w-[48px] items-center justify-center rounded-full text-[24px] font-bold btn-press',
               count >= MAX_MEMBER_COUNT
                 ? 'cursor-not-allowed bg-disabled text-disabled-foreground'
-                : 'cursor-pointer bg-primary text-primary-foreground active:scale-95',
+                : 'cursor-pointer bg-primary text-primary-foreground',
             )}
           >
             +
