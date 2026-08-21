@@ -549,14 +549,14 @@ HomeView와 SplashOverlay를 `(main)/page.tsx`에서 동시 마운트하여 데�
 - `atmosphere-view.tsx`, `pair-detail-view.tsx` — `'use client'` + 뒤로가기 버튼
 - 서브 페이지 라우트(`atmosphere/page.tsx`, `pair-detail/page.tsx`) — searchParams에서 id/pair 추출
 
-### Phase 8: Result 상세 데이터 연결 + AI 스키마 변경
+### Phase 8: Result 상세 데이터 연결 + AI 스키마 변경 ✅
 
 - AI 프롬프트 스키마 확장: `tagline`, `pairChemistry`에 `description`, `conversationScore`, `conflictScore`, `recommendedSituations` 추가
 - `AtmosphereDetail` — mock → 실제 데이터 (`useAnalysis(analysisId)`)
 - `PairDetail` — mock → 실제 데이터 + 디자인 정합 (♥ 하트, 미니 지표, 서술 카드, 추천 상황)
 - `ResultView` — 클릭 핸들러 + 그린 헤더 + 분위기 섹션 4색 카드
 
-### Phase 9: 비로그인 테스트 플로우 + Auth 구조
+### Phase 9: 비로그인 테스트 플로우 + Auth 구조 ✅
 
 - `/api/analyze` — auth 체크를 optional로 변경 (비로그인: OpenAI만 호출, DB 저장 생략)
 - Zustand store에 `analysisResult` 임시 저장 필드 추가

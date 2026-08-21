@@ -17,9 +17,13 @@ const GroupTypeView = ({ className }: GroupTypeViewProps) => {
     <div className={cn('flex flex-col gap-6 px-5 pt-4', className)}>
       <StepHeader currentStep={1} totalSteps={3} onBack={() => router.push('/')} />
 
-      <div className="flex flex-col gap-2">
-        <h2 className="text-title1 font-black text-foreground">그룹 유형 선택</h2>
-        <p className="text-body text-muted">어떤 모임의 케미를 분석할까요?</p>
+      <div className="flex flex-col gap-[7px]">
+        <h2 className="whitespace-pre-line text-[27px] font-black leading-[1.34] tracking-title text-foreground">
+          {'어떤 사이를\n분석해볼까요?'}
+        </h2>
+        <p className="text-[14px] font-semibold text-[#7A8E80]">
+          관계에 따라 분석 내용이 달라져요.
+        </p>
       </div>
 
       <GroupTypeSelector onNext={() => router.push('/members')} />

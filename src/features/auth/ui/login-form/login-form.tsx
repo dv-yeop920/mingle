@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { cn } from '@/shared/lib/utils';
@@ -19,6 +19,7 @@ import type { LoginFormProps } from './types';
 
 const LoginForm = ({ className }: LoginFormProps) => {
   const [isPending, startTransition] = useTransition();
+  const [isRemember, setIsRemember] = useState(false);
 
   const {
     register,
@@ -41,7 +42,7 @@ const LoginForm = ({ className }: LoginFormProps) => {
   return (
     <form
       onSubmit={handleSubmit(onFormSubmit)}
-      className={cn('flex flex-col gap-5', className)}
+      className={cn('flex flex-col gap-[14px]', className)}
     >
       <TextField
         label="ID"
@@ -57,6 +58,24 @@ const LoginForm = ({ className }: LoginFormProps) => {
         {...register('password')}
       />
 
+      <button
+        type="button"
+        onClick={() => setIsRemember((prev) => !prev)}
+        className="flex items-center gap-[9px] px-1 pt-1"
+      >
+        <div
+          className={cn(
+            'flex h-5 w-5 items-center justify-center rounded-[7px] text-[12px] font-black text-white',
+            isRemember ? 'bg-primary' : 'bg-neutral-300',
+          )}
+        >
+          {isRemember && '✓'}
+        </div>
+        <span className="text-[13px] font-bold text-[#6B8072]">
+          로그인 상태 유지
+        </span>
+      </button>
+
       {errors.root && (
         <p className="text-center text-caption font-bold text-caution-foreground">
           {errors.root.message}
@@ -67,7 +86,7 @@ const LoginForm = ({ className }: LoginFormProps) => {
         {isPending ? '로그인 중...' : '로그인'}
       </Button>
 
-      <p className="text-center text-[14px] font-bold text-[#8A9C90]">
+      <p className="mt-[2px] text-center text-[14px] font-bold text-[#8A9C90]">
         아직 계정이 없나요?{' '}
         <Link href="/signup" className="font-extrabold text-primary">
           회원가입

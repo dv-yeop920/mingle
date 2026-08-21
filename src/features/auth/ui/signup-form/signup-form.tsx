@@ -41,51 +41,55 @@ const SignupForm = ({ className }: SignupFormProps) => {
   return (
     <form
       onSubmit={handleSubmit(onFormSubmit)}
-      className={cn('flex flex-col gap-5', className)}
+      className={cn('flex flex-1 flex-col', className)}
     >
-      <TextField
-        label="Nickname"
-        placeholder="8글자 이하"
-        error={errors.nickname?.message}
-        {...register('nickname')}
-      />
-      <TextField
-        label="ID"
-        placeholder="영어, 숫자만 가능"
-        error={errors.username?.message}
-        {...register('username')}
-      />
-      <TextField
-        label="Password"
-        type="password"
-        placeholder="영어 + 숫자 + 특수문자, 6자 이상"
-        error={errors.password?.message}
-        {...register('password')}
-      />
-      <TextField
-        label="Password Confirm"
-        type="password"
-        placeholder="비밀번호를 다시 입력하세요"
-        error={errors.confirmPassword?.message}
-        {...register('confirmPassword')}
-      />
+      <div className="flex flex-col gap-[13px]">
+        <TextField
+          label="Nickname"
+          placeholder="8글자 이하"
+          error={errors.nickname?.message}
+          {...register('nickname')}
+        />
+        <TextField
+          label="ID"
+          placeholder="영어, 숫자만 가능"
+          error={errors.username?.message}
+          {...register('username')}
+        />
+        <TextField
+          label="Password"
+          type="password"
+          placeholder="영어 + 숫자 + 특수문자, 6자 이상"
+          error={errors.password?.message}
+          {...register('password')}
+        />
+        <TextField
+          label="Password Confirm"
+          type="password"
+          placeholder="비밀번호를 다시 입력하세요"
+          error={errors.confirmPassword?.message}
+          {...register('confirmPassword')}
+        />
+      </div>
 
       {errors.root && (
-        <p className="text-center text-caption font-bold text-caution-foreground">
+        <p className="mt-4 text-center text-caption font-bold text-caution-foreground">
           {errors.root.message}
         </p>
       )}
 
-      <Button type="submit" variant="primary" disabled={isPending}>
-        {isPending ? '가입 중...' : '가입하고 시작하기'}
-      </Button>
+      <div className="mt-auto flex flex-col gap-[14px] pb-[46px]">
+        <Button type="submit" variant="primary" disabled={isPending}>
+          {isPending ? '가입 중...' : '가입하고 시작하기'}
+        </Button>
 
-      <p className="text-center text-[13px] font-bold text-[#8A9C90]">
-        이미 계정이 있나요?{' '}
-        <Link href="/login" className="font-extrabold text-primary">
-          로그인
-        </Link>
-      </p>
+        <p className="text-center text-[13px] font-bold text-[#8A9C90]">
+          이미 계정이 있나요?{' '}
+          <Link href="/login" className="font-extrabold text-primary">
+            로그인
+          </Link>
+        </p>
+      </div>
     </form>
   );
 };

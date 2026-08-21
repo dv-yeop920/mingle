@@ -47,6 +47,8 @@ const GroupTypeSelector = ({ onNext, className }: GroupTypeSelectorProps) => {
             icon={option.icon}
             title={option.title}
             description={option.description}
+            iconBg={option.iconBg}
+            isDashed={option.isDashed}
             isSelected={groupType === option.type}
             onClick={() => handleCardClick(option.type)}
           />
