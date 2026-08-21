@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -16,7 +17,7 @@ import {
 
 import type { SignupFormProps } from './types';
 
-const SignupForm = ({ onLoginClick, className }: SignupFormProps) => {
+const SignupForm = ({ className }: SignupFormProps) => {
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -81,13 +82,9 @@ const SignupForm = ({ onLoginClick, className }: SignupFormProps) => {
 
       <p className="text-center text-[13px] font-bold text-[#8A9C90]">
         이미 계정이 있나요?{' '}
-        <button
-          type="button"
-          onClick={onLoginClick}
-          className="cursor-pointer font-extrabold text-primary"
-        >
+        <Link href="/login" className="font-extrabold text-primary">
           로그인
-        </button>
+        </Link>
       </p>
     </form>
   );

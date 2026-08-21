@@ -16,8 +16,8 @@ const HistoryView = ({ className }: HistoryViewProps) => {
   const totalCount = analyses?.length ?? 0;
 
   return (
-    <div className={cn('flex flex-col gap-4 px-5 pt-[10px]', className)}>
-      <div className="flex items-center justify-between">
+    <div className={cn('flex flex-col', className)}>
+      <div className="flex items-center justify-between px-[24px] pt-[10px]">
         <h1 className="text-[23px] font-black tracking-title text-foreground">
           테스트 기록
         </h1>
@@ -25,11 +25,15 @@ const HistoryView = ({ className }: HistoryViewProps) => {
           {totalCount}
         </span>
       </div>
-      <HistoryFilter
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
-      />
-      <HistoryList filterType={activeFilter} />
+      <div className="px-[24px] pt-[16px]">
+        <HistoryFilter
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+        />
+      </div>
+      <div className="px-5 pt-[18px]">
+        <HistoryList filterType={activeFilter} />
+      </div>
     </div>
   );
 };

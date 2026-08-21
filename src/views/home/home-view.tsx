@@ -17,8 +17,8 @@ const HomeView = ({ className }: HomeViewProps) => {
   const initials = nickname.slice(0, 2);
 
   return (
-    <div className={cn('flex flex-col gap-5 px-5 pt-2', className)}>
-      <div className="flex items-center justify-between">
+    <div className={cn('flex flex-col', className)}>
+      <div className="flex items-center justify-between px-[24px] pt-[8px]">
         <div className="flex flex-col gap-[2px]">
           <span className="text-[13px] font-bold text-hint">안녕하세요</span>
           <span className="text-[21px] font-black tracking-title text-foreground">
@@ -31,7 +31,9 @@ const HomeView = ({ className }: HomeViewProps) => {
           </span>
         </div>
       </div>
-      <HeroCard onClick={() => router.push('/group-type')} />
+      <div className="px-5 pt-5">
+        <HeroCard onClick={() => router.push('/group-type')} />
+      </div>
       <RecentTests />
     </div>
   );

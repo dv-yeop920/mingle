@@ -51,7 +51,7 @@ const SplashOverlay = ({ className }: SplashOverlayProps) => {
   return (
     <div
       className={cn(
-        'fixed inset-0 z-50 flex flex-col bg-green-100 transition-opacity duration-500',
+        'fixed top-0 bottom-0 left-1/2 z-50 flex w-full max-w-[390px] -translate-x-1/2 flex-col bg-green-100 transition-opacity duration-500',
         phase === 'fading' && 'opacity-0',
         className,
       )}
