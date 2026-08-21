@@ -1,12 +1,81 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { cn } from '@/shared/lib/utils';
 
-import { AnalysisAnimation } from '@/features/test-flow';
+import {
+  AnalysisAnimation,
+  requestAnalysis,
+  useTestFlowStore,
+} from '@/features/test-flow';
 
 import type { AnalyzingViewProps } from './types';
 
 const AnalyzingView = ({ className }: AnalyzingViewProps) => {
+  const router = useRouter();
+  const hasStarted = useRef(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const groupType = useTestFlowStore((s) => s.groupType);
+  const customName = useTestFlowStore((s) => s.customName);
+  const members = useTestFlowStore((s) => s.members);
+  const setAnalysisId = useTestFlowStore((s) => s.setAnalysisId);
+
+  const startAnalysis = useCallback(async () => {
+    if (!groupType || members.length < 2) {
+      router.replace('/');
+      return;
+    }
+
+    setError(null);
+
+    const result = await requestAnalysis({
+      groupType,
+      customName: customName || undefined,
+      members,
+    });
+
+    if ('error' in result) {
+      setError(result.error);
+      return;
+    }
+
+    const { analysisId } = result.data;
+    setAnalysisId(analysisId);
+    router.replace(`/result?id=${analysisId}`);
+  }, [groupType, customName, members, setAnalysisId, router]);
+
+  useEffect(() => {
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+    startAnalysis();
+  }, [startAnalysis]);
+
+  if (error) {
+    return (
+      <div
+        className={cn(
+          'flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6',
+          className,
+        )}
+      >
+        <p className="text-center text-body text-destructive">{error}</p>
+        <button
+          type="button"
+          onClick={() => {
+            hasStarted.current = false;
+            startAnalysis();
+          }}
+          className="rounded-lg bg-primary px-6 py-3 text-label font-bold text-primary-foreground"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(

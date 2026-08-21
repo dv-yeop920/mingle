@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;800;900&amp;family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#EAF2E7; font-family:'Gothic A1', system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#3F9E63; text-decoration:none; }
+  a:hover { color:#2F7F4C; }
+  @keyframes mxFloat { 0%,100% { transform:translateY(0) rotate(-6deg); } 50% { transform:translateY(-14px) rotate(-2deg); } }
+  @keyframes mxFloat2 { 0%,100% { transform:translateY(0) rotate(7deg); } 50% { transform:translateY(-10px) rotate(3deg); } }
+  @keyframes mxPulse { 0%,100% { transform:scale(1); opacity:.9; } 50% { transform:scale(1.06); opacity:1; } }
+  @keyframes mxDot { 0%,100% { transform:translateY(0); opacity:.4; } 50% { transform:translateY(-6px); opacity:1; } }
+  @keyframes mxRing { to { transform:rotate(360deg); } }
+</style>
+</helmet>
+
+<section style="padding:64px 72px 96px;display:flex;flex-direction:column;gap:44px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:44px;height:44px;border-radius:15px;background:#7FD39B;display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:19px;color:#1F4F32">M</div>
+      <div style="font-size:34px;font-weight:900;letter-spacing:-.02em;color:#26382C">MIXTI</div>
+      <div style="padding:6px 12px;border-radius:999px;background:#DCF0E1;color:#3F8B5C;font-size:13px;font-weight:800">1a</div>
+    </div>
+    <div style="font-size:17px;font-weight:700;color:#4E6355">MBTI로 알아보는 우리 사이의 케미 · Mobile UI 11 screens</div>
+  </div>
+
+  <div id="1a" style="display:flex;flex-wrap:wrap;gap:52px 44px;align-items:flex-start">
+
+    <!-- 01 SPLASH -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="01 Splash">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">01</span> Splash</div>
+      <div style="width:390px;height:844px;background:#8FD9A8;border-radius:40px;border:1px solid #CFE6D3;box-shadow:0 22px 50px rgba(70,110,80,.13);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#1E4630;font-family:'Gothic A1',sans-serif">
+        <div style="position:absolute;top:120px;left:44px;width:96px;height:120px;border-radius:24px;background:#FFFFFF;box-shadow:0 12px 26px rgba(30,70,45,.16);display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:22px;color:#6B5AA8;animation:mxFloat 5s ease-in-out infinite">ENTP</div>
+        <div style="position:absolute;top:170px;right:40px;width:96px;height:120px;border-radius:24px;background:#FFFFFF;box-shadow:0 12px 26px rgba(30,70,45,.16);display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:22px;color:#4A7E9E;animation:mxFloat2 6s ease-in-out infinite">ISFJ</div>
+        <div style="margin:auto;display:flex;flex-direction:column;align-items:center;gap:18px">
+          <div style="width:104px;height:104px;border-radius:34px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 34px rgba(30,70,45,.18);animation:mxPulse 3.4s ease-in-out infinite">
+            <span style="font-family:'Nunito';font-weight:900;font-size:44px;color:#3F9E63">M</span>
+          </div>
+          <div style="font-family:'Nunito';font-weight:900;font-size:46px;letter-spacing:.01em">MIXTI</div>
+          <div style="font-size:17px;font-weight:700;opacity:.78">MBTI로 알아보는 우리 사이의 케미</div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;padding-bottom:74px">
+          <div style="width:9px;height:9px;border-radius:99px;background:#fff;animation:mxDot 1.2s ease-in-out infinite"></div>
+          <div style="width:9px;height:9px;border-radius:99px;background:#fff;animation:mxDot 1.2s ease-in-out .15s infinite"></div>
+          <div style="width:9px;height:9px;border-radius:99px;background:#fff;animation:mxDot 1.2s ease-in-out .3s infinite"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 LOGIN -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="02 Login">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">02</span> Login</div>
+      <div style="width:390px;height:844px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="padding:44px 28px 0;display:flex;flex-direction:column;gap:8px">
+          <div style="width:60px;height:60px;border-radius:20px;background:#8FD9A8;display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:26px;color:#1F4F32;margin-bottom:20px">M</div>
+          <div style="font-size:30px;font-weight:900;letter-spacing:-.02em">다시 만나서 반가워요</div>
+          <div style="font-size:15px;font-weight:600;color:#7A8E80">로그인하고 우리 조합을 확인해보세요.</div>
+        </div>
+        <div style="padding:34px 28px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:13px;font-weight:800;color:#5B7062;padding-left:4px">ID</div>
+            <div style="height:58px;border-radius:20px;background:#FFFFFF;border:1.5px solid #7FD39B;box-shadow:0 4px 14px rgba(76,120,90,.07);display:flex;align-items:center;padding:0 20px;font-size:16px;font-weight:700">mixti_jun</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:13px;font-weight:800;color:#5B7062;padding-left:4px">Password</div>
+            <div style="height:58px;border-radius:20px;background:#FFFFFF;border:1.5px solid #E6EFE6;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:16px;font-weight:700;letter-spacing:.2em;color:#9AAB9F">••••••••<span style="font-size:12px;letter-spacing:0;font-weight:800;color:#3F9E63">보기</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:4px 0 0 4px">
+            <div style="width:20px;height:20px;border-radius:7px;background:#7FD39B;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:900">✓</div>
+            <div style="font-size:13px;font-weight:700;color:#6B8072">로그인 상태 유지</div>
+          </div>
+          <div style="margin-top:12px;height:60px;border-radius:22px;background:#3FB273;box-shadow:0 10px 22px rgba(63,178,115,.28);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800">로그인</div>
+          <div style="display:flex;justify-content:center;gap:6px;padding-top:14px;font-size:14px;font-weight:700;color:#8A9C90">아직 계정이 없나요? <span style="color:#3F9E63;font-weight:800">회원가입</span></div>
+        </div>
+        <div style="margin-top:auto;padding:0 28px 46px;text-align:center;font-size:12px;font-weight:600;color:#A9B8AC">MIXTI는 MBTI 조합을 재미로 분석하는 서비스입니다.</div>
+      </div>
+    </div>
+
+    <!-- 03 SIGN UP -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="03 Sign Up">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">03</span> Sign Up</div>
+      <div style="width:390px;height:844px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="padding:6px 22px 0;display:flex;align-items:center;gap:12px">
+          <div style="width:38px;height:38px;border-radius:14px;background:#fff;border:1px solid #E6EFE6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#5B7062">‹</div>
+          <div style="font-size:16px;font-weight:800">회원가입</div>
+        </div>
+        <div style="padding:28px 28px 0;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:27px;font-weight:900;letter-spacing:-.02em">3초면 시작할 수 있어요</div>
+          <div style="font-size:14px;font-weight:600;color:#7A8E80">닉네임만 정하면 준비 완료입니다.</div>
+        </div>
+        <div style="padding:26px 28px 0;display:flex;flex-direction:column;gap:13px">
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="font-size:13px;font-weight:800;color:#5B7062;padding-left:4px">Nickname</div>
+            <div style="height:56px;border-radius:20px;background:#FFFFFF;border:1.5px solid #7FD39B;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:16px;font-weight:700">준<span style="font-size:12px;font-weight:800;color:#3FB273">사용 가능</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="font-size:13px;font-weight:800;color:#5B7062;padding-left:4px">ID</div>
+            <div style="height:56px;border-radius:20px;background:#FFFFFF;border:1.5px solid #E6EFE6;display:flex;align-items:center;padding:0 20px;font-size:16px;font-weight:700">mixti_jun</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="font-size:13px;font-weight:800;color:#5B7062;padding-left:4px">Password</div>
+            <div style="height:56px;border-radius:20px;background:#FFFFFF;border:1.5px solid #E6EFE6;display:flex;align-items:center;padding:0 20px;font-size:16px;font-weight:700;letter-spacing:.2em;color:#9AAB9F">••••••••</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="font-size:13px;font-weight:800;color:#5B7062;padding-left:4px">Password Confirm</div>
+            <div style="height:56px;border-radius:20px;background:#FFFFFF;border:1.5px solid #E6EFE6;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:16px;font-weight:700;letter-spacing:.2em;color:#9AAB9F">••••••••<span style="font-size:13px;letter-spacing:0;color:#3FB273;font-weight:900">✓</span></div>
+          </div>
+        </div>
+        <div style="margin-top:auto;padding:0 28px 46px;display:flex;flex-direction:column;gap:14px">
+          <div style="height:60px;border-radius:22px;background:#3FB273;box-shadow:0 10px 22px rgba(63,178,115,.28);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800">가입하고 시작하기</div>
+          <div style="text-align:center;font-size:13px;font-weight:700;color:#8A9C90">이미 계정이 있나요? <span style="color:#3F9E63;font-weight:800">로그인</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 HOME -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="04 Home">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">04</span> Home</div>
+      <div style="width:390px;height:844px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="padding:8px 24px 0;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:13px;font-weight:700;color:#8A9C90">안녕하세요</div>
+            <div style="font-size:21px;font-weight:900;letter-spacing:-.02em">준님 👋</div>
+          </div>
+          <div style="width:44px;height:44px;border-radius:16px;background:#DCF0E1;display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:15px;color:#3F8B5C">준</div>
+        </div>
+        <div style="margin:20px 20px 0;border-radius:30px;background:#8FD9A8;padding:26px 24px;position:relative;overflow:hidden;box-shadow:0 14px 30px rgba(90,170,120,.24)">
+          <div style="position:absolute;right:-18px;top:22px;width:78px;height:98px;border-radius:20px;background:rgba(255,255,255,.55);transform:rotate(12deg)"></div>
+          <div style="position:absolute;right:26px;top:44px;width:78px;height:98px;border-radius:20px;background:#fff;transform:rotate(-6deg);display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:17px;color:#3F8B5C">MIX</div>
+          <div style="position:relative;display:flex;flex-direction:column;gap:10px;max-width:210px">
+            <div style="font-size:25px;font-weight:900;line-height:1.32;color:#1E4630;text-wrap:pretty">오늘 우리 조합은<br>어떨까?</div>
+            <div style="font-size:13px;font-weight:700;color:#2E6644;opacity:.85">MBTI를 조합하고 우리 사이의 케미를 확인해보세요.</div>
+          </div>
+          <div style="position:relative;margin-top:22px;height:54px;border-radius:18px;background:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:900;color:#2E7A4E;box-shadow:0 8px 18px rgba(30,70,45,.14)">＋ 새로운 케미 테스트</div>
+        </div>
+        <div style="padding:26px 24px 10px;display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:16px;font-weight:900">최근 테스트</div>
+          <div style="font-size:13px;font-weight:800;color:#3F9E63">전체보기</div>
+        </div>
+        <div style="padding:0 20px;display:flex;flex-direction:column;gap:11px">
+          <sc-for list="{{ recent }}" as="r" hint-placeholder-count="3">
+            <div style="background:#fff;border-radius:24px;padding:16px 18px;box-shadow:0 6px 16px rgba(76,120,90,.07);display:flex;align-items:center;gap:14px">
+              <div style="width:48px;height:48px;border-radius:17px;background:#F0F7F0;display:flex;align-items:center;justify-content:center;font-size:19px">{{ r.icon }}</div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:5px;min-width:0">
+                <div style="display:flex;align-items:center;gap:7px">
+                  <div style="font-size:15px;font-weight:900">{{ r.name }}</div>
+                  <div style="font-size:11px;font-weight:800;color:#8A9C90">{{ r.meta }}</div>
+                </div>
+                <div style="font-family:'Nunito';font-size:11px;font-weight:800;color:#9AAB9F;letter-spacing:.02em">{{ r.types }}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+                <div style="font-family:'Nunito';font-size:19px;font-weight:900;color:#3FB273">{{ r.score }}</div>
+                <div style="font-family:'Nunito';font-size:10px;font-weight:700;color:#AFBDB3">{{ r.date }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);padding:12px 24px 28px;background:#fff;border-top:1px solid #EEF4EE">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:9px;background:#3FB273"></div><div style="font-size:11px;font-weight:900;color:#3FB273">Home</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:99px;border:3px solid #C3D2C7"></div><div style="font-size:11px;font-weight:800;color:#AFBDB3">History</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:99px;background:#C3D2C7"></div><div style="font-size:11px;font-weight:800;color:#AFBDB3">My</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 GROUP TYPE -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="05 Group Type">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">05</span> Group Type Selection</div>
+      <div style="width:390px;height:844px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="padding:6px 22px 0;display:flex;align-items:center;justify-content:space-between">
+          <div style="width:38px;height:38px;border-radius:14px;background:#fff;border:1px solid #E6EFE6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#5B7062">‹</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div style="width:22px;height:5px;border-radius:99px;background:#3FB273"></div>
+            <div style="width:22px;height:5px;border-radius:99px;background:#DCE8DD"></div>
+            <div style="width:22px;height:5px;border-radius:99px;background:#DCE8DD"></div>
+          </div>
+          <div style="font-size:13px;font-weight:800;color:#8A9C90">1/3</div>
+        </div>
+        <div style="padding:28px 26px 0;display:flex;flex-direction:column;gap:7px">
+          <div style="font-size:27px;font-weight:900;letter-spacing:-.02em;line-height:1.34">어떤 사이를<br>분석해볼까요?</div>
+          <div style="font-size:14px;font-weight:600;color:#7A8E80">관계에 따라 분석 내용이 달라져요.</div>
+        </div>
+        <div style="padding:24px 20px 0;display:flex;flex-direction:column;gap:12px">
+          <div style="background:#fff;border:2px solid #7FD39B;border-radius:26px;padding:18px;display:flex;gap:15px;align-items:center;box-shadow:0 10px 22px rgba(76,120,90,.10)">
+            <div style="width:54px;height:54px;border-radius:19px;background:#DCF0E1;display:flex;align-items:center;justify-content:center;font-size:23px">🧑‍🤝‍🧑</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:17px;font-weight:900">친구</div>
+              <div style="font-size:12.5px;font-weight:600;color:#8A9C90;line-height:1.45">친밀도, 대화, 갈등, 분위기를 분석해요</div>
+            </div>
+            <div style="width:24px;height:24px;border-radius:99px;background:#3FB273;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900">✓</div>
+          </div>
+          <div style="background:#fff;border:2px solid #EEF4EE;border-radius:26px;padding:18px;display:flex;gap:15px;align-items:center">
+            <div style="width:54px;height:54px;border-radius:19px;background:#E6EFF8;display:flex;align-items:center;justify-content:center;font-size:23px">💼</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:17px;font-weight:900">회사 / 팀</div>
+              <div style="font-size:12.5px;font-weight:600;color:#8A9C90;line-height:1.45">업무, 의사결정, 커뮤니케이션, 리더 역할</div>
+            </div>
+          </div>
+          <div style="background:#fff;border:2px solid #EEF4EE;border-radius:26px;padding:18px;display:flex;gap:15px;align-items:center">
+            <div style="width:54px;height:54px;border-radius:19px;background:#FDEDE0;display:flex;align-items:center;justify-content:center;font-size:23px">🏠</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:17px;font-weight:900">가족</div>
+              <div style="font-size:12.5px;font-weight:600;color:#8A9C90;line-height:1.45">성향 차이, 대화 방식, 관계를 분석해요</div>
+            </div>
+          </div>
+          <div style="background:#fff;border:2px dashed #D6E4D8;border-radius:26px;padding:18px;display:flex;gap:15px;align-items:center">
+            <div style="width:54px;height:54px;border-radius:19px;background:#F1EDFB;display:flex;align-items:center;justify-content:center;font-size:23px">✏️</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:17px;font-weight:900">기타</div>
+              <div style="font-size:12.5px;font-weight:600;color:#8A9C90;line-height:1.45">그룹 이름을 직접 입력해요</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:auto;padding:0 24px 44px">
+          <div style="height:60px;border-radius:22px;background:#3FB273;box-shadow:0 10px 22px rgba(63,178,115,.28);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800">다음</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 MEMBER SETUP -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="06 Member Setup">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">06</span> Member Setup · MBTI Picker</div>
+      <div style="width:390px;height:844px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="padding:6px 22px 0;display:flex;align-items:center;gap:12px">
+          <div style="width:38px;height:38px;border-radius:14px;background:#fff;border:1px solid #E6EFE6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#5B7062">‹</div>
+          <div style="font-size:16px;font-weight:800">친구 · 멤버 추가</div>
+        </div>
+        <div style="padding:22px 24px 0;display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:24px;font-weight:900;letter-spacing:-.02em">누구와 함께인가요?</div>
+          <div style="font-size:13.5px;font-weight:600;color:#7A8E80">최소 2명부터 분석할 수 있어요.</div>
+        </div>
+        <div style="padding:18px 20px 0;display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ members }}" as="m" hint-placeholder-count="3">
+            <div style="background:#fff;border-radius:22px;padding:14px 16px;box-shadow:0 5px 14px rgba(76,120,90,.06);display:flex;align-items:center;gap:13px">
+              <div style="width:44px;height:44px;border-radius:16px;background:{{ m.bg }};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:{{ m.fg }}">{{ m.name }}</div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:7px">
+                  <div style="font-size:15.5px;font-weight:900">{{ m.name }}</div>
+                  <sc-if value="{{ m.isMe }}" hint-placeholder-val="{{ false }}"><div style="padding:2px 8px;border-radius:99px;background:#DCF0E1;color:#3F8B5C;font-size:10px;font-weight:900">나</div></sc-if>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div style="padding:3px 9px;border-radius:99px;background:{{ m.bg }};color:{{ m.fg }};font-family:'Nunito';font-size:11px;font-weight:900">{{ m.mbti }}</div>
+                  <div style="font-size:11.5px;font-weight:700;color:#9AAB9F">{{ m.gender }}</div>
+                </div>
+              </div>
+              <div style="font-size:17px;font-weight:800;color:#C3D2C7">⋯</div>
+            </div>
+          </sc-for>
+          <div style="border:2px dashed #CDE0D1;border-radius:22px;height:58px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14.5px;font-weight:800;color:#3F9E63">＋ 구성원 추가</div>
+        </div>
+        <div style="position:absolute;left:0;right:0;bottom:0;top:300px;background:rgba(30,60,40,.28)"></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:32px 32px 40px 40px;padding:16px 22px 34px;box-shadow:0 -12px 34px rgba(30,70,45,.14);display:flex;flex-direction:column;gap:14px">
+          <div style="width:44px;height:5px;border-radius:99px;background:#E1EAE2;margin:0 auto"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:17px;font-weight:900">지연님의 MBTI</div>
+            <div style="font-size:12.5px;font-weight:800;color:#8A9C90">잘 모르겠어요</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+            <sc-for list="{{ mbtiTypes }}" as="t" hint-placeholder-count="16">
+              <div style="height:52px;border-radius:16px;background:{{ t.bg }};display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-size:13.5px;font-weight:900;color:{{ t.fg }};border:2px solid {{ t.border }}">{{ t.t }}</div>
+            </sc-for>
+          </div>
+          <div style="height:56px;border-radius:20px;background:#3FB273;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16.5px;font-weight:800;box-shadow:0 8px 18px rgba(63,178,115,.26)">우리 케미 분석하기</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 LOADING -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="07 Analysis Loading">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">07</span> Analysis Loading</div>
+      <div style="width:390px;height:844px;background:#F1F9F2;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="margin:auto;display:flex;flex-direction:column;align-items:center;gap:40px;padding:0 34px">
+          <div style="position:relative;width:250px;height:200px">
+            <div style="position:absolute;left:8px;top:44px;width:86px;height:112px;border-radius:22px;background:#fff;box-shadow:0 10px 22px rgba(76,120,90,.14);display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:18px;color:#6B5AA8;animation:mxFloat 3.6s ease-in-out infinite">ENTP</div>
+            <div style="position:absolute;left:82px;top:20px;width:86px;height:112px;border-radius:22px;background:#fff;box-shadow:0 12px 26px rgba(76,120,90,.16);display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:18px;color:#3F8B5C;animation:mxFloat2 4.2s ease-in-out infinite">ENFP</div>
+            <div style="position:absolute;left:156px;top:48px;width:86px;height:112px;border-radius:22px;background:#fff;box-shadow:0 10px 22px rgba(76,120,90,.14);display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:18px;color:#4A7E9E;animation:mxFloat 4.8s ease-in-out .4s infinite">ISTJ</div>
+            <div style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:70px;height:70px;border-radius:26px;background:#8FD9A8;display:flex;align-items:center;justify-content:center;font-family:'Nunito';font-weight:900;font-size:24px;color:#1E4630;box-shadow:0 12px 24px rgba(90,170,120,.3);animation:mxPulse 2.6s ease-in-out infinite">M</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+            <div style="font-size:22px;font-weight:900;letter-spacing:-.02em">누가 분위기 메이커인지<br>찾고 있어요</div>
+            <div style="font-size:14px;font-weight:600;color:#7A8E80">잠시만 기다려주세요 · 3명 분석 중</div>
+          </div>
+          <div style="width:100%;display:flex;flex-direction:column;gap:10px">
+            <div style="height:10px;border-radius:99px;background:#E1EFE3;overflow:hidden"><div style="width:68%;height:100%;border-radius:99px;background:#3FB273"></div></div>
+            <div style="display:flex;justify-content:space-between;font-family:'Nunito';font-size:11.5px;font-weight:800;color:#9AAB9F"><span>성향 조합</span><span>68%</span></div>
+          </div>
+        </div>
+        <div style="padding:0 34px 60px;display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;color:#3FB273"><span>✓</span> 우리의 성향을 조합하고 있어요</div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;color:#3FB273"><span>✓</span> 대화 스타일을 비교하고 있어요</div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:#B3C2B7"><span style="animation:mxDot 1.1s ease-in-out infinite">●</span> 우리 모임의 케미를 분석하고 있어요</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08 RESULT -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="08 Analysis Result">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">08</span> Analysis Result <span style="font-weight:700;color:#8AA891">(full report, scrolls)</span></div>
+      <div style="width:390px;height:2680px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="background:#8FD9A8;padding:0 0 30px;border-radius:0 0 34px 34px">
+          <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#2E6644"><span>9:41</span><span>●●● ▮</span></div>
+          <div style="padding:6px 22px 0;display:flex;align-items:center;justify-content:space-between">
+            <div style="width:38px;height:38px;border-radius:14px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#2E6644">‹</div>
+            <div style="font-size:15px;font-weight:900;color:#1E4630">대학 친구 4인방</div>
+            <div style="width:38px;height:38px;border-radius:14px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;font-size:15px;color:#2E6644">↗</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:22px 30px 0">
+            <div style="font-size:13.5px;font-weight:800;color:#2E6644;letter-spacing:.02em">우리 그룹 케미</div>
+            <div style="width:186px;height:186px;border-radius:99px;background:{{ gaugeBg }};display:flex;align-items:center;justify-content:center">
+              <div style="width:150px;height:150px;border-radius:99px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:inset 0 2px 8px rgba(30,70,45,.06)">
+                <div style="font-family:'Nunito';font-size:52px;font-weight:900;color:#2E7A4E;line-height:1">{{ score }}<span style="font-size:22px">%</span></div>
+                <div style="font-size:12px;font-weight:800;color:#8A9C90">Group Chemistry</div>
+              </div>
+            </div>
+            <div style="text-align:center;font-size:16px;font-weight:800;color:#1E4630;line-height:1.5;text-wrap:pretty">“서로 성격은 다르지만<br>이상하게 잘 굴러가는 조합이에요.”</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding-top:4px">
+              <div style="padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.75);font-family:'Nunito';font-size:11.5px;font-weight:900;color:#2E6644">ENTP</div>
+              <div style="padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.75);font-family:'Nunito';font-size:11.5px;font-weight:900;color:#2E6644">ENFP</div>
+              <div style="padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.75);font-family:'Nunito';font-size:11.5px;font-weight:900;color:#2E6644">ISTJ</div>
+              <div style="padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.75);font-family:'Nunito';font-size:11.5px;font-weight:900;color:#2E6644">INFJ</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:24px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="background:#fff;border-radius:26px;padding:20px;box-shadow:0 6px 16px rgba(76,120,90,.07);display:flex;flex-direction:column;gap:15px">
+            <div style="font-size:16.5px;font-weight:900">케미 지표</div>
+            <sc-for list="{{ scores }}" as="s" hint-placeholder-count="5">
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div style="font-size:13.5px;font-weight:800;color:#4E6355">{{ s.label }}</div>
+                  <div style="font-family:'Nunito';font-size:15px;font-weight:900;color:{{ s.color }}">{{ s.value }}</div>
+                </div>
+                <div style="height:10px;border-radius:99px;background:#F0F5F0;overflow:hidden">
+                  <div style="width:{{ s.width }};height:100%;border-radius:99px;background:{{ s.color }}"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:#F1EDFB;border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;font-weight:900;color:#7A69B5;letter-spacing:.04em">GROUP ATMOSPHERE</div>
+            <div style="font-size:20px;font-weight:900;line-height:1.4;color:#3B3159;text-wrap:pretty">“아이디어가 끊이지 않는 수다형 모임”</div>
+            <div style="font-size:13.5px;font-weight:600;line-height:1.65;color:#5C5480">ENFP와 ENTP가 분위기를 이끌고 ISTJ가 현실적인 방향을 잡아주는 조합입니다. 대화가 활발하지만 의견이 많아 결정이 늦어질 수 있습니다.</div>
+          </div>
+
+          <div style="background:#fff;border-radius:26px;padding:20px;box-shadow:0 6px 16px rgba(76,120,90,.07);display:flex;flex-direction:column;gap:14px">
+            <div style="font-size:16.5px;font-weight:900">우리 안에서의 역할</div>
+            <sc-for list="{{ roles }}" as="r" hint-placeholder-count="3">
+              <div style="display:flex;gap:13px;align-items:center">
+                <div style="width:48px;height:48px;border-radius:17px;background:{{ r.bg }};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:{{ r.fg }}">{{ r.name }}</div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;align-items:center;gap:7px">
+                    <div style="font-size:15px;font-weight:900">{{ r.role }}</div>
+                    <div style="font-family:'Nunito';font-size:11px;font-weight:900;color:{{ r.fg }};padding:2px 8px;border-radius:99px;background:{{ r.bg }}">{{ r.mbti }}</div>
+                  </div>
+                  <div style="font-size:12.5px;font-weight:600;color:#8A9C90;line-height:1.45">{{ r.desc }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0 4px">
+              <div style="font-size:16.5px;font-weight:900">둘 사이의 케미</div>
+              <div style="font-size:12.5px;font-weight:800;color:#3F9E63">전체 6쌍</div>
+            </div>
+            <sc-for list="{{ pairs }}" as="p" hint-placeholder-count="2">
+              <div style="background:#fff;border-radius:24px;padding:17px 18px;box-shadow:0 6px 16px rgba(76,120,90,.07);display:flex;flex-direction:column;gap:11px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="font-size:14.5px;font-weight:900">{{ p.a }}</div>
+                    <div style="font-size:12px;font-weight:800;color:#C3D2C7">×</div>
+                    <div style="font-size:14.5px;font-weight:900">{{ p.b }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-size:13px">{{ p.icon }}</span>
+                    <div style="font-family:'Nunito';font-size:16px;font-weight:900;color:{{ p.color }}">{{ p.score }}%</div>
+                    <span style="font-size:15px;font-weight:800;color:#C3D2C7">›</span>
+                  </div>
+                </div>
+                <div style="height:8px;border-radius:99px;background:#F0F5F0;overflow:hidden"><div style="width:{{ p.width }};height:100%;border-radius:99px;background:{{ p.color }}"></div></div>
+                <div style="font-size:13.5px;font-weight:700;color:#5E7365">“{{ p.line }}”</div>
+              </div>
+            </sc-for>
+          </div>
+
+          
+
+          <div style="background:#E6EFF8;border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;font-weight:900;color:#4A7E9E;letter-spacing:.04em">DECISION MAKING</div>
+            <div style="font-size:18px;font-weight:900;line-height:1.42;color:#27455C">“시작은 빠르지만 최종 결정까지 시간이 필요한 팀”</div>
+            <div style="font-size:13.5px;font-weight:600;line-height:1.65;color:#4B6779">누군가는 새로운 아이디어를 계속 제안하고 누군가는 현실적인 기준을 세우기 때문에 충분한 의견 교환 후 결론을 내리는 스타일입니다.</div>
+          </div>
+
+          <div style="background:#FFF6E6;border-radius:26px;padding:22px;display:flex;gap:14px;align-items:flex-start">
+            <div style="width:38px;height:38px;border-radius:13px;background:#FFE3B4;display:flex;align-items:center;justify-content:center;font-size:17px">!</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+              <div style="font-size:15.5px;font-weight:900;color:#8A6320">주의 포인트</div>
+              <div style="font-size:13.5px;font-weight:600;line-height:1.65;color:#8A7443">계획을 중요하게 생각하는 사람과 즉흥적인 사람 사이에서 일정이나 약속을 두고 의견 차이가 발생할 수 있습니다.</div>
+            </div>
+          </div>
+
+          <div style="background:#DCF0E1;border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;font-weight:900;color:#3F8B5C;letter-spacing:.04em">BEST MOMENT</div>
+            <div style="font-size:19px;font-weight:900;line-height:1.42;color:#1E4630">“여행 계획을 짤 때보다 여행지에서 더 강한 조합”</div>
+            <div style="font-size:13.5px;font-weight:600;line-height:1.65;color:#3E6A50">계획 과정에서는 의견이 많지만 실제로 함께 움직이기 시작하면 높은 적응력을 보여주는 그룹입니다.</div>
+          </div>
+        </div>
+
+        <div style="padding:24px 20px 46px;display:flex;flex-direction:column;gap:11px">
+          <div style="height:60px;border-radius:22px;background:#3FB273;box-shadow:0 10px 22px rgba(63,178,115,.26);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800">결과 저장하기</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="height:54px;border-radius:20px;background:#fff;border:1.5px solid #DCE8DD;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#4E6355">다시 테스트하기</div>
+            <div style="height:54px;border-radius:20px;background:#fff;border:1.5px solid #DCE8DD;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#4E6355">멤버 추가 분석</div>
+          </div>
+          <div style="height:54px;border-radius:20px;background:#DCF0E1;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14.5px;font-weight:900;color:#2E7A4E">↗ 결과 공유하기</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09 PAIR DETAIL -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="09 Pair Detail">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">09</span> Pair Detail</div>
+      <div style="width:390px;height:844px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="padding:6px 22px 0;display:flex;align-items:center;justify-content:space-between">
+          <div style="width:38px;height:38px;border-radius:14px;background:#fff;border:1px solid #E6EFE6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#5B7062">‹</div>
+          <div style="font-size:15px;font-weight:900">Pair Chemistry</div>
+          <div style="width:38px;height:38px"></div>
+        </div>
+        <div style="padding:22px 20px 0">
+          <div style="background:#fff;border-radius:30px;padding:26px 22px;box-shadow:0 8px 20px rgba(76,120,90,.08);display:flex;flex-direction:column;gap:20px;align-items:center">
+            <div style="display:flex;align-items:center;gap:16px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="width:66px;height:66px;border-radius:23px;background:#EDE6FF;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#6B5AA8">준</div>
+                <div style="font-family:'Nunito';font-size:12px;font-weight:900;color:#6B5AA8">ENTP</div>
+              </div>
+              <div style="width:44px;height:44px;border-radius:99px;background:#FFE4E8;display:flex;align-items:center;justify-content:center;font-size:19px;color:#E2637A">♥</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="width:66px;height:66px;border-radius:23px;background:#DFF3E3;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#3F8B5C">지연</div>
+                <div style="font-family:'Nunito';font-size:12px;font-weight:900;color:#3F8B5C">ENFP</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+              <div style="font-family:'Nunito';font-size:44px;font-weight:900;color:#2E7A4E;line-height:1">94<span style="font-size:20px">%</span></div>
+              <div style="font-size:15.5px;font-weight:800;color:#4E6355">“말이 끊이지 않는 조합”</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 20px 0;display:flex;flex-direction:column;gap:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="background:#fff;border-radius:22px;padding:16px;box-shadow:0 5px 14px rgba(76,120,90,.06);display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:12px;font-weight:800;color:#8A9C90">대화</div>
+              <div style="font-family:'Nunito';font-size:24px;font-weight:900;color:#3FB273">96</div>
+            </div>
+            <div style="background:#fff;border-radius:22px;padding:16px;box-shadow:0 5px 14px rgba(76,120,90,.06);display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:12px;font-weight:800;color:#8A9C90">갈등 가능성</div>
+              <div style="font-family:'Nunito';font-size:24px;font-weight:900;color:#E0A24C">28</div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:24px;padding:20px;box-shadow:0 6px 16px rgba(76,120,90,.07);display:flex;flex-direction:column;gap:9px">
+            <div style="font-size:15.5px;font-weight:900">둘이 있을 때</div>
+            <div style="font-size:13.5px;font-weight:600;line-height:1.68;color:#6E8375">새로운 주제를 던지는 사람과 그 이야기를 확장하는 사람이 만나서, 만나면 시간 개념이 사라지는 조합입니다. 다만 둘 다 마무리보다 시작을 좋아해서 계획이 흐지부지될 수 있어요.</div>
+          </div>
+          <div style="background:#DCF0E1;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:12px;font-weight:900;color:#3F8B5C;letter-spacing:.04em">추천 상황</div>
+            <div style="font-size:15px;font-weight:800;color:#1E4630;line-height:1.5">즉흥 여행, 밤 산책, 아이디어 회의</div>
+          </div>
+        </div>
+        <div style="margin-top:auto;padding:0 24px 46px;display:flex;gap:10px">
+          <div style="flex:1;height:58px;border-radius:20px;background:#fff;border:1.5px solid #DCE8DD;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#4E6355">다른 조합 보기</div>
+          <div style="width:58px;height:58px;border-radius:20px;background:#3FB273;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800">↗</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 HISTORY -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="10 Test History">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">10</span> Test History</div>
+      <div style="width:390px;height:844px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="padding:10px 24px 0;display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:23px;font-weight:900;letter-spacing:-.02em">테스트 기록</div>
+          <div style="font-family:'Nunito';font-size:13px;font-weight:800;color:#8A9C90">12</div>
+        </div>
+        <div style="padding:16px 24px 0;display:flex;gap:8px">
+          <div style="padding:9px 16px;border-radius:99px;background:#3FB273;color:#fff;font-size:13px;font-weight:800">전체</div>
+          <div style="padding:9px 16px;border-radius:99px;background:#fff;border:1.5px solid #E6EFE6;color:#6B8072;font-size:13px;font-weight:800">친구</div>
+          <div style="padding:9px 16px;border-radius:99px;background:#fff;border:1.5px solid #E6EFE6;color:#6B8072;font-size:13px;font-weight:800">회사</div>
+          <div style="padding:9px 16px;border-radius:99px;background:#fff;border:1.5px solid #E6EFE6;color:#6B8072;font-size:13px;font-weight:800">가족</div>
+        </div>
+        <div style="padding:18px 20px 0;display:flex;flex-direction:column;gap:11px">
+          <sc-for list="{{ history }}" as="h" hint-placeholder-count="4">
+            <div style="background:#fff;border-radius:24px;padding:18px;box-shadow:0 6px 16px rgba(76,120,90,.07);display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between">
+                <div style="display:flex;flex-direction:column;gap:5px">
+                  <div style="font-size:16px;font-weight:900">{{ h.name }}</div>
+                  <div style="font-size:12px;font-weight:700;color:#8A9C90">{{ h.meta }}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+                  <div style="font-family:'Nunito';font-size:20px;font-weight:900;color:#3FB273">{{ h.score }}%</div>
+                  <div style="font-family:'Nunito';font-size:10.5px;font-weight:700;color:#AFBDB3">{{ h.date }}</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap">
+                <sc-for list="{{ h.types }}" as="t" hint-placeholder-count="4">
+                  <div style="padding:4px 9px;border-radius:99px;background:#F1F6F1;font-family:'Nunito';font-size:10.5px;font-weight:900;color:#6B8072">{{ t }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);padding:12px 24px 28px;background:#fff;border-top:1px solid #EEF4EE">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:9px;background:#C3D2C7"></div><div style="font-size:11px;font-weight:800;color:#AFBDB3">Home</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:99px;border:3px solid #3FB273"></div><div style="font-size:11px;font-weight:900;color:#3FB273">History</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:99px;background:#C3D2C7"></div><div style="font-size:11px;font-weight:800;color:#AFBDB3">My</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11 MY PAGE -->
+    <div style="display:flex;flex-direction:column;gap:14px" data-screen-label="11 My Page">
+      <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:#3E5546"><span style="font-family:'Nunito';font-weight:900;color:#8AA891">11</span> My Page</div>
+      <div style="width:390px;height:844px;background:#F5FAF3;border-radius:40px;border:1px solid #E3EFE4;box-shadow:0 22px 50px rgba(70,110,80,.10);overflow:hidden;position:relative;display:flex;flex-direction:column;color:#26382C">
+        <div style="height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-family:'Nunito';font-size:13px;font-weight:800;color:#5B7062"><span>9:41</span><span>●●● ▮</span></div>
+        <div style="padding:10px 24px 0;font-size:23px;font-weight:900;letter-spacing:-.02em">My</div>
+        <div style="padding:20px 20px 0">
+          <div style="background:#fff;border-radius:30px;padding:24px;box-shadow:0 8px 20px rgba(76,120,90,.08);display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;align-items:center;gap:15px">
+              <div style="width:64px;height:64px;border-radius:22px;background:#DCF0E1;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#3F8B5C">준</div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                <div style="font-size:19px;font-weight:900">준</div>
+                <div style="display:flex;align-items:center;gap:7px">
+                  <div style="padding:3px 10px;border-radius:99px;background:#EDE6FF;color:#6B5AA8;font-family:'Nunito';font-size:11.5px;font-weight:900">ENTP</div>
+                  <div style="font-size:12px;font-weight:700;color:#9AAB9F">나의 MBTI</div>
+                </div>
+              </div>
+              <div style="font-size:12.5px;font-weight:800;color:#3F9E63">수정</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:#F5FAF3;border-radius:20px;padding:16px 0">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-family:'Nunito';font-size:20px;font-weight:900;color:#2E7A4E">12</div><div style="font-size:11.5px;font-weight:700;color:#8A9C90">테스트</div></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;border-left:1px solid #E4EEE5;border-right:1px solid #E4EEE5"><div style="font-family:'Nunito';font-size:20px;font-weight:900;color:#2E7A4E">4</div><div style="font-size:11.5px;font-weight:700;color:#8A9C90">내 그룹</div></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-family:'Nunito';font-size:20px;font-weight:900;color:#2E7A4E">86</div><div style="font-size:11.5px;font-weight:700;color:#8A9C90">평균 케미</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:18px 20px 0;display:flex;flex-direction:column;gap:10px">
+          <div style="background:#fff;border-radius:22px;padding:18px;box-shadow:0 5px 14px rgba(76,120,90,.06);display:flex;align-items:center;gap:14px">
+            <div style="width:42px;height:42px;border-radius:15px;background:#DCF0E1;display:flex;align-items:center;justify-content:center;font-size:17px">🗂</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px"><div style="font-size:15.5px;font-weight:900">테스트 기록</div><div style="font-size:12px;font-weight:600;color:#9AAB9F">지금까지의 모든 결과 보기</div></div>
+            <div style="font-size:17px;font-weight:800;color:#C3D2C7">›</div>
+          </div>
+          <div style="background:#fff;border-radius:22px;padding:18px;box-shadow:0 5px 14px rgba(76,120,90,.06);display:flex;align-items:center;gap:14px">
+            <div style="width:42px;height:42px;border-radius:15px;background:#E6EFF8;display:flex;align-items:center;justify-content:center;font-size:17px">👥</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px"><div style="font-size:15.5px;font-weight:900">내 그룹</div><div style="font-size:12px;font-weight:600;color:#9AAB9F">자주 쓰는 조합 저장하기</div></div>
+            <div style="font-size:17px;font-weight:800;color:#C3D2C7">›</div>
+          </div>
+          <div style="background:#fff;border-radius:22px;padding:18px;box-shadow:0 5px 14px rgba(76,120,90,.06);display:flex;align-items:center;gap:14px">
+            <div style="width:42px;height:42px;border-radius:15px;background:#F1EDFB;display:flex;align-items:center;justify-content:center;font-size:17px">⚙️</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px"><div style="font-size:15.5px;font-weight:900">계정 설정</div><div style="font-size:12px;font-weight:600;color:#9AAB9F">닉네임 · 비밀번호 변경</div></div>
+            <div style="font-size:17px;font-weight:800;color:#C3D2C7">›</div>
+          </div>
+          <div style="text-align:center;padding-top:14px;font-size:13px;font-weight:700;color:#AFBDB3">로그아웃</div>
+        </div>
+        <div style="margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);padding:12px 24px 28px;background:#fff;border-top:1px solid #EEF4EE">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:9px;background:#C3D2C7"></div><div style="font-size:11px;font-weight:800;color:#AFBDB3">Home</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:99px;border:3px solid #C3D2C7"></div><div style="font-size:11px;font-weight:800;color:#AFBDB3">History</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;border-radius:99px;background:#3FB273"></div><div style="font-size:11px;font-weight:900;color:#3FB273">My</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;overallScore&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:86,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Result&quot;}}">
+const G = {
+  ana: { bg: '#EDE6FF', fg: '#6B5AA8', border: '#E4D9FF' },
+  dip: { bg: '#DFF3E3', fg: '#3F8B5C', border: '#CDEBD4' },
+  sen: { bg: '#E6EFF8', fg: '#4A7E9E', border: '#D6E6F2' },
+  exp: { bg: '#FDEDE0', fg: '#B5794C', border: '#F7E0CD' }
+};
+const TYPES = [
+  ['INTJ','ana'],['INTP','ana'],['ENTJ','ana'],['ENTP','ana'],
+  ['INFJ','dip'],['INFP','dip'],['ENFJ','dip'],['ENFP','dip'],
+  ['ISTJ','sen'],['ISFJ','sen'],['ESTJ','sen'],['ESFJ','sen'],
+  ['ISTP','exp'],['ISFP','exp'],['ESTP','exp'],['ESFP','exp']
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    const score = this.props.overallScore ?? 86;
+    return {
+      score,
+      gaugeBg: `conic-gradient(#3FB273 0% ${score}%, rgba(255,255,255,.55) ${score}% 100%)`,
+      mbtiTypes: TYPES.map(([t, g]) => ({ t, ...G[g] })),
+      recent: [
+        { icon: '🧑‍🤝‍🧑', name: '대학 친구 4인방', meta: '친구 · 4명', types: 'ENTP · ENFP · ISTJ · INFJ', score: '86%', date: '08.17' },
+        { icon: '💼', name: '우리 개발팀', meta: '회사 · 5명', types: 'ENTP · INFJ · ISTJ · ENFP · INTJ', score: '82%', date: '08.11' },
+        { icon: '🏠', name: '우리 가족', meta: '가족 · 4명', types: 'ISFJ · ESTJ · ENFP · INTP', score: '74%', date: '07.29' }
+      ],
+      members: [
+        { name: '준', mbti: 'ENTP', gender: 'Male', isMe: true, ...G.ana },
+        { name: '민수', mbti: 'ISFJ', gender: 'Male', isMe: false, ...G.sen },
+        { name: '지연', mbti: '선택하기', gender: 'Female', isMe: false, bg: '#F1F6F1', fg: '#8A9C90' }
+      ],
+      scores: [
+        { label: '대화 케미', value: 92, width: '92%', color: '#3FB273' },
+        { label: '우정 / 관계 깊이', value: 85, width: '85%', color: '#3FB273' },
+        { label: '팀워크', value: 78, width: '78%', color: '#6FC4A0' },
+        { label: '분위기', value: 94, width: '94%', color: '#3FB273' },
+        { label: '갈등 가능성', value: 32, width: '32%', color: '#E0A24C' }
+      ],
+      roles: [
+        { name: '준', mbti: 'ENTP', role: '아이디어 뱅크', desc: '새로운 이야기를 꺼내고 분위기를 전환하는 역할', ...G.ana },
+        { name: '지연', mbti: 'ENFP', role: '분위기 메이커', desc: '사람들의 참여를 끌어내고 대화를 이어가는 역할', ...G.dip },
+        { name: '민수', mbti: 'ISTJ', role: '현실 담당', desc: '계획이 산으로 가지 않도록 중심을 잡는 역할', ...G.sen }
+      ],
+      pairs: [
+        { a: '준 ENTP', b: '지연 ENFP', icon: '❤️', score: 94, width: '94%', color: '#3FB273', line: '말이 끊이지 않는 조합' },
+        { a: '준 ENTP', b: '민수 ISTJ', icon: '⚡', score: 68, width: '68%', color: '#E0A24C', line: '다르지만 서로의 빈틈을 채워주는 조합' }
+      ],
+      history: [
+        { name: '우리 개발팀', meta: '회사 · 5명', score: 82, date: '2026.08.17', types: ['ENTP','INFJ','ISTJ','ENFP','INTJ'] },
+        { name: '대학 친구 4인방', meta: '친구 · 4명', score: 86, date: '2026.08.11', types: ['ENTP','ENFP','ISTJ','INFJ'] },
+        { name: '여행 멤버', meta: '친구 · 3명', score: 91, date: '2026.07.30', types: ['ENFP','ESFP','ISTP'] },
+        { name: '우리 가족', meta: '가족 · 4명', score: 74, date: '2026.07.29', types: ['ISFJ','ESTJ','ENFP','INTP'] }
+      ]
+    };
+  }
+}
+
+</script>
+</body>
+</html>

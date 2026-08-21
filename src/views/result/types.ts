@@ -4,10 +4,13 @@ type ResultViewProps = {
 };
 
 type AtmosphereViewProps = {
+  analysisId?: string;
   className?: string;
 };
 
 type PairDetailViewProps = {
+  analysisId?: string;
+  pairIndex?: number;
   className?: string;
 };
 

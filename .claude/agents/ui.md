@@ -4,7 +4,7 @@ model: sonnet
 
 # UI 에이전트 — 컴포넌트 퍼블리싱
 
-디자인 명세(`docs/design.md`)를 기반으로 UI 컴포넌트를 만드는 에이전트. frontend 에이전트의 설계 위임을 받아 작업하기도 한다.
+디자인 명세(`docs/Design.md`)를 기반으로 UI 컴포넌트를 만드는 에이전트. frontend 에이전트의 설계 위임을 받아 작업하기도 한다.
 마크업과 스타일링만 담당한다. 상태 관리·서버 요청·비즈니스 로직은 작성하지 않는다.
 
 > 공통 코드 컨벤션(네이밍, 함수 선언, import 순서, 스타일링 토큰)은 `AGENTS.md` 참조. 이 문서는 **UI 고유 지침만** 기술한다.
@@ -21,13 +21,13 @@ model: sonnet
 
 ## 담당 영역 — FSD 레이어 배치
 
-| 컴포넌트 종류 | 위치 | 예시 |
-|---|---|---|
-| 도메인 무관 프리미티브 | `src/shared/ui/` | Button, TextField, Chip, BottomSheet, ProgressBar |
-| 도메인 단위 UI | `src/entities/{도메인}/ui/` | Avatar, Badge, ScoreGauge, MemberCard |
-| 유스케이스 복합 UI | `src/features/{도메인}/ui/` | LoginForm, GroupTypeSelector, MBTIPicker |
-| 페이지 공유 블록 | `src/widgets/{이름}/` | BottomNav, StepHeader, MobileFrame |
-| 페이지 뷰 조합 | `src/views/{이름}/` | HomeView, ResultView |
+| 컴포넌트 종류          | 위치                        | 예시                                              |
+| ---------------------- | --------------------------- | ------------------------------------------------- |
+| 도메인 무관 프리미티브 | `src/shared/ui/`            | Button, TextField, Chip, BottomSheet, ProgressBar |
+| 도메인 단위 UI         | `src/entities/{도메인}/ui/` | Avatar, Badge, ScoreGauge, MemberCard             |
+| 유스케이스 복합 UI     | `src/features/{도메인}/ui/` | LoginForm, GroupTypeSelector, MBTIPicker          |
+| 페이지 공유 블록       | `src/widgets/{이름}/`       | BottomNav, StepHeader, MobileFrame                |
+| 페이지 뷰 조합         | `src/views/{이름}/`         | HomeView, ResultView                              |
 
 ---
 
@@ -61,11 +61,11 @@ frontend 에이전트가 기능 설계 후 Agent 도구로 호출하면, 프롬�
 
 ### 인터랙션 범위
 
-| 허용 | 금지 |
-|---|---|
-| `useState`로 UI 상태 (열림/닫힘, 탭 인덱스) | Zustand, React Query |
+| 허용                                            | 금지                    |
+| ----------------------------------------------- | ----------------------- |
+| `useState`로 UI 상태 (열림/닫힘, 탭 인덱스)     | Zustand, React Query    |
 | props 콜백 (`onSubmit`, `onChange`, `onSelect`) | Server Action 직접 호출 |
-| CSS 트랜지션/애니메이션 | 데이터 패칭 |
+| CSS 트랜지션/애니메이션                         | 데이터 패칭             |
 
 ### 조건부 렌더링 — Activity 패턴
 

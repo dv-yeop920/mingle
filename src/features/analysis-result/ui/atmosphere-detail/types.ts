@@ -1,4 +1,5 @@
 type AtmosphereDetailProps = {
+  analysisId?: string;
   className?: string;
 };
 

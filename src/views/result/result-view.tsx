@@ -131,6 +131,14 @@ const ResultView = ({
     summary: p.summary,
   }));
 
+  const handleAtmosphereClick = () => {
+    router.push(`/result/atmosphere?id=${id}`);
+  };
+
+  const handlePairClick = (index: number) => {
+    router.push(`/result/pair-detail?id=${id}&pair=${index}`);
+  };
+
   return (
     <div className={cn('flex flex-col gap-6 pb-6', className)}>
       <ResultReport
@@ -139,6 +147,8 @@ const ResultView = ({
         atmospheres={atmospheres}
         roles={roles}
         pairs={pairs}
+        onAtmosphereClick={handleAtmosphereClick}
+        onPairClick={handlePairClick}
       />
       <div className="flex flex-col gap-3 px-5">
         <ShareButton analysisId={id} />

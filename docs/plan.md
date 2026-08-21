@@ -38,7 +38,6 @@ src/
 │   │
 │   ├── (auth)/                           # ✅ 구현 완료
 │   │   ├── layout.tsx                    # MobileFrame 래퍼
-│   │   ├── page.tsx                      # "/" → SplashView
 │   │   ├── login/
 │   │   │   └── page.tsx                  # → views/login/LoginView
 │   │   └── signup/
@@ -46,8 +45,9 @@ src/
 │   │
 │   ├── (main)/                           # ✅ 구현 완료
 │   │   ├── layout.tsx                    # MobileFrame + BottomNav 레이아웃
+│   │   ├── page.tsx                      # "/" → HomeView + SplashOverlay
 │   │   ├── home/
-│   │   │   └── page.tsx                  # → views/home/HomeView
+│   │   │   └── page.tsx                  # redirect('/') 하위 호환
 │   │   ├── history/
 │   │   │   └── page.tsx                  # → views/history/HistoryView
 │   │   └── mypage/
@@ -214,6 +214,8 @@ src/
 ├── widgets/                              # 🔵 페이지 공용 조합 블록
 │   ├── bottom-nav/
 │   │   └── BottomNav.tsx                 # Home/History/My 3탭
+│   ├── splash-overlay/
+│   │   └── SplashOverlay.tsx             # 세션 1회 스플래시 오버레이
 │   ├── step-header/
 │   │   └── StepHeader.tsx                # 뒤로가기 + 진행 인디케이터
 │   └── mobile-frame/
@@ -224,8 +226,6 @@ src/
 │   │                                     #    entities + features + widgets를 조합하여
 │   │                                     #    하나의 완성된 페이지 뷰를 구성
 │   │
-│   ├── splash/
-│   │   └── SplashView.tsx
 │   ├── login/
 │   │   └── LoginView.tsx                 # features/auth/ui/LoginForm 조합
 │   ├── signup/
@@ -342,22 +342,22 @@ app ──→ views ──→ widgets ──→ features ──→ entities ─�
 
 ## 2. 페이지 / 라우트 목록
 
-| #   | 라우트                  | 화면                       | RSC/CC               | 설명                                         |
-| --- | ----------------------- | -------------------------- | -------------------- | -------------------------------------------- |
-| 1   | `/`                     | Splash                     | Server               | 세션 확인 → `/home` 또는 `/login` 리다이렉트 |
-| 2   | `/login`                | Login                      | Client Form          | ID/PW 입력, Server Action 인증               |
-| 3   | `/signup`               | Sign Up                    | Client Form          | 닉네임/ID/PW/PW확인, Zod 검증                |
-| 4   | `/home`                 | Home                       | Server               | 닉네임 패칭, Hero CTA, 최근 테스트           |
-| 5   | `/history`              | Test History               | Server + Client 필터 | 카드 리스트, 필터 칩 (searchParams)          |
-| 6   | `/mypage`               | My Page                    | Server               | 프로필, 통계, 메뉴                           |
-| 7   | `/mypage/settings`      | Account Settings           | Client Form          | 닉네임/PW/MBTI 재설정                        |
-| 8   | `/group-type`           | Group Type Selection       | Client               | 4종 카드 단일 선택, Step 1/3                 |
-| 9   | `/members`              | Member Setup + MBTI Picker | Client               | 멤버 추가, 바텀시트 MBTI, Step 2/3           |
-| 10  | `/analyzing`            | Analysis Loading           | Client               | AI API 호출 + 애니메이션, Step 3/3           |
-| 11  | `/result`               | Analysis Result            | Client               | 스크롤 리포트 (게이지, 지표, 역할, Pair)     |
-| 12  | `/result/atmosphere`    | Group Atmosphere Detail    | Client               | 분위기/의사결정/갈등/Best moment             |
-| 13  | `/result/pair-detail`   | Pair Detail                | Client               | 두 명 케미 상세                              |
-| —   | `/api/analyze`          | —                          | Server               | POST, AI 분석 + DB 저장                      |
+| #   | 라우트                  | 화면                       | RSC/CC               | 설명                                                     |
+| --- | ----------------------- | -------------------------- | -------------------- | -------------------------------------------------------- |
+| 1   | `/`                     | Home + SplashOverlay       | Client               | HomeView + SplashOverlay 동시 마운트 (splash는 세션 1회) |
+| 2   | `/login`                | Login                      | Client Form          | ID/PW 입력, Server Action 인증                           |
+| 3   | `/signup`               | Sign Up                    | Client Form          | 닉네임/ID/PW/PW확인, Zod 검증                            |
+| 4   | `/home`                 | (리다이렉트)               | Server               | `redirect('/')` 하위 호환                                |
+| 5   | `/history`              | Test History               | Server + Client 필터 | 카드 리스트, 필터 칩 (searchParams)                      |
+| 6   | `/mypage`               | My Page                    | Server               | 프로필, 통계, 메뉴                                       |
+| 7   | `/mypage/settings`      | Account Settings           | Client Form          | 닉네임/PW/MBTI 재설정                                    |
+| 8   | `/group-type`           | Group Type Selection       | Client               | 4종 카드 단일 선택, Step 1/3                             |
+| 9   | `/members`              | Member Setup + MBTI Picker | Client               | 멤버 추가, 바텀시트 MBTI, Step 2/3                       |
+| 10  | `/analyzing`            | Analysis Loading           | Client               | AI API 호출 + 애니메이션, Step 3/3                       |
+| 11  | `/result`               | Analysis Result            | Client               | 스크롤 리포트 (게이지, 지표, 역할, Pair)                 |
+| 12  | `/result/atmosphere`    | Group Atmosphere Detail    | Client               | 분위기/의사결정/갈등/Best moment                         |
+| 13  | `/result/pair-detail`   | Pair Detail                | Client               | 두 명 케미 상세                                          |
+| —   | `/api/analyze`          | —                          | Server               | POST, AI 분석 + DB 저장                                  |
 
 **Route Group 레이아웃:**
 
@@ -513,6 +513,86 @@ CREATE TRIGGER on_auth_user_created
 - 접근성 (44px 터치, aria-label, 포커스)
 - 최종 모바일 뷰포트(390×844) UI 검증
 
+### Phase 6.5: Splash 오버레이 마이그레이션 ✅
+
+Splash를 독립 페이지(`(auth)/page.tsx`)에서 **오버레이 위젯**으로 전환.
+HomeView와 SplashOverlay를 `(main)/page.tsx`에서 동시 마운트하여 데이터 프리패치 병렬화.
+
+- `src/views/splash/` 삭제 → `src/widgets/splash-overlay/` 신규
+- `(auth)/page.tsx` 삭제 → `(main)/page.tsx`에서 `<HomeView /> + <SplashOverlay />` 렌더링
+- BottomNav 홈 경로 `/home` → `/` 변경 + exact match 로직
+- `useSyncExternalStore`로 hydration-safe sessionStorage 접근
+- 상세: `docs/splash-overlay-migration.md`
+
+---
+
+## 4-1. 마이그레이션 계획 (퍼블리싱 · 라우팅 · 디자인 정합)
+
+비즈니스 로직과 API는 완성되었으나, 뷰 → 피처 간 콜백 연결, 라우트 네비게이션, 디자인 파일과의 UI 정합이 미완성.
+비로그인 테스트 플로우를 위한 auth 구조 변경도 필요.
+
+**기획 플로우 변경:**
+```
+비로그인 사용자:  홈(/) → 테스트(group-type → members → analyzing → result) → "저장" 시 회원가입 유도
+로그인 사용자:    홈(/) → 테스트 → 결과 저장 → 히스토리·마이페이지
+```
+
+### Phase 7: 네비게이션 연결 ✅
+
+전체 테스트 플로우의 뷰 → 피처 간 콜백 연결과 라우트 네비게이션 완성.
+
+- `home-view.tsx` — `'use client'` 추가, HeroCard에 `onClick → /group-type` 전달
+- `group-type-view.tsx` — StepHeader `onBack → /`, GroupTypeSelector `onNext → /members`
+- `member-setup-view.tsx` — StepHeader `onBack → /group-type`, MemberSetupForm `onStartAnalysis → /analyzing`
+- `analyzing-view.tsx` — mount 시 `requestAnalysis()` 호출, 성공 시 `/result?id=...`로 이동, 실패 시 에러+재시도
+- `result-view.tsx` — atmosphere/pair 클릭 핸들러 추가, searchParams로 서브 페이지 연결
+- `atmosphere-view.tsx`, `pair-detail-view.tsx` — `'use client'` + 뒤로가기 버튼
+- 서브 페이지 라우트(`atmosphere/page.tsx`, `pair-detail/page.tsx`) — searchParams에서 id/pair 추출
+
+### Phase 8: Result 상세 데이터 연결 + AI 스키마 변경
+
+- AI 프롬프트 스키마 확장: `tagline`, `pairChemistry`에 `description`, `conversationScore`, `conflictScore`, `recommendedSituations` 추가
+- `AtmosphereDetail` — mock → 실제 데이터 (`useAnalysis(analysisId)`)
+- `PairDetail` — mock → 실제 데이터 + 디자인 정합 (♥ 하트, 미니 지표, 서술 카드, 추천 상황)
+- `ResultView` — 클릭 핸들러 + 그린 헤더 + 분위기 섹션 4색 카드
+
+### Phase 9: 비로그인 테스트 플로우 + Auth 구조
+
+- `/api/analyze` — auth 체크를 optional로 변경 (비로그인: OpenAI만 호출, DB 저장 생략)
+- Zustand store에 `analysisResult` 임시 저장 필드 추가
+- `ResultView` — 이중 데이터 소스 (`analysisId` 있으면 DB, 없으면 store)
+- `proxy.ts` — PUBLIC_ROUTES 확장 (테스트 플로우 전체 공개, `/history`·`/mypage`만 보호)
+- 가입 후 store의 `analysisResult` 자동 DB 저장 플로우
+
+### Phase 10: 디자인 정합 구현
+
+디자인 파일(`docs/MIXTI_Mobile_App.dc.html`)과 현재 구현 비교 분석 기반으로 전 화면 UI 수정.
+
+- Splash: 배경 그린 계열 + 부제 텍스트 변경
+- Login/Signup: 그린 곡면 헤더 + 회원가입/로그인 링크
+- Home: 인사 헤더 + MBTI 4×4 그리드
+- Analysis Loading: 스피너 → 이모지 + 체크리스트 UI
+- Result: 그린 헤더 + 태그라인 + 분위기 4색 카드
+- Pair Detail: ♥ 하트 + 미니 지표 + 서술 카드 + 추천 상황
+- History: 제목 "테스트 기록" + 건수 표시
+- My Page: 프로필 카드 + 메뉴 스타일 매칭
+
+### Phase 11: 코드 정리
+
+- `GROUP_TYPE_LABELS` 3곳 중복 → `src/shared/config/group-types.ts`에 통합
+- mock 상수 파일 삭제 (`atmosphere-detail/constants.ts`, `pair-detail/constants.ts`, `result-report/constants.ts`)
+- 회원탈퇴 버튼 disabled + "준비 중" 텍스트
+
+### 마이그레이션 실행 순서
+
+| Phase | 내용                          | 의존성                      |
+| ----- | ----------------------------- | --------------------------- |
+| 7     | 네비게이션 연결               | 없음 (✅ 완료)              |
+| 8     | Result 데이터 + 스키마 변경   | Phase 7                     |
+| 9     | 비로그인 플로우 + Auth        | Phase 7                     |
+| 10    | 디자인 정합                   | Phase 8-9 기능 완성 후      |
+| 11    | 코드 정리                     | Phase 8 (mock 제거) + 10    |
+
 ---
 
 ## 5. 주의점 (RLS, Auth, 보안)
@@ -574,9 +654,21 @@ DELETE  → auth.uid() = user_id
 
 ## 검증 방법
 
+### Phase 0~6 (초기 구현)
+
 1. **Phase 0 검증**: Supabase 대시보드에서 테이블 생성 확인, RLS 정책 테스트 (anon key로 타인 데이터 접근 시 거부 확인)
 2. **Phase 1 검증**: 회원가입 → 로그인 → Home 진입 전체 흐름. 미인증 접근 시 `/login` 리다이렉트 확인
 3. **Phase 2 검증**: Group Type → Member Setup 플로우에서 Context 상태 유지 확인. MBTI Picker 16타입 선택 동작
 4. **Phase 3 검증**: 분석 API 호출 → 로딩 → 결과 표시 E2E. AI 응답 파싱 검증. DB 저장 확인
 5. **Phase 4 검증**: History 필터링, MyPage 통계 정확성, 설정 변경 반영
 6. **전체**: `npm run build` 성공, 모바일 뷰포트(390×844)에서 UI 확인
+
+### Phase 7~11 (마이그레이션)
+
+각 Phase 완료 후: `npm run lint` + `npx tsc --noEmit` + `npm run build` + `npm test`
+
+- **Phase 7**: 홈 CTA → `/group-type` → `/members` → `/analyzing`(API) → `/result?id=...` 전체 플로우 + 각 뒤로가기
+- **Phase 8**: `/result` → atmosphere/pair 카드 클릭 → 실제 데이터 표시 + 뒤로가기
+- **Phase 9**: 비로그인 홈→테스트→결과 확인, "저장" → 회원가입 → 가입 후 자동 저장, `/history`·`/mypage` → `/login` 리다이렉트
+- **Phase 10**: 각 화면을 디자인 파일과 나란히 비교, 전체 플로우 브라우저 검증
+- **Phase 11**: mock 삭제 후 빌드 성공, 중복 상수 통합 확인
