@@ -6,7 +6,7 @@ const NotFound = () => {
       <p className="font-nunito text-display font-black text-primary">404</p>
       <p className="text-body text-muted">페이지를 찾을 수 없습니다</p>
       <Link
-        href="/home"
+        href="/"
         className="flex h-[54px] w-full items-center justify-center rounded-field bg-primary text-[16px] font-extrabold text-primary-foreground"
       >
         홈으로 돌아가기

@@ -39,13 +39,13 @@ describe('login', () => {
 
     await expect(
       login({ username: 'testuser', password: 'password123!' }),
-    ).rejects.toThrow('NEXT_REDIRECT:/home');
+    ).rejects.toThrow('NEXT_REDIRECT:/');
 
     expect(mockSignInWithPassword).toHaveBeenCalledWith({
       email: 'testuser@mingle.local',
       password: 'password123!',
     });
-    expect(redirect).toHaveBeenCalledWith('/home');
+    expect(redirect).toHaveBeenCalledWith('/');
   });
 
   it('잘못된 자격증명이면 에러를 반환한다', async () => {
@@ -83,7 +83,7 @@ describe('signup', () => {
     });
     mockInsert.mockResolvedValue({ error: null });
 
-    await expect(signup(validInput)).rejects.toThrow('NEXT_REDIRECT:/home');
+    await expect(signup(validInput)).rejects.toThrow('NEXT_REDIRECT:/');
 
     expect(mockSignUp).toHaveBeenCalledWith({
       email: 'newuser@mingle.local',

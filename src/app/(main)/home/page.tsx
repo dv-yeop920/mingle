@@ -1,7 +1,7 @@
-import { HomeView } from '@/views/home';
+import { redirect } from 'next/navigation';
 
 const HomePage = () => {
-  return <HomeView />;
+  redirect('/');
 };
 
 export default HomePage;

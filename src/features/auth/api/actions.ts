@@ -25,7 +25,7 @@ const login = async (values: LoginFormValues) => {
     return { error: '아이디 또는 비밀번호가 올바르지 않습니다' };
   }
 
-  redirect('/home');
+  redirect('/');
 };
 
 const signup = async (values: SignupFormValues) => {
@@ -66,7 +66,7 @@ const signup = async (values: SignupFormValues) => {
     return { error: '프로필 생성에 실패했습니다' };
   }
 
-  redirect('/home');
+  redirect('/');
 };
 
 const logout = async () => {
