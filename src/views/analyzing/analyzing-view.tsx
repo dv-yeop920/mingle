@@ -57,11 +57,11 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     return (
       <div
         className={cn(
-          'flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6',
+          'flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#F1F9F2] px-6',
           className,
         )}
       >
-        <p className="text-center text-body text-destructive">{error}</p>
+        <p className="text-center text-body text-caution-foreground">{error}</p>
         <button
           type="button"
           onClick={() => {
@@ -76,16 +76,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     );
   }
 
-  return (
-    <div
-      className={cn(
-        'flex min-h-dvh items-center justify-center bg-background',
-        className,
-      )}
-    >
-      <AnalysisAnimation />
-    </div>
-  );
+  return <AnalysisAnimation className={className} />;
 };
 
 export { AnalyzingView };

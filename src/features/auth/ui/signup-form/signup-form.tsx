@@ -43,26 +43,26 @@ const SignupForm = ({ onLoginClick, className }: SignupFormProps) => {
       className={cn('flex flex-col gap-5', className)}
     >
       <TextField
-        label="닉네임"
+        label="Nickname"
         placeholder="8글자 이하"
         error={errors.nickname?.message}
         {...register('nickname')}
       />
       <TextField
-        label="아이디"
+        label="ID"
         placeholder="영어, 숫자만 가능"
         error={errors.username?.message}
         {...register('username')}
       />
       <TextField
-        label="비밀번호"
+        label="Password"
         type="password"
         placeholder="영어 + 숫자 + 특수문자, 6자 이상"
         error={errors.password?.message}
         {...register('password')}
       />
       <TextField
-        label="비밀번호 확인"
+        label="Password Confirm"
         type="password"
         placeholder="비밀번호를 다시 입력하세요"
         error={errors.confirmPassword?.message}
@@ -76,15 +76,15 @@ const SignupForm = ({ onLoginClick, className }: SignupFormProps) => {
       )}
 
       <Button type="submit" variant="primary" disabled={isPending}>
-        {isPending ? '가입 중...' : '회원가입'}
+        {isPending ? '가입 중...' : '가입하고 시작하기'}
       </Button>
 
-      <p className="text-center text-caption text-muted">
-        이미 계정이 있으신가요?{' '}
+      <p className="text-center text-[13px] font-bold text-[#8A9C90]">
+        이미 계정이 있나요?{' '}
         <button
           type="button"
           onClick={onLoginClick}
-          className="cursor-pointer font-bold text-primary-deep underline"
+          className="cursor-pointer font-extrabold text-primary"
         >
           로그인
         </button>

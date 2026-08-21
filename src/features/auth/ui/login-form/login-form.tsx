@@ -43,13 +43,13 @@ const LoginForm = ({ onSignupClick, className }: LoginFormProps) => {
       className={cn('flex flex-col gap-5', className)}
     >
       <TextField
-        label="아이디"
+        label="ID"
         placeholder="아이디를 입력하세요"
         error={errors.username?.message}
         {...register('username')}
       />
       <TextField
-        label="비밀번호"
+        label="Password"
         type="password"
         placeholder="비밀번호를 입력하세요"
         error={errors.password?.message}
@@ -66,12 +66,12 @@ const LoginForm = ({ onSignupClick, className }: LoginFormProps) => {
         {isPending ? '로그인 중...' : '로그인'}
       </Button>
 
-      <p className="text-center text-caption text-muted">
-        계정이 없으신가요?{' '}
+      <p className="text-center text-[14px] font-bold text-[#8A9C90]">
+        아직 계정이 없나요?{' '}
         <button
           type="button"
           onClick={onSignupClick}
-          className="cursor-pointer font-bold text-primary-deep underline"
+          className="cursor-pointer font-extrabold text-primary"
         >
           회원가입
         </button>

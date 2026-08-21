@@ -6,10 +6,14 @@ import type { SignupViewProps } from './types';
 
 const SignupView = ({ className }: SignupViewProps) => {
   return (
-    <div className={cn('flex flex-col gap-8 px-5 pt-16', className)}>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-title1 font-black text-foreground">회원가입</h1>
-        <p className="text-body text-muted">계정을 만들고 시작하세요</p>
+    <div className={cn('flex flex-col gap-6 px-7 pt-7', className)}>
+      <div className="flex flex-col gap-[6px]">
+        <h1 className="text-[27px] font-black tracking-title text-foreground">
+          3초면 시작할 수 있어요
+        </h1>
+        <p className="text-[14px] font-semibold text-[#7A8E80]">
+          닉네임만 정하면 준비 완료입니다.
+        </p>
       </div>
 
       <SignupForm />

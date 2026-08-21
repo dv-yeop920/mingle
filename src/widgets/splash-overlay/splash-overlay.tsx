@@ -51,21 +51,42 @@ const SplashOverlay = ({ className }: SplashOverlayProps) => {
   return (
     <div
       className={cn(
-        'fixed inset-0 z-50 flex flex-col items-center justify-center bg-background transition-opacity duration-500',
+        'fixed inset-0 z-50 flex flex-col bg-green-100 transition-opacity duration-500',
         phase === 'fading' && 'opacity-0',
         className,
       )}
       onTransitionEnd={() => setPhase('done')}
     >
-      <h1 className="font-nunito text-[42px] font-black tracking-tight text-primary">
-        MINGLE
-      </h1>
-      <p className="mt-2 text-caption text-muted">MBTI 그룹 케미 시뮬레이터</p>
+      <div className="absolute left-[44px] top-[120px] flex h-[120px] w-[96px] animate-mx-float items-center justify-center rounded-[24px] bg-white shadow-[0_12px_26px_rgba(30,70,45,.16)]">
+        <span className="font-nunito text-[22px] font-black text-analyst-fg">
+          ENTP
+        </span>
+      </div>
 
-      <div className="mt-12 flex gap-[6px]">
-        <span className="h-2 w-2 animate-bounce rounded-full bg-primary [animation-delay:0ms]" />
-        <span className="h-2 w-2 animate-bounce rounded-full bg-primary [animation-delay:150ms]" />
-        <span className="h-2 w-2 animate-bounce rounded-full bg-primary [animation-delay:300ms]" />
+      <div className="absolute right-[40px] top-[170px] flex h-[120px] w-[96px] animate-mx-float2 items-center justify-center rounded-[24px] bg-white shadow-[0_12px_26px_rgba(30,70,45,.16)]">
+        <span className="font-nunito text-[22px] font-black text-sentinel-fg">
+          ISFJ
+        </span>
+      </div>
+
+      <div className="m-auto flex flex-col items-center gap-[18px]">
+        <div className="flex h-[104px] w-[104px] animate-mx-pulse items-center justify-center rounded-[34px] bg-white shadow-[0_16px_34px_rgba(30,70,45,.18)]">
+          <span className="font-nunito text-[44px] font-black text-primary">
+            M
+          </span>
+        </div>
+        <span className="font-nunito text-[46px] font-black tracking-[.01em] text-[#1E4630]">
+          MIXTI
+        </span>
+        <span className="text-[17px] font-bold text-[#1E4630] opacity-[.78]">
+          MBTI로 알아보는 우리 사이의 케미
+        </span>
+      </div>
+
+      <div className="flex justify-center gap-2 pb-[74px]">
+        <span className="h-[9px] w-[9px] animate-mx-dot rounded-full bg-white" />
+        <span className="h-[9px] w-[9px] animate-mx-dot rounded-full bg-white [animation-delay:.15s]" />
+        <span className="h-[9px] w-[9px] animate-mx-dot rounded-full bg-white [animation-delay:.3s]" />
       </div>
     </div>
   );

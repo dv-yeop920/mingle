@@ -1,9 +1,13 @@
-const LOADING_MESSAGES = [
-  '멤버들의 MBTI를 분석하고 있어요...',
-  '그룹 케미스트리를 계산 중이에요...',
-  '성격 궁합을 확인하고 있어요...',
-  '최적의 역할을 배정하고 있어요...',
-  '결과를 정리하고 있어요...',
+const CHECKLIST_ITEMS = [
+  '우리의 성향을 조합하고 있어요',
+  '대화 스타일을 비교하고 있어요',
+  '우리 모임의 케미를 분석하고 있어요',
 ] as const;
 
-export { LOADING_MESSAGES };
+const TITLE_MESSAGES = [
+  '우리의 성향을\n조합하고 있어요',
+  '대화 스타일을\n비교 중이에요',
+  '누가 분위기 메이커인지\n찾고 있어요',
+] as const;
+
+export { CHECKLIST_ITEMS, TITLE_MESSAGES };

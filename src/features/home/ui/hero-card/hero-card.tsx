@@ -10,21 +10,32 @@ const HeroCard = ({ onClick, className }: HeroCardProps) => {
       type="button"
       onClick={onClick}
       className={cn(
-        'flex min-h-[180px] w-full cursor-pointer flex-col justify-between rounded-hero bg-primary p-6 shadow-hero',
+        'relative min-h-[180px] w-full cursor-pointer overflow-hidden rounded-hero bg-green-100 px-6 py-[26px] shadow-hero',
         'transition-transform duration-[120ms] active:scale-[.97]',
         className,
       )}
     >
-      <div className="flex flex-col items-start gap-2">
-        <h2 className="text-title2 font-black text-primary-foreground">새로운 케미 테스트</h2>
-        <p className="text-body text-primary-foreground/80">우리 사이의 케미를 알아보세요</p>
+      <div className="absolute right-[-18px] top-[22px] h-[98px] w-[78px] rounded-[20px] bg-white/55 rotate-12" />
+      <div className="absolute right-[26px] top-[44px] flex h-[98px] w-[78px] items-center justify-center rounded-[20px] bg-white -rotate-6">
+        <span className="font-nunito text-[17px] font-black text-primary-deep">MIX</span>
       </div>
 
-      <div className="flex justify-end">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
-          <path d="M5 12h14" />
-          <path d="M12 5l7 7-7 7" />
-        </svg>
+      <div className="relative flex max-w-[210px] flex-col gap-[10px]">
+        <h2 className="text-left text-[25px] font-black leading-[1.32] text-[#1E4630]">
+          오늘 우리 조합은
+          <br />
+          어떨까?
+        </h2>
+        <p className="text-left text-[13px] font-bold text-[#2E6644] opacity-85">
+          MBTI를 조합하고 우리 사이의 케미를 확인해보세요.
+        </p>
+      </div>
+
+      <div
+        className="relative mt-[22px] flex h-[54px] items-center justify-center gap-2 rounded-[18px] bg-white text-[16px] font-black text-[#2E7A4E]"
+        style={{ boxShadow: '0 8px 18px rgba(30,70,45,.14)' }}
+      >
+        ＋ 새로운 케미 테스트
       </div>
     </button>
   );

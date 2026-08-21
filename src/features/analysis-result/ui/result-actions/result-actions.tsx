@@ -1,5 +1,4 @@
 import { cn } from '@/shared/lib/utils';
-import { Button } from '@/shared/ui/button';
 
 import type { ResultActionsProps } from './types';
 
@@ -9,13 +8,21 @@ const ResultActions = ({
   className,
 }: ResultActionsProps) => {
   return (
-    <div className={cn('flex flex-col gap-3', className)}>
-      <Button variant="secondary" onClick={onRetest}>
+    <div className={cn('grid grid-cols-2 gap-[10px]', className)}>
+      <button
+        type="button"
+        onClick={onRetest}
+        className="flex h-[54px] cursor-pointer items-center justify-center rounded-field border-[1.5px] border-disabled bg-surface text-[14px] font-extrabold text-muted-alt"
+      >
         다시 테스트하기
-      </Button>
-      <Button variant="tonal" onClick={onAddMembers}>
+      </button>
+      <button
+        type="button"
+        onClick={onAddMembers}
+        className="flex h-[54px] cursor-pointer items-center justify-center rounded-field border-[1.5px] border-disabled bg-surface text-[14px] font-extrabold text-muted-alt"
+      >
         멤버 추가 분석
-      </Button>
+      </button>
     </div>
   );
 };

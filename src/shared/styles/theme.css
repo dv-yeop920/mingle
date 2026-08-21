@@ -135,4 +135,10 @@
 
   /* Letter Spacing */
   --tracking-title: -0.02em;
+
+  /* Animation */
+  --animate-mx-float: mx-float 5s ease-in-out infinite;
+  --animate-mx-float2: mx-float2 6s ease-in-out infinite;
+  --animate-mx-pulse: mx-pulse 3.4s ease-in-out infinite;
+  --animate-mx-dot: mx-dot 1.2s ease-in-out infinite;
 }
