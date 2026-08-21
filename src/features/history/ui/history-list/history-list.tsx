@@ -1,10 +1,10 @@
 'use client';
 
+import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { cn } from '@/shared/lib/utils';
 
 import { useAnalyses } from '@/entities/analysis';
 
-import { GROUP_TYPE_LABELS } from './constants';
 import type { HistoryListProps } from './types';
 
 const HistoryList = ({ filterType, className }: HistoryListProps) => {

@@ -9,12 +9,7 @@ type PromptInput = {
   }>;
 };
 
-const GROUP_TYPE_LABELS: Record<string, string> = {
-  friends: '친구',
-  work: '회사·팀',
-  family: '가족',
-  custom: '기타',
-};
+import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 
 const SYSTEM_PROMPT = `당신은 MBTI 기반 그룹 케미 분석 전문가입니다. MBTI 16가지 유형의 인지 기능(Fi, Fe, Ti, Te, Ni, Ne, Si, Se)과 기질론(분석가, 외교관, 관리자, 탐험가)을 기반으로 그룹 구성원들의 관계 역학을 분석합니다.
 

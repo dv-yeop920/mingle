@@ -145,9 +145,10 @@ const SettingsForm = ({
         </button>
         <button
           type="button"
-          className="cursor-pointer text-left text-caption text-hint"
+          disabled
+          className="text-left text-caption text-hint opacity-50"
         >
-          회원탈퇴
+          회원탈퇴 (준비 중)
         </button>
       </section>
     </div>

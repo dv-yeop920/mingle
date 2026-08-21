@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
+import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { cn } from '@/shared/lib/utils';
 import type { MbtiType } from '@/shared/types/mbti';
 
@@ -38,13 +39,6 @@ const ATMOSPHERE_SECTIONS: {
   { key: 'conflict', eyebrow: '주의 포인트', variant: 'positive' },
   { key: 'bestMoment', eyebrow: 'BEST MOMENT', variant: 'positive' },
 ];
-
-const GROUP_TYPE_LABELS: Record<string, string> = {
-  friends: '친구',
-  company: '회사 / 팀',
-  family: '가족',
-  custom: '기타',
-};
 
 const ResultView = ({
   analysisId: propAnalysisId,

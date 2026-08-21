@@ -577,10 +577,11 @@ HomeView와 SplashOverlay를 `(main)/page.tsx`에서 동시 마운트하여 데�
 - History: 제목 "테스트 기록" + 건수 표시
 - My Page: 프로필 카드 + 메뉴 스타일 매칭
 
-### Phase 11: 코드 정리
+### Phase 11: 코드 정리 ✅
 
-- `GROUP_TYPE_LABELS` 3곳 중복 → `src/shared/config/group-types.ts`에 통합
-- mock 상수 파일 삭제 (`atmosphere-detail/constants.ts`, `pair-detail/constants.ts`, `result-report/constants.ts`)
+- `GROUP_TYPE_LABELS` 4곳 중복 → `src/shared/config/group-types.ts`에 통합 (`result-view.tsx`의 `company` 키 버그도 수정)
+- mock 상수 파일 삭제: `result-report/constants.ts` (미사용), `recent-tests/constants.ts`, `history-list/constants.ts` (통합 후 빈 파일)
+  - `atmosphere-detail/constants.ts`, `pair-detail/constants.ts`는 Phase 8 실제 데이터 연결 전까지 유지
 - 회원탈퇴 버튼 disabled + "준비 중" 텍스트
 
 ### 마이그레이션 실행 순서
