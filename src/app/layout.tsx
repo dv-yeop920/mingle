@@ -1,19 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Gothic_A1, Nunito } from "next/font/google";
+import localFont from "next/font/local";
 
 import "./globals.css";
 import { Providers } from "./providers";
 
-const gothicA1 = Gothic_A1({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["latin"],
+const gothicA1 = localFont({
+  src: [
+    { path: "./fonts/gothic-a1-400.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/gothic-a1-500.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/gothic-a1-700.ttf", weight: "700", style: "normal" },
+    { path: "./fonts/gothic-a1-800.ttf", weight: "800", style: "normal" },
+    { path: "./fonts/gothic-a1-900.ttf", weight: "900", style: "normal" },
+  ],
   variable: "--font-gothic-a1",
   display: "swap",
 });
 
-const nunito = Nunito({
-  weight: ["700", "800", "900"],
-  subsets: ["latin"],
+const nunito = localFont({
+  src: [
+    { path: "./fonts/nunito-700.ttf", weight: "700", style: "normal" },
+    { path: "./fonts/nunito-800.ttf", weight: "800", style: "normal" },
+    { path: "./fonts/nunito-900.ttf", weight: "900", style: "normal" },
+  ],
   variable: "--font-nunito",
   display: "swap",
 });

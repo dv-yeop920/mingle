@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 import { createClient } from '@/shared/lib/supabase/server';
 import type { Json } from '@/shared/types/database';
+import type { Gender } from '@/shared/types/gender';
 
 type SaveAnalysisParams = {
   groupId: string;
@@ -70,7 +71,12 @@ const deleteAnalysis = async (analysisId: string) => {
 type SaveGuestAnalysisParams = {
   groupType: string;
   customName: string | null;
-  members: { nickname: string; mbti: string; is_self: boolean }[];
+  members: {
+    nickname: string;
+    mbti: string;
+    gender: Gender;
+    is_self: boolean;
+  }[];
   chemistryScore: number;
   tagline: string;
   metrics: Json;
@@ -106,7 +112,7 @@ const saveGuestAnalysis = async (params: SaveGuestAnalysisParams) => {
     group_id: group.id,
     nickname: m.nickname,
     mbti: m.mbti,
-    gender: 'other' as const,
+    gender: m.gender,
     is_self: m.is_self,
     order: i,
   }));

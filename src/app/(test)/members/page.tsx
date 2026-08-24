@@ -1,7 +1,7 @@
-import { MemberSetupView } from '@/views/members';
+import { MemberSetupContainer } from '@/views/members';
 
 const MembersPage = () => {
-  return <MemberSetupView />;
+  return <MemberSetupContainer />;
 };
 
 export default MembersPage;

@@ -2,7 +2,6 @@ import type { TestMember } from '@/features/test-flow/model/store';
 
 type RequestAnalysisInput = {
   groupType: string;
-  customName?: string;
   members: TestMember[];
 };
 

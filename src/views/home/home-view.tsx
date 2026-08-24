@@ -1,20 +1,27 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
 import { useProfile } from '@/entities/user';
 
 import { HeroCard, RecentTests } from '@/features/home';
+import { useTestFlowStore } from '@/features/test-flow';
 
 import type { HomeViewProps } from './types';
 
 const HomeView = ({ className }: HomeViewProps) => {
   const router = useRouter();
   const { data: profile } = useProfile();
+  const reset = useTestFlowStore((s) => s.reset);
   const nickname = profile?.nickname ?? '';
   const initials = nickname.slice(0, 2);
+
+  useEffect(() => {
+    reset();
+  }, [reset]);
 
   return (
     <div className={cn('flex flex-col', className)}>

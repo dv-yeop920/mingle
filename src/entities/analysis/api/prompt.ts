@@ -63,8 +63,8 @@ const SYSTEM_PROMPT = `당신은 MBTI 기반 그룹 케미 분석 전문가입�
 
 const buildAnalysisPrompt = (input: PromptInput) => {
   const groupLabel =
-    input.groupType === 'custom' && input.customName
-      ? input.customName
+    input.groupType === 'custom'
+      ? (input.customName ?? '기타')
       : GROUP_TYPE_LABELS[input.groupType] ?? input.groupType;
 
   const memberList = input.members

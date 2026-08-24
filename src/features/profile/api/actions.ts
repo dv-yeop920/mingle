@@ -3,8 +3,9 @@
 import { revalidatePath } from 'next/cache';
 
 import { createClient } from '@/shared/lib/supabase/server';
+import type { Gender } from '@/shared/types/gender';
 
-import { nicknameSchema, passwordSchema } from '@/features/profile/model/schemas';
+import { genderSchema, nicknameSchema, passwordSchema } from '@/features/profile/model/schemas';
 import type { NicknameFormValues, PasswordFormValues } from '@/features/profile/model/schemas';
 
 const VALID_MBTI_TYPES = [
@@ -101,4 +102,30 @@ const updateMbti = async (mbti: string) => {
   return { data: { mbti } };
 };
 
-export { updateMbti, updateNickname, updatePassword };
+const updateGender = async (gender: Gender) => {
+  const parsed = genderSchema.safeParse(gender);
+  if (!parsed.success) {
+    return { error: '성별을 선택해주세요' };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: '인증이 필요합니다' };
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ gender: parsed.data })
+    .eq('id', user.id);
+
+  if (error) {
+    return { error: '성별 변경에 실패했습니다' };
+  }
+
+  revalidatePath('/mypage');
+  return { data: { gender: parsed.data } };
+};
+
+export { updateGender, updateMbti, updateNickname, updatePassword };

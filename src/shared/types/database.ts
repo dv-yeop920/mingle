@@ -143,6 +143,7 @@ export type Database = {
         Row: {
           created_at: string;
           id: string;
+          gender: string | null;
           mbti: string | null;
           nickname: string;
           updated_at: string;
@@ -150,6 +151,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          gender?: string | null;
           id: string;
           mbti?: string | null;
           nickname: string;
@@ -158,6 +160,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          gender?: string | null;
           id?: string;
           mbti?: string | null;
           nickname?: string;

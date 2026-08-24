@@ -2,65 +2,60 @@
 
 import { useState } from 'react';
 
-import { cn } from '@/shared/lib/utils';
 import { BottomSheet } from '@/shared/ui/bottom-sheet';
 import { Button } from '@/shared/ui/button';
 
 import { MAX_MEMBER_COUNT, MIN_MEMBER_COUNT } from './constants';
 import type { MemberCountModalProps } from './types';
 
-const MemberCountModal = ({ isOpen, onClose, onConfirm }: MemberCountModalProps) => {
-  const [count, setCount] = useState(MIN_MEMBER_COUNT);
+const MemberCountModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+}: MemberCountModalProps) => {
+  const [value, setValue] = useState(String(MIN_MEMBER_COUNT));
 
-  const handleDecrement = () => {
-    setCount((prev) => Math.max(MIN_MEMBER_COUNT, prev - 1));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    setValue(raw);
   };
 
-  const handleIncrement = () => {
-    setCount((prev) => Math.min(MAX_MEMBER_COUNT, prev + 1));
+  const clamp = (v: string) => {
+    const num = Number(v);
+    if (!v || Number.isNaN(num) || num < MIN_MEMBER_COUNT)
+      return MIN_MEMBER_COUNT;
+    if (num > MAX_MEMBER_COUNT) return MAX_MEMBER_COUNT;
+    return num;
+  };
+
+  const handleBlur = () => {
+    const convertValueType = String(clamp(value));
+    setValue(convertValueType);
   };
 
   const handleConfirm = () => {
-    onConfirm(count);
+    const clamped = clamp(value);
+    setValue(String(clamped));
+    onConfirm(clamped);
   };
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="인원 수 입력">
       <div className="flex flex-col gap-6">
-        <p className="text-body text-muted">본인 포함 총 인원 수를 선택하세요</p>
+        <p className="text-body text-muted">
+          본인 포함 총 인원 수를 입력하세요
+        </p>
 
-        <div className="flex items-center justify-center gap-6">
-          <button
-            type="button"
-            onClick={handleDecrement}
-            disabled={count <= MIN_MEMBER_COUNT}
-            className={cn(
-              'flex h-[48px] w-[48px] items-center justify-center rounded-full text-[24px] font-bold btn-press',
-              count <= MIN_MEMBER_COUNT
-                ? 'cursor-not-allowed bg-disabled text-disabled-foreground'
-                : 'cursor-pointer bg-surface-alt text-foreground',
-            )}
-          >
-            −
-          </button>
-
-          <span className="min-w-[48px] text-center font-nunito text-[40px] font-black text-foreground">
-            {count}
-          </span>
-
-          <button
-            type="button"
-            onClick={handleIncrement}
-            disabled={count >= MAX_MEMBER_COUNT}
-            className={cn(
-              'flex h-[48px] w-[48px] items-center justify-center rounded-full text-[24px] font-bold btn-press',
-              count >= MAX_MEMBER_COUNT
-                ? 'cursor-not-allowed bg-disabled text-disabled-foreground'
-                : 'cursor-pointer bg-primary text-primary-foreground',
-            )}
-          >
-            +
-          </button>
+        <div className="flex items-center justify-center">
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={2}
+            value={value}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="w-[80px] border-b-2 border-primary bg-transparent text-center font-nunito text-[40px] font-black text-foreground outline-none"
+          />
         </div>
 
         <p className="text-center text-caption text-hint">

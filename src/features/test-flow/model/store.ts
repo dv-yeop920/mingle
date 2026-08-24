@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 
+import type { Gender } from '@/shared/types/gender';
 import type { MbtiType } from '@/shared/types/mbti';
 
 import type { GroupType } from '@/entities/group';
-import type { Gender } from '@/entities/member';
 
 type TestMember = {
   id: string;
@@ -12,6 +12,8 @@ type TestMember = {
   gender: Gender;
   isSelf: boolean;
 };
+
+type SelfMemberSeed = Pick<TestMember, 'gender' | 'mbti' | 'nickname'>;
 
 type AnalysisResult = {
   chemistryScore: number;
@@ -30,14 +32,18 @@ type AnalysisResult = {
     recommendedSituations?: string;
   }[];
   summary: string;
-  members: { nickname: string; mbti: string; is_self: boolean }[];
+  members: {
+    nickname: string;
+    mbti: string;
+    gender: Gender;
+    is_self: boolean;
+  }[];
   groupType: string;
   customName: string | null;
 };
 
 type TestFlowState = {
   groupType: GroupType | null;
-  customName: string;
   memberCount: number;
   members: TestMember[];
   isAnalyzing: boolean;
@@ -47,9 +53,11 @@ type TestFlowState = {
 
 type TestFlowActions = {
   setGroupType: (type: GroupType | null) => void;
-  setCustomName: (name: string) => void;
   setMemberCount: (count: number) => void;
-  initializeMembers: (count: number) => void;
+  initializeMembers: (
+    count: number,
+    selfMember?: SelfMemberSeed | null,
+  ) => void;
   addMember: (member: TestMember) => void;
   updateMember: (id: string, updates: Partial<TestMember>) => void;
   removeMember: (id: string) => void;
@@ -61,7 +69,6 @@ type TestFlowActions = {
 
 const INITIAL_STATE: TestFlowState = {
   groupType: null,
-  customName: '',
   memberCount: 0,
   members: [],
   isAnalyzing: false,
@@ -72,14 +79,13 @@ const INITIAL_STATE: TestFlowState = {
 const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
   ...INITIAL_STATE,
   setGroupType: (type) => set({ groupType: type }),
-  setCustomName: (name) => set({ customName: name }),
   setMemberCount: (count) => set({ memberCount: count }),
-  initializeMembers: (count) => {
+  initializeMembers: (count, selfMember) => {
     const members: TestMember[] = Array.from({ length: count }, (_, i) => ({
       id: crypto.randomUUID(),
-      nickname: '',
-      mbti: i === 0 ? 'ENFP' : 'ISTJ',
-      gender: 'other' as Gender,
+      nickname: i === 0 ? (selfMember?.nickname ?? '') : '',
+      mbti: i === 0 ? (selfMember?.mbti ?? 'ENFP') : 'ISTJ',
+      gender: i === 0 ? (selfMember?.gender ?? 'other') : 'other',
       isSelf: i === 0,
     }));
     set({ members });
@@ -103,4 +109,10 @@ const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
 }));
 
 export { useTestFlowStore };
-export type { AnalysisResult, TestFlowActions, TestFlowState, TestMember };
+export type {
+  AnalysisResult,
+  SelfMemberSeed,
+  TestFlowActions,
+  TestFlowState,
+  TestMember,
+};

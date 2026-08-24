@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { nicknameSchema, passwordSchema } from './schemas';
+import { genderSchema, nicknameSchema, passwordSchema } from './schemas';
 
 describe('nicknameSchema', () => {
   it('유효한 닉네임을 통과시킨다', () => {
@@ -99,5 +99,15 @@ describe('passwordSchema', () => {
       confirmPassword: '',
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe('genderSchema', () => {
+  it('허용된 성별 값을 통과시킨다', () => {
+    expect(genderSchema.safeParse('female').success).toBe(true);
+  });
+
+  it('허용되지 않은 성별 값을 거부한다', () => {
+    expect(genderSchema.safeParse('unknown').success).toBe(false);
   });
 });

@@ -51,6 +51,7 @@ create table public.profiles (
   username text unique not null,
   nickname text not null check (char_length(nickname) <= 8),
   mbti text check (mbti is null or char_length(mbti) = 4),
+  gender text check (gender is null or gender in ('male', 'female', 'other')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

@@ -10,7 +10,7 @@ import { StepHeader } from '@/widgets/step-header';
 
 import type { GroupTypeViewProps } from './types';
 
-const GroupTypeView = ({ className }: GroupTypeViewProps) => {
+const GroupTypeView = ({ selfMemberSeed, className }: GroupTypeViewProps) => {
   const router = useRouter();
 
   return (
@@ -26,7 +26,10 @@ const GroupTypeView = ({ className }: GroupTypeViewProps) => {
         </p>
       </div>
 
-      <GroupTypeSelector onNext={() => router.push('/members')} />
+      <GroupTypeSelector
+        selfMemberSeed={selfMemberSeed}
+        onNext={() => router.push('/members')}
+      />
     </div>
   );
 };

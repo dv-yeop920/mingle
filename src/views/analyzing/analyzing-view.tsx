@@ -19,7 +19,6 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
   const [error, setError] = useState<string | null>(null);
 
   const groupType = useTestFlowStore((s) => s.groupType);
-  const customName = useTestFlowStore((s) => s.customName);
   const members = useTestFlowStore((s) => s.members);
   const setAnalysisId = useTestFlowStore((s) => s.setAnalysisId);
   const setAnalysisResult = useTestFlowStore((s) => s.setAnalysisResult);
@@ -34,7 +33,6 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
 
     const result = await requestAnalysis({
       groupType,
-      customName: customName || undefined,
       members,
     });
 
@@ -52,7 +50,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
       setAnalysisResult(result.data);
       router.replace('/result');
     }
-  }, [groupType, customName, members, setAnalysisId, setAnalysisResult, router]);
+  }, [groupType, members, setAnalysisId, setAnalysisResult, router]);
 
   useEffect(() => {
     if (hasStarted.current) return;

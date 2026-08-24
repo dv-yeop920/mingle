@@ -66,7 +66,7 @@ const ResultView = ({
         description?: string; conversationScore?: number; conflictScore?: number; recommendedSituations?: string;
       }[];
       const group = dbAnalysis.groups as {
-        type: string; custom_name: string | null;
+        type: string;
         members: { nickname: string; mbti: string; is_self: boolean }[];
       } | null;
 
@@ -80,7 +80,6 @@ const ResultView = ({
         pairs: rawPairs,
         members: group?.members ?? [],
         groupType: group?.type ?? '',
-        customName: group?.custom_name ?? null,
       };
     }
 
@@ -95,7 +94,6 @@ const ResultView = ({
         pairs: storeResult.pairChemistry,
         members: storeResult.members,
         groupType: storeResult.groupType,
-        customName: storeResult.customName,
       };
     }
 
@@ -168,10 +166,7 @@ const ResultView = ({
     recommendedSituations: p.recommendedSituations,
   }));
 
-  const groupName =
-    normalized.groupType === 'custom'
-      ? (normalized.customName ?? '기타')
-      : (GROUP_TYPE_LABELS[normalized.groupType] ?? '그룹');
+  const groupName = GROUP_TYPE_LABELS[normalized.groupType] ?? '그룹';
 
   const memberMbtis = normalized.members.map((m) => m.mbti as MbtiType);
 

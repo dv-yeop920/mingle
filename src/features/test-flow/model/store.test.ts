@@ -30,7 +30,6 @@ describe('useTestFlowStore', () => {
   it('초기 상태가 올바르다', () => {
     const state = useTestFlowStore.getState();
     expect(state.groupType).toBeNull();
-    expect(state.customName).toBe('');
     expect(state.members).toEqual([]);
     expect(state.isAnalyzing).toBe(false);
     expect(state.analysisId).toBeNull();
@@ -43,19 +42,38 @@ describe('useTestFlowStore', () => {
     expect(useTestFlowStore.getState().groupType).toBe('friends');
   });
 
-  it('커스텀 이름을 설정한다', () => {
-    act(() => {
-      useTestFlowStore.getState().setCustomName('우리 모임');
-    });
-    expect(useTestFlowStore.getState().customName).toBe('우리 모임');
-  });
-
   it('멤버를 추가한다', () => {
     act(() => {
       useTestFlowStore.getState().addMember(MOCK_MEMBER);
     });
     expect(useTestFlowStore.getState().members).toHaveLength(1);
     expect(useTestFlowStore.getState().members[0]).toEqual(MOCK_MEMBER);
+  });
+
+  it('self member seed로 첫 멤버를 초기화한다', () => {
+    act(() => {
+      useTestFlowStore.getState().initializeMembers(3, {
+        nickname: '민지',
+        mbti: 'ENFP',
+        gender: 'female',
+      });
+    });
+
+    const { members } = useTestFlowStore.getState();
+
+    expect(members).toHaveLength(3);
+    expect(members[0]).toMatchObject({
+      nickname: '민지',
+      mbti: 'ENFP',
+      gender: 'female',
+      isSelf: true,
+    });
+    expect(members[1]).toMatchObject({
+      nickname: '',
+      mbti: 'ISTJ',
+      gender: 'other',
+      isSelf: false,
+    });
   });
 
   it('멤버를 업데이트한다', () => {
@@ -102,7 +120,6 @@ describe('useTestFlowStore', () => {
   it('리셋하면 초기 상태로 돌아간다', () => {
     act(() => {
       useTestFlowStore.getState().setGroupType('work');
-      useTestFlowStore.getState().setCustomName('테스트');
       useTestFlowStore.getState().addMember(MOCK_MEMBER);
       useTestFlowStore.getState().setIsAnalyzing(true);
       useTestFlowStore.getState().setAnalysisId('id-1');
@@ -111,7 +128,6 @@ describe('useTestFlowStore', () => {
 
     const state = useTestFlowStore.getState();
     expect(state.groupType).toBeNull();
-    expect(state.customName).toBe('');
     expect(state.members).toEqual([]);
     expect(state.isAnalyzing).toBe(false);
     expect(state.analysisId).toBeNull();

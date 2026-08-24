@@ -1,6 +1,5 @@
+import type { Gender } from '@/shared/types/gender';
 import type { MbtiType } from '@/shared/types/mbti';
-
-type Gender = 'male' | 'female' | 'other';
 
 type Member = {
   id: string;

@@ -1,10 +1,9 @@
-type GroupType = 'friends' | 'work' | 'family' | 'custom';
+type GroupType = 'friends' | 'work' | 'family';
 
 type Group = {
   id: string;
   userId: string;
   type: GroupType;
-  customName: string | null;
   createdAt: string;
 };
 

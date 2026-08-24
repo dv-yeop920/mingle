@@ -14,7 +14,7 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
   const router = useRouter();
   const members = useTestFlowStore((s) => s.members);
   const groupType = useTestFlowStore((s) => s.groupType);
-  const groupTypeLabel = groupType ? (GROUP_TYPE_LABELS[groupType] ?? '기타') : '그룹';
+  const groupTypeLabel = groupType ? (GROUP_TYPE_LABELS[groupType] ?? '그룹') : '그룹';
 
   const hasEmptyNickname = members.some((m) => m.nickname.trim() === '');
   const isDisabled = members.length < 2 || hasEmptyNickname;

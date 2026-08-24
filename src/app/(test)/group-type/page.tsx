@@ -1,7 +1,7 @@
-import { GroupTypeView } from '@/views/group-type';
+import { GroupTypeContainer } from '@/views/group-type';
 
 const GroupTypePage = () => {
-  return <GroupTypeView />;
+  return <GroupTypeContainer />;
 };
 
 export default GroupTypePage;

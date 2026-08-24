@@ -6,6 +6,8 @@
 - 서버 액션이 `{ error }`를 반환하는 실패와 throw되는 요청 실패를 모두 사용자에게 알린다.
 - 닉네임 변경 성공 후 마이페이지/홈에서 이전 프로필 캐시가 남지 않도록 갱신한다.
 - MBTI 변경 버튼은 공통 MBTI picker를 열고, 선택 즉시 서버에 저장한다.
+- 성별은 `male | female | other` 중 하나로 선택 즉시 서버에 저장한다.
+- 테스트 진입 중 프로필 보완이 필요한 경우 설정 화면에서 MBTI와 성별이 모두 저장된 뒤 원래 테스트 경로로 복귀한다.
 
 ## 흐름
 
@@ -14,6 +16,8 @@
 - 실패: root error 표시, error toast 표시
 - MBTI picker 선택 → `updateMbti` 호출 → 성공 시 현재 화면 값 갱신, sheet 닫기, profile query invalidation, success toast 표시
 - MBTI 변경 실패 시 기존 MBTI를 유지하고 error toast 표시
+- 성별 선택 → `updateGender` 호출 → 성공 시 현재 화면 값 갱신, profile query invalidation, success toast 표시
+- `required=profile` 진입에서는 `currentMbti && currentGender`를 만족한 저장 성공 시 `redirect` 파라미터의 내부 경로로 복귀한다.
 
 ## UI
 

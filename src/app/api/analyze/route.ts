@@ -126,6 +126,7 @@ export const POST = async (request: Request) => {
           members: members.map((m) => ({
             nickname: m.nickname,
             mbti: m.mbti,
+            gender: m.gender,
             is_self: m.isSelf,
           })),
           groupType,

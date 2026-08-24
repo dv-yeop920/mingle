@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const genderSchema = z.enum(['male', 'female', 'other']);
+
 const nicknameSchema = z.object({
   nickname: z
     .string()
@@ -26,4 +28,4 @@ const passwordSchema = z
 type NicknameFormValues = z.infer<typeof nicknameSchema>;
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
-export { nicknameSchema, passwordSchema, type NicknameFormValues, type PasswordFormValues };
+export { genderSchema, nicknameSchema, passwordSchema, type NicknameFormValues, type PasswordFormValues };

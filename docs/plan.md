@@ -393,6 +393,7 @@ auth.users (Supabase 관리)
 | `username`   | text UNIQUE NOT NULL      | 로그인 ID (영어+숫자)     |
 | `nickname`   | text NOT NULL             | 표시 닉네임 (≤8자)        |
 | `mbti`       | text NULL                 | 사용자 MBTI (미설정 가능) |
+| `gender`     | text NULL                 | 사용자 성별 (미설정 가능) |
 | `created_at` | timestamptz               | 가입 일시                 |
 | `updated_at` | timestamptz               | 수정 일시                 |
 

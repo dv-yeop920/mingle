@@ -1,7 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { updateMbti, updateNickname, updatePassword } from './actions';
+import { updateGender, updateMbti, updateNickname, updatePassword } from './actions';
 
 const mockGetUser = vi.fn();
 const mockSignInWithPassword = vi.fn();
@@ -150,6 +150,30 @@ describe('updateMbti', () => {
     mockGetUser.mockResolvedValue(mockNoUser);
 
     const result = await updateMbti('ENFP');
+    expect(result).toEqual({ error: '인증이 필요합니다' });
+  });
+});
+
+describe('updateGender', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('유효한 성별로 업데이트한다', async () => {
+    mockGetUser.mockResolvedValue(mockAuthUser);
+    mockEq.mockResolvedValue({ error: null });
+
+    const result = await updateGender('female');
+
+    expect(result).toEqual({ data: { gender: 'female' } });
+    expect(mockUpdate).toHaveBeenCalledWith({ gender: 'female' });
+    expect(revalidatePath).toHaveBeenCalledWith('/mypage');
+  });
+
+  it('미인증 사용자면 에러를 반환한다', async () => {
+    mockGetUser.mockResolvedValue(mockNoUser);
+
+    const result = await updateGender('other');
     expect(result).toEqual({ error: '인증이 필요합니다' });
   });
 });

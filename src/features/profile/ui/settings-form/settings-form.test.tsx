@@ -7,18 +7,29 @@ import { ToastProvider } from '@/shared/ui/toast';
 
 import { SettingsForm } from './settings-form';
 
-const { mockUpdateMbti, mockUpdateNickname, mockUpdatePassword } = vi.hoisted(
-  () => ({
+const {
+  mockUpdateGender,
+  mockUpdateMbti,
+  mockUpdateNickname,
+  mockUpdatePassword,
+} = vi.hoisted(() => ({
+    mockUpdateGender: vi.fn(),
     mockUpdateMbti: vi.fn(),
     mockUpdateNickname: vi.fn(),
     mockUpdatePassword: vi.fn(),
-  }),
-);
+  }));
 
 vi.mock('@/features/profile/api/actions', () => ({
+  updateGender: mockUpdateGender,
   updateMbti: mockUpdateMbti,
   updateNickname: mockUpdateNickname,
   updatePassword: mockUpdatePassword,
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    replace: vi.fn(),
+  }),
 }));
 
 const renderSettingsForm = () => {
@@ -29,7 +40,7 @@ const renderSettingsForm = () => {
   return render(
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <SettingsForm nickname="기존닉" mbti="ENFP" />
+        <SettingsForm nickname="기존닉" mbti="ENFP" gender="female" />
       </ToastProvider>
     </QueryClientProvider>,
   );
@@ -101,5 +112,18 @@ describe('SettingsForm', () => {
     const alert = await screen.findByRole('alert');
 
     expect(within(alert).getByText('MBTI 변경에 실패했습니다')).toBeInTheDocument();
+  });
+
+  it('성별 선택 시 즉시 저장하고 성공 toast를 표시한다', async () => {
+    const user = userEvent.setup();
+    mockUpdateGender.mockResolvedValue({ data: { gender: 'male' } });
+    renderSettingsForm();
+
+    await user.click(screen.getByRole('button', { name: '남' }));
+
+    await waitFor(() => {
+      expect(mockUpdateGender).toHaveBeenCalledWith('male');
+    });
+    expect(screen.getByText('성별이 변경되었습니다')).toBeInTheDocument();
   });
 });

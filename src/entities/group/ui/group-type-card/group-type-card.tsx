@@ -38,16 +38,19 @@ const GroupTypeCard = ({
 
       <div className="flex flex-1 flex-col items-start gap-1">
         <span className="text-[17px] font-black text-foreground">{title}</span>
-        <span className="text-[12.5px] font-semibold leading-[1.45] text-[#8A9C90]">
+        <span className="whitespace-pre-line text-left text-[12.5px] font-semibold leading-[1.45] text-[#8A9C90]">
           {description}
         </span>
       </div>
 
-      {isSelected && (
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[13px] font-black text-primary-foreground">
-          ✓
-        </div>
-      )}
+      <div
+        className={cn(
+          'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[13px] font-black transition-opacity duration-200',
+          isSelected ? 'bg-primary text-primary-foreground opacity-100' : 'opacity-0',
+        )}
+      >
+        ✓
+      </div>
     </button>
   );
 };
