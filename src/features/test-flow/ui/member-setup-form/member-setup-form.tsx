@@ -5,12 +5,12 @@ import { useState } from 'react';
 import type { MbtiType } from '@/shared/types/mbti';
 import { Button } from '@/shared/ui/button';
 
+import { MbtiPicker } from '@/entities/mbti';
 import type { Gender } from '@/entities/member';
 
 import { useTestFlowStore } from '@/features/test-flow/model/store';
 
 import { EditableMemberCard } from '../editable-member-card';
-import { MbtiPicker } from '../mbti-picker';
 
 import type { MemberSetupFormProps } from './types';
 

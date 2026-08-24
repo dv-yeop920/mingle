@@ -29,13 +29,16 @@ const createSupabaseProxy = (request: NextRequest) => {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
+          );
+          Object.entries(headers).forEach(([key, value]) =>
+            response.headers.set(key, value),
           );
         },
       },
@@ -45,8 +48,9 @@ const createSupabaseProxy = (request: NextRequest) => {
   return { supabase, response };
 };
 
-const updateSession = (request: NextRequest) => {
-  const { response } = createSupabaseProxy(request);
+const updateSession = async (request: NextRequest) => {
+  const { supabase, response } = createSupabaseProxy(request);
+  await supabase.auth.getClaims();
   return response;
 };
 
@@ -59,11 +63,9 @@ export const proxy = async (request: NextRequest) => {
 
   const { supabase, response } = createSupabaseProxy(request);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getClaims();
 
-  if (!user) {
+  if (error || !data?.claims) {
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
   }
@@ -73,6 +75,6 @@ export const proxy = async (request: NextRequest) => {
 
 export const config = {
   matcher: [
-    //'/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

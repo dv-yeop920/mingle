@@ -4,6 +4,7 @@ type MbtiPickerProps = {
   isOpen: boolean;
   onClose: () => void;
   onSelect?: (mbti: MbtiType) => void;
+  disabled?: boolean;
   className?: string;
 };
 

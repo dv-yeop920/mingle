@@ -1,8 +1,8 @@
-import type { MbtiType } from '@/shared/types/mbti';
+import type { MbtiType, Temperament } from '@/shared/types/mbti';
 
 type MbtiGroup = {
   label: string;
-  temperament: string;
+  temperament: Temperament;
   types: MbtiType[];
 };
 
@@ -13,4 +13,4 @@ const MBTI_GROUPS: MbtiGroup[] = [
   { label: '탐험가', temperament: 'explorer', types: ['ISTP', 'ISFP', 'ESTP', 'ESFP'] },
 ];
 
-export { MBTI_GROUPS };
+export { MBTI_GROUPS, type MbtiGroup };

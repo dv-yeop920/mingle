@@ -3,6 +3,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { ToastProvider } from '@/shared/ui';
+
 import { PendingAnalysisSaver } from './pending-analysis-saver';
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
@@ -20,8 +22,10 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PendingAnalysisSaver />
-      {children}
+      <ToastProvider>
+        <PendingAnalysisSaver />
+        {children}
+      </ToastProvider>
     </QueryClientProvider>
   );
 };
