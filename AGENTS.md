@@ -164,3 +164,29 @@ shared → entities → features → widgets → views → app
 - 구현 계획: `docs/plan.md`
 - Supabase 작업 가이드: `docs/supabase-guide.md`
 - 디자인 요구사항: `docs/requirements.md`
+
+---
+
+## 10. 역할별 Agent 지침
+
+Claude agent 지침을 source of truth로 둔다.
+Codex는 역할별 작업을 시작할 때 아래 파일을 먼저 읽고 해당 역할 기준으로 작업한다.
+
+| 역할 | Agent 지침 |
+|---|---|
+| Backend | `.claude/agents/backend.md` |
+| Frontend | `.claude/agents/frontend.md` |
+| Review | `.claude/agents/review.md` |
+| Test | `.claude/agents/test.md` |
+| UI | `.claude/agents/ui.md` |
+
+---
+
+## 11. 커맨드 지침
+
+Claude command 지침을 source of truth로 둔다.
+사용자가 command 이름을 입력하면 Codex는 아래 파일을 먼저 읽고 그대로 실행한다.
+
+| Command | 지침 |
+|---|---|
+| `/ship` | `.claude/commands/ship.md` |
