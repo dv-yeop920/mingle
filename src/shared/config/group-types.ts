@@ -5,4 +5,12 @@ const GROUP_TYPE_LABELS: Record<string, string> = {
   family: '가족',
 };
 
-export { GROUP_TYPE_LABELS };
+const GROUP_TYPE_ICONS: Record<string, string> = {
+  friends: '🧑‍🤝‍🧑',
+  company: '💼',
+  work: '💼',
+  family: '🏠',
+  custom: '✏️',
+};
+
+export { GROUP_TYPE_ICONS, GROUP_TYPE_LABELS };

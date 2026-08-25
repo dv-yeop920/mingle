@@ -37,6 +37,7 @@ import {
 import {
   normalizeAtmosphereSections,
   normalizeMemberRoles,
+  normalizeMetrics,
   normalizePairChemistry,
 } from './lib/normalize-analysis';
 import type { ResultViewProps } from './types';
@@ -73,37 +74,11 @@ const ResultView = ({
   const [saveError, setSaveError] = useState<string | null>(null);
   const id = propAnalysisId ?? storeAnalysisId ?? '';
 
-  const { data: dbAnalysis, isLoading } = useAnalysis(id);
+  const { data: dbAnalysis, isError, isLoading } = useAnalysis(id);
   const isGuest = !id && !!storeResult;
 
   const normalized = useMemo(() => {
     if (dbAnalysis) {
-      const rawMetrics = dbAnalysis.metrics as Record<string, number>;
-      const rawAtmosphere = dbAnalysis.group_atmosphere as Record<
-        string,
-        string
-      >;
-      const rawRoles = dbAnalysis.member_roles as {
-        nickname: string;
-        mbti: string;
-        role?: string;
-        title?: string;
-        description: string;
-      }[];
-      const rawPairs = dbAnalysis.pair_chemistry as {
-        memberA?: string;
-        memberB?: string;
-        memberANickname?: string;
-        memberBNickname?: string;
-        memberAMbti?: string;
-        memberBMbti?: string;
-        score: number;
-        summary: string;
-        description?: string;
-        conversationScore?: number;
-        conflictScore?: number;
-        recommendedSituations?: string | string[];
-      }[];
       const group = dbAnalysis.groups as {
         type: string;
         members: { nickname: string; mbti: string; is_self: boolean }[];
@@ -113,10 +88,10 @@ const ResultView = ({
         chemistryScore: dbAnalysis.chemistry_score,
         tagline: dbAnalysis.tagline as string | null,
         summary: dbAnalysis.summary,
-        metrics: rawMetrics,
-        atmosphereSource: { groupAtmosphere: rawAtmosphere },
-        roles: rawRoles,
-        pairs: rawPairs,
+        metrics: normalizeMetrics(dbAnalysis.metrics),
+        atmosphereSource: { groupAtmosphere: dbAnalysis.group_atmosphere },
+        roles: dbAnalysis.member_roles,
+        pairs: dbAnalysis.pair_chemistry,
         members: group?.members ?? [],
         groupType: group?.type ?? '',
       };
@@ -157,6 +132,16 @@ const ResultView = ({
     return (
       <div className={cn('flex items-center justify-center py-12', className)}>
         <p className="text-body text-muted">결과를 불러오는 중...</p>
+      </div>
+    );
+  }
+
+  if (id && isError) {
+    return (
+      <div className={cn('flex items-center justify-center py-12', className)}>
+        <p className="text-body text-muted">
+          결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+        </p>
       </div>
     );
   }
@@ -213,7 +198,7 @@ const ResultView = ({
     title: string,
     options: SaveAnalysisOptions = {},
   ) => {
-    if (!storeResult || isSaving) return;
+    if (!isGuest || !storeResult || isSaving) return;
 
     setSaveError(null);
     setIsSaving(true);
@@ -338,11 +323,12 @@ const ResultView = ({
           }}
         />
       )}
-      <div className="rounded-b-[34px] bg-green-100 pb-[30px]">
+      <div className="relative rounded-b-[34px] bg-green-100 pb-[30px] before:absolute before:inset-x-0 before:bottom-full before:h-[max(12px,env(safe-area-inset-top))] before:bg-green-100 before:content-['']">
         <div className="flex items-center justify-between px-[22px] pb-0 pt-[6px]">
           <button
             type="button"
-            onClick={() => router.push('/')}
+            aria-label="이전 화면으로"
+            onClick={() => (id ? router.back() : router.push('/'))}
             className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[16px] font-extrabold text-[#2E6644] btn-press"
           >
             ‹
@@ -478,7 +464,7 @@ const ResultView = ({
         <button
           type="button"
           onClick={() => setIsSaveSheetOpen(true)}
-          disabled={isSaving || !storeResult}
+          disabled={isSaving || !isGuest}
           className="flex h-[60px] cursor-pointer items-center justify-center rounded-[22px] bg-primary font-extrabold text-[17px] text-primary-foreground shadow-lg btn-press"
         >
           {isSaving

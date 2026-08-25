@@ -15,7 +15,7 @@ const useAnalyses = (groupType?: string) => {
       let query = supabase
         .from('analyses')
         .select(
-          '*, groups(type, custom_name, members(nickname, mbti, is_self))',
+          '*, groups!inner(type, custom_name, members(nickname, mbti, is_self))',
         )
         .order('created_at', { ascending: false });
 
@@ -39,10 +39,10 @@ const useAnalysis = (id: string) => {
       const { data, error } = await supabase
         .from('analyses')
         .select(
-          '*, groups(type, custom_name, members(nickname, mbti, is_self, gender, "order"))',
+          '*, groups(type, custom_name, members(nickname, mbti, is_self, gender, order))',
         )
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;

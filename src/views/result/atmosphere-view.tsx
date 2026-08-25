@@ -18,12 +18,24 @@ const AtmosphereView = ({ analysisId, className }: AtmosphereViewProps) => {
   const isAnalysisResultHydrated = useTestFlowStore(
     (state) => state.isAnalysisResultHydrated,
   );
-  const { data: dbAnalysis, isLoading } = useAnalysis(analysisId ?? '');
+  const { data: dbAnalysis, isError, isLoading } = useAnalysis(
+    analysisId ?? '',
+  );
 
   if ((!analysisId && !isAnalysisResultHydrated) || (analysisId && isLoading)) {
     return (
       <div className={cn('flex items-center justify-center py-12', className)}>
         <p className="text-body text-muted">불러오는 중...</p>
+      </div>
+    );
+  }
+
+  if (analysisId && isError) {
+    return (
+      <div className={cn('flex items-center justify-center py-12', className)}>
+        <p className="text-body text-muted">
+          결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
+        </p>
       </div>
     );
   }

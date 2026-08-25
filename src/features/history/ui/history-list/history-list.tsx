@@ -1,9 +1,9 @@
 'use client';
 
-import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
+import { GROUP_TYPE_ICONS, GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { cn } from '@/shared/lib/utils';
 
-import { useAnalyses } from '@/entities/analysis';
+import { ResultSummaryCard, useAnalyses } from '@/entities/analysis';
 
 import type { HistoryListProps } from './types';
 
@@ -39,6 +39,8 @@ const HistoryList = ({ filterType, className }: HistoryListProps) => {
         } | null;
         const groupType = group?.type ?? '';
         const members = group?.members ?? [];
+        const icon = GROUP_TYPE_ICONS[groupType] ?? '✏️';
+        const representativeMbtis = members.map((member) => member.mbti);
         const dateStr = new Date(item.created_at).toLocaleDateString('ko-KR', {
           year: 'numeric',
           month: '2-digit',
@@ -46,39 +48,17 @@ const HistoryList = ({ filterType, className }: HistoryListProps) => {
         });
 
         return (
-          <div
+          <ResultSummaryCard
             key={item.id}
-            className="flex flex-col gap-[12px] rounded-[24px] bg-surface p-[18px] shadow-md"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col gap-[5px]">
-                <span className="text-[16px] font-black text-foreground">
-                  {item.title}
-                </span>
-                <span className="text-[12px] font-bold text-hint">
-                  {GROUP_TYPE_LABELS[groupType] ?? '기타'} · {members.length}명
-                </span>
-              </div>
-              <div className="flex flex-col items-end gap-[3px]">
-                <span className="font-nunito text-[20px] font-black text-primary">
-                  {item.chemistry_score}%
-                </span>
-                <span className="font-nunito text-[10.5px] font-bold text-[#AFBDB3]">
-                  {dateStr}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-[5px]">
-              {members.map((m) => (
-                <span
-                  key={m.nickname}
-                  className="rounded-pill bg-[#F1F6F1] px-[9px] py-[4px] font-nunito text-[10.5px] font-black text-[#6B8072]"
-                >
-                  {m.mbti}
-                </span>
-              ))}
-            </div>
-          </div>
+            title={item.title}
+            groupType={GROUP_TYPE_LABELS[groupType] ?? '기타'}
+            memberCount={members.length}
+            chemistryScore={item.chemistry_score}
+            date={dateStr}
+            representativeMbtis={representativeMbtis}
+            icon={icon}
+            href={`/result?id=${encodeURIComponent(item.id)}`}
+          />
         );
       })}
     </div>

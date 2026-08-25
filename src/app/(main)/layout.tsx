@@ -4,7 +4,7 @@ import { MobileFrame } from '@/widgets/mobile-frame';
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <MobileFrame>
-      <div className="pb-[72px]">{children}</div>
+      <div className="pb-[112px]">{children}</div>
       <BottomNav />
     </MobileFrame>
   );

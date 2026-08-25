@@ -1,18 +1,11 @@
 'use client';
 
-import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
+import { GROUP_TYPE_ICONS, GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { cn } from '@/shared/lib/utils';
 
-import { useAnalyses } from '@/entities/analysis';
+import { ResultSummaryCard, useAnalyses } from '@/entities/analysis';
 
 import type { RecentTestsProps } from './types';
-
-const GROUP_TYPE_ICONS: Record<string, string> = {
-  friends: '🧑‍🤝‍🧑',
-  work: '💼',
-  family: '🏠',
-  custom: '✏️',
-};
 
 const RecentTests = ({ className }: RecentTestsProps) => {
   const { data: analyses, isLoading } = useAnalyses();
@@ -68,46 +61,25 @@ const RecentTests = ({ className }: RecentTestsProps) => {
           const groupType = group?.type ?? '';
           const members = group?.members ?? [];
           const icon = GROUP_TYPE_ICONS[groupType] ?? '✏️';
-          const mbtiStr = members
-            .slice(0, 5)
-            .map((m) => m.mbti)
-            .join(' · ');
-          const dateStr = new Date(item.created_at)
-            .toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })
-            .replace('. ', '.')
-            .replace('.', '');
+          const representativeMbtis = members.map((member) => member.mbti);
+          const dateStr = new Date(item.created_at).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          });
 
           return (
-            <div
+            <ResultSummaryCard
               key={item.id}
-              className="flex items-center gap-[14px] rounded-[24px] bg-surface p-[16px_18px] shadow-md"
-            >
-              <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-[17px] bg-[#F0F7F0] text-[19px]">
-                {icon}
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
-                <div className="flex items-center gap-[7px]">
-                  <span className="truncate text-[15px] font-black text-foreground">
-                    {item.title}
-                  </span>
-                  <span className="text-[11px] font-extrabold text-hint">
-                    {GROUP_TYPE_LABELS[groupType] ?? '기타'} · {members.length}
-                    명
-                  </span>
-                </div>
-                <span className="truncate font-nunito text-[11px] font-extrabold text-[#9AAB9F] tracking-[.02em]">
-                  {mbtiStr}
-                </span>
-              </div>
-              <div className="flex flex-col items-end gap-[3px]">
-                <span className="font-nunito text-[19px] font-black text-primary">
-                  {item.chemistry_score}%
-                </span>
-                <span className="font-nunito text-[10px] font-bold text-[#AFBDB3]">
-                  {dateStr}
-                </span>
-              </div>
-            </div>
+              title={item.title}
+              groupType={GROUP_TYPE_LABELS[groupType] ?? '기타'}
+              memberCount={members.length}
+              chemistryScore={item.chemistry_score}
+              date={dateStr}
+              representativeMbtis={representativeMbtis}
+              icon={icon}
+              href={`/result?id=${encodeURIComponent(item.id)}`}
+            />
           );
         })}
       </div>

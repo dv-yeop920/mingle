@@ -1,13 +1,12 @@
-import type { MbtiType } from '@/shared/types/mbti';
-
 type ResultSummaryCardProps = {
-  groupName: string;
+  title: string;
   groupType: string;
   memberCount: number;
   chemistryScore: number;
   date: string;
-  representativeMbtis?: MbtiType[];
-  onClick?: () => void;
+  representativeMbtis?: string[];
+  icon: string;
+  href: string;
   className?: string;
 };
 

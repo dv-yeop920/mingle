@@ -28,6 +28,8 @@ type MemberSource = {
   mbti: string;
 };
 
+type NormalizedMetrics = Record<string, number>;
+
 const INSIGHT_SECTION_META: Pick<
   InsightSection,
   'eyebrow' | 'key' | 'variant'
@@ -52,9 +54,35 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const convertString = (value: unknown) =>
   typeof value === 'string' ? value : '';
 
-const convertInsight = (value: unknown) => {
+const normalizeMetrics = (value: unknown): NormalizedMetrics => {
+  if (!isRecord(value)) return {};
+
+  return Object.entries(value).reduce<NormalizedMetrics>(
+    (metrics, [key, score]) => {
+      if (
+        typeof score !== 'number' ||
+        !Number.isFinite(score) ||
+        score < 0 ||
+        score > 100
+      ) {
+        return metrics;
+      }
+
+      metrics[key] = score;
+      return metrics;
+    },
+    {},
+  );
+};
+
+const convertInsight = (value: unknown, fallbackTitle: string) => {
   if (!isRecord(value)) {
-    return { title: convertString(value), description: '' };
+    const description = convertString(value);
+
+    return {
+      title: description ? fallbackTitle : '',
+      description,
+    };
   }
 
   return {
@@ -87,14 +115,15 @@ const normalizeAtmosphereSections = (
         }
       : {
           groupAtmosphere: rawAtmosphere.description,
-          decisionMaking: rawAtmosphere.decisionMaking,
+          decisionMaking:
+            rawAtmosphere.decisionMaking ?? rawAtmosphere.decision_making,
           cautionPoint: rawAtmosphere.conflict,
-          bestMoment: rawAtmosphere.bestMoment,
+          bestMoment: rawAtmosphere.bestMoment ?? rawAtmosphere.best_moment,
         };
 
   return INSIGHT_SECTION_META.map((meta) => ({
     ...meta,
-    ...convertInsight(values[meta.key]),
+    ...convertInsight(values[meta.key], meta.eyebrow),
   }));
 };
 
@@ -111,13 +140,15 @@ const normalizeMemberRoles = (value: unknown): MemberRole[] => {
 
     if (!nickname || !mbti || !role) return [];
 
-    return [{
-      memberId: convertString(item.memberId) || String(index),
-      nickname,
-      mbti,
-      role,
-      description,
-    }];
+    return [
+      {
+        memberId: convertString(item.memberId) || String(index),
+        nickname,
+        mbti,
+        role,
+        description,
+      },
+    ];
   });
 };
 
@@ -133,13 +164,23 @@ const normalizePairChemistry = (
     if (!isRecord(item)) return [];
 
     const memberANickname =
-      convertString(item.memberA) || convertString(item.memberANickname);
+      convertString(item.memberA) ||
+      convertString(item.memberANickname) ||
+      convertString(item.member_a);
     const memberBNickname =
-      convertString(item.memberB) || convertString(item.memberBNickname);
+      convertString(item.memberB) ||
+      convertString(item.memberBNickname) ||
+      convertString(item.member_b);
     const memberAMbti =
-      convertString(item.memberAMbti) || mbtiMap.get(memberANickname) || '';
+      convertString(item.memberAMbti) ||
+      convertString(item.member_a_mbti) ||
+      mbtiMap.get(memberANickname) ||
+      '';
     const memberBMbti =
-      convertString(item.memberBMbti) || mbtiMap.get(memberBNickname) || '';
+      convertString(item.memberBMbti) ||
+      convertString(item.member_b_mbti) ||
+      mbtiMap.get(memberBNickname) ||
+      '';
 
     if (!memberANickname || !memberBNickname || !memberAMbti || !memberBMbti) {
       return [];
@@ -151,32 +192,38 @@ const normalizePairChemistry = (
         ).join(', ')
       : convertString(item.recommendedSituations);
 
-    return [{
-      memberA: {
-        nickname: memberANickname,
-        mbti: memberAMbti as MbtiType,
+    return [
+      {
+        memberA: {
+          nickname: memberANickname,
+          mbti: memberAMbti as MbtiType,
+        },
+        memberB: {
+          nickname: memberBNickname,
+          mbti: memberBMbti as MbtiType,
+        },
+        score: typeof item.score === 'number' ? item.score : 0,
+        summary: convertString(item.summary),
+        description:
+          convertString(item.description) || convertString(item.detail),
+        conversationScore:
+          typeof item.conversationScore === 'number'
+            ? item.conversationScore
+            : undefined,
+        conflictScore:
+          typeof item.conflictScore === 'number'
+            ? item.conflictScore
+            : undefined,
+        recommendedSituations,
       },
-      memberB: {
-        nickname: memberBNickname,
-        mbti: memberBMbti as MbtiType,
-      },
-      score: typeof item.score === 'number' ? item.score : 0,
-      summary: convertString(item.summary),
-      description: convertString(item.description) || convertString(item.detail),
-      conversationScore:
-        typeof item.conversationScore === 'number'
-          ? item.conversationScore
-          : undefined,
-      conflictScore:
-        typeof item.conflictScore === 'number' ? item.conflictScore : undefined,
-      recommendedSituations,
-    }];
+    ];
   });
 };
 
 export {
   normalizeAtmosphereSections,
   normalizeMemberRoles,
+  normalizeMetrics,
   normalizePairChemistry,
 };
 export type { AtmosphereSource, InsightSection, InsightSectionKey };
