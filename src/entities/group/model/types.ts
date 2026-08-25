@@ -1,4 +1,4 @@
-type GroupType = 'friends' | 'work' | 'family';
+type GroupType = 'friends' | 'company' | 'family';
 
 type Group = {
   id: string;

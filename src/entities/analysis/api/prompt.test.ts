@@ -1,108 +1,110 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildAnalysisPrompt } from './prompt';
+import {
+  ANALYSIS_INSTRUCTIONS,
+  buildAnalysisInput,
+  buildExpectedPairs,
+} from './prompt';
 
-describe('buildAnalysisPrompt', () => {
+describe('analysis prompt builders', () => {
   const baseMembers = [
-    { nickname: '민지', mbti: 'ENFP', gender: 'female', isSelf: true },
-    { nickname: '하니', mbti: 'ISTJ', gender: 'male', isSelf: false },
+    {
+      memberId: 'member-1',
+      nickname: '민지',
+      mbti: 'ENFP' as const,
+      gender: 'female' as const,
+      isSelf: true,
+      order: 0,
+    },
+    {
+      memberId: 'member-2',
+      nickname: '하니',
+      mbti: 'ISTJ' as const,
+      gender: 'male' as const,
+      isSelf: false,
+      order: 1,
+    },
   ];
 
-  it('친구 그룹 프롬프트를 생성한다', () => {
-    const { systemPrompt, userPrompt } = buildAnalysisPrompt({
-      groupType: 'friends',
-      members: baseMembers,
-    });
-
-    expect(systemPrompt).toContain('MBTI 기반 그룹 케미 분석 전문가');
-    expect(systemPrompt).toContain('JSON 형식');
-    expect(userPrompt).toContain('친구');
-    expect(userPrompt).toContain('2명');
+  const createRequest = (groupType: 'friends' | 'company' | 'family') => ({
+    schemaVersion: '2026-08-24' as const,
+    group: {
+      type: groupType,
+      customName: null,
+    },
+    members: baseMembers,
+    options: {
+      locale: 'ko-KR' as const,
+      tone: 'friendly' as const,
+      includeAllPairs: true as const,
+    },
   });
 
-  it('회사 그룹 프롬프트를 생성한다', () => {
-    const { userPrompt } = buildAnalysisPrompt({
-      groupType: 'work',
-      members: baseMembers,
-    });
-
-    expect(userPrompt).toContain('회사·팀');
+  it('정적 instructions에 단체별 기준과 conflict 의미가 포함되어 있다', () => {
+    expect(ANALYSIS_INSTRUCTIONS).toContain('friends');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('company');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('family');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('갈등 관리/해소 케미');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('갈등 위험도가 아니다');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('Detailed Description Contract');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('100~260자');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('실제 nickname 또는 MBTI');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('다정하고 편안한 해요체');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('~이에요/~예요');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('~입니다');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('선택지를 두세 개로 줄이면');
   });
 
-  it('가족 그룹 프롬프트를 생성한다', () => {
-    const { userPrompt } = buildAnalysisPrompt({
-      groupType: 'family',
-      members: baseMembers,
-    });
+  it('회사/팀 분석 input을 구조화한다', () => {
+    const input = buildAnalysisInput(createRequest('company'));
 
-    expect(userPrompt).toContain('가족');
+    expect(input.group.type).toBe('company');
+    expect(input.group.label).toBe('회사/팀');
+    expect(input.group.analysisFocus).toContain('업무 역할');
+    expect(input.members).toHaveLength(2);
+    expect(input.expectedPairs).toHaveLength(1);
   });
 
-  it('커스텀 그룹은 customName을 사용한다', () => {
-    const { userPrompt } = buildAnalysisPrompt({
-      groupType: 'custom',
-      customName: '우리 동아리',
-      members: baseMembers,
-    });
+  it('모든 pair를 memberId 기반으로 생성한다', () => {
+    const pairs = buildExpectedPairs([
+      {
+        memberId: 'a',
+        nickname: '준',
+        mbti: 'ENTP',
+        gender: 'male',
+        isSelf: true,
+        order: 0,
+      },
+      {
+        memberId: 'b',
+        nickname: '지연',
+        mbti: 'ENFP',
+        gender: 'female',
+        isSelf: false,
+        order: 1,
+      },
+      {
+        memberId: 'c',
+        nickname: '민수',
+        mbti: 'ISTJ',
+        gender: 'male',
+        isSelf: false,
+        order: 2,
+      },
+    ]);
 
-    expect(userPrompt).toContain('우리 동아리');
-    expect(userPrompt).not.toContain('기타');
+    expect(pairs.map((pair) => pair.pairId)).toEqual(['a:b', 'a:c', 'b:c']);
   });
 
-  it('커스텀 그룹에 customName이 없으면 기타를 사용한다', () => {
-    const { userPrompt } = buildAnalysisPrompt({
-      groupType: 'custom',
-      members: baseMembers,
-    });
+  it('computedSignals를 계산한다', () => {
+    const input = buildAnalysisInput(createRequest('friends'));
 
-    expect(userPrompt).toContain('기타');
-  });
-
-  it('멤버 정보를 올바르게 포맷한다', () => {
-    const { userPrompt } = buildAnalysisPrompt({
-      groupType: 'friends',
-      members: baseMembers,
-    });
-
-    expect(userPrompt).toContain('1. 민지 (ENFP, 여성, 본인)');
-    expect(userPrompt).toContain('2. 하니 (ISTJ, 남성)');
-  });
-
-  it('성별이 other인 멤버를 기타로 표시한다', () => {
-    const { userPrompt } = buildAnalysisPrompt({
-      groupType: 'friends',
-      members: [
-        { nickname: '알렉스', mbti: 'ENTP', gender: 'other', isSelf: false },
-      ],
-    });
-
-    expect(userPrompt).toContain('1. 알렉스 (ENTP, 기타)');
-  });
-
-  it('멤버 수를 정확히 표시한다', () => {
-    const threeMembers = [
-      ...baseMembers,
-      { nickname: '다니엘', mbti: 'INFJ', gender: 'male', isSelf: false },
-    ];
-    const { userPrompt } = buildAnalysisPrompt({
-      groupType: 'friends',
-      members: threeMembers,
-    });
-
-    expect(userPrompt).toContain('3명');
-  });
-
-  it('시스템 프롬프트에 응답 JSON 구조가 포함되어 있다', () => {
-    const { systemPrompt } = buildAnalysisPrompt({
-      groupType: 'friends',
-      members: baseMembers,
-    });
-
-    expect(systemPrompt).toContain('chemistryScore');
-    expect(systemPrompt).toContain('metrics');
-    expect(systemPrompt).toContain('groupAtmosphere');
-    expect(systemPrompt).toContain('memberRoles');
-    expect(systemPrompt).toContain('pairChemistry');
-    expect(systemPrompt).toContain('summary');
+    expect(input.computedSignals.memberCount).toBe(2);
+    expect(input.computedSignals.eCount).toBe(1);
+    expect(input.computedSignals.iCount).toBe(1);
+    expect(input.computedSignals.fCount).toBe(1);
+    expect(input.computedSignals.tCount).toBe(1);
+    expect(input.computedSignals.temperamentCounts.diplomat).toBe(1);
+    expect(input.computedSignals.temperamentCounts.sentinel).toBe(1);
   });
 });

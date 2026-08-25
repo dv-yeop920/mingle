@@ -5,6 +5,7 @@ type RoleCardProps = {
   mbti: MbtiType;
   role: string;
   description: string;
+  onClick?: () => void;
   className?: string;
 };
 

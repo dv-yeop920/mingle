@@ -33,6 +33,7 @@ type GroupAtmosphere = {
 
 type Analysis = {
   id: string;
+  title: string;
   userId: string;
   groupId: string;
   chemistryScore: number;

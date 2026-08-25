@@ -54,7 +54,32 @@ describe('login', () => {
     });
 
     const result = await login({ username: 'testuser', password: 'wrong' });
-    expect(result).toEqual({ error: '아이디 또는 비밀번호가 올바르지 않습니다' });
+    expect(result).toEqual({
+      error: '아이디 또는 비밀번호가 올바르지 않습니다',
+    });
+  });
+
+  it('저장 흐름 로그인은 정확한 결과 경로로 리다이렉트한다', async () => {
+    mockSignInWithPassword.mockResolvedValue({ error: null });
+
+    await expect(
+      login({ username: 'testuser', password: 'password123!' }, '/result'),
+    ).rejects.toThrow('NEXT_REDIRECT:/result');
+
+    expect(redirect).toHaveBeenCalledWith('/result');
+  });
+
+  it('허용되지 않은 로그인 리다이렉트 경로는 홈으로 대체한다', async () => {
+    mockSignInWithPassword.mockResolvedValue({ error: null });
+
+    await expect(
+      login(
+        { username: 'testuser', password: 'password123!' },
+        'https://evil.example',
+      ),
+    ).rejects.toThrow('NEXT_REDIRECT:/');
+
+    expect(redirect).toHaveBeenCalledWith('/');
   });
 
   it('유효하지 않은 입력값이면 에러를 반환한다', async () => {
@@ -105,6 +130,34 @@ describe('signup', () => {
 
     const result = await signup(validInput);
     expect(result).toEqual({ error: '이미 사용 중인 아이디입니다' });
+  });
+
+  it('저장 흐름 회원가입은 정확한 결과 경로로 리다이렉트한다', async () => {
+    mockSignUp.mockResolvedValue({
+      data: { user: { id: 'new-user-id' } },
+      error: null,
+    });
+    mockInsert.mockResolvedValue({ error: null });
+
+    await expect(signup(validInput, '/result')).rejects.toThrow(
+      'NEXT_REDIRECT:/result',
+    );
+
+    expect(redirect).toHaveBeenCalledWith('/result');
+  });
+
+  it('결과 하위 경로는 회원가입 리다이렉트 대상으로 허용하지 않는다', async () => {
+    mockSignUp.mockResolvedValue({
+      data: { user: { id: 'new-user-id' } },
+      error: null,
+    });
+    mockInsert.mockResolvedValue({ error: null });
+
+    await expect(signup(validInput, '/result/pairs')).rejects.toThrow(
+      'NEXT_REDIRECT:/',
+    );
+
+    expect(redirect).toHaveBeenCalledWith('/');
   });
 
   it('프로필 생성 실패 시 에러를 반환한다', async () => {

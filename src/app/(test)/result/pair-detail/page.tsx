@@ -10,4 +10,5 @@ const PairDetailPage = async ({
   return <PairDetailView analysisId={id} pairIndex={pairIndex} />;
 };
 
+export const instant = false;
 export default PairDetailPage;

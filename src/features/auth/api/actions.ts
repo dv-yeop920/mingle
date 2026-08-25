@@ -5,9 +5,16 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/shared/lib/supabase/server';
 
 import { loginSchema, signupSchema } from '@/features/auth/model/schemas';
-import type { LoginFormValues, SignupFormValues } from '@/features/auth/model/schemas';
+import type {
+  LoginFormValues,
+  SignupFormValues,
+} from '@/features/auth/model/schemas';
 
-const login = async (values: LoginFormValues) => {
+const convertRedirectToPath = (redirectTo?: string) => {
+  return redirectTo === '/result' ? '/result' : '/';
+};
+
+const login = async (values: LoginFormValues, redirectTo?: string) => {
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) {
     return { error: '입력값이 올바르지 않습니다' };
@@ -25,10 +32,10 @@ const login = async (values: LoginFormValues) => {
     return { error: '아이디 또는 비밀번호가 올바르지 않습니다' };
   }
 
-  redirect('/');
+  redirect(convertRedirectToPath(redirectTo));
 };
 
-const signup = async (values: SignupFormValues) => {
+const signup = async (values: SignupFormValues, redirectTo?: string) => {
   const parsed = signupSchema.safeParse(values);
   if (!parsed.success) {
     return { error: '입력값이 올바르지 않습니다' };
@@ -66,12 +73,14 @@ const signup = async (values: SignupFormValues) => {
     return { error: '프로필 생성에 실패했습니다' };
   }
 
-  redirect('/');
+  redirect(convertRedirectToPath(redirectTo));
 };
 
 const logout = async () => {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return { error: '인증이 필요합니다' };

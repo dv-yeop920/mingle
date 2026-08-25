@@ -12,15 +12,8 @@ const PairCard = ({ memberA, memberB, score, summary, onClick, className }: Pair
   const initialsA = memberA.nickname.slice(0, 2);
   const initialsB = memberB.nickname.slice(0, 2);
 
-  return (
-    <div
-      className={cn(
-        'rounded-[24px] bg-surface p-4 shadow-sm',
-        onClick && 'cursor-pointer btn-press',
-        className,
-      )}
-      onClick={onClick}
-    >
+  const content = (
+    <>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div
@@ -53,12 +46,34 @@ const PairCard = ({ memberA, memberB, score, summary, onClick, className }: Pair
       <div className="mt-3 flex items-center">
         <div className="h-[6px] flex-1 rounded-pill bg-border-inner">
           <div
-            className="h-full rounded-pill bg-primary transition-[width] duration-500 ease-out"
+            className="result-progress-fill h-full rounded-pill bg-primary"
             style={{ width: `${clamped}%` }}
           />
         </div>
-        {onClick && <span className="ml-3 text-section text-hint">›</span>}
+        {onClick ? <span className="ml-3 text-section text-hint">›</span> : null}
       </div>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        aria-label={`${memberA.nickname}님과 ${memberB.nickname}님의 케미 상세 보기`}
+        className={cn(
+          'btn-press w-full cursor-pointer rounded-[24px] bg-surface p-4 text-left shadow-sm',
+          className,
+        )}
+        onClick={onClick}
+        type="button"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div className={cn('rounded-[24px] bg-surface p-4 shadow-sm', className)}>
+      {content}
     </div>
   );
 };

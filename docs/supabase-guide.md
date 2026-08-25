@@ -4,12 +4,12 @@
 
 ### 개발 환경
 
-| 도구 | 용도 |
-|---|---|
-| **Supabase MCP** | DB 스키마 조회, SQL 실행(`execute_sql`), RLS 디버깅, 어드바이저 |
-| **Supabase 대시보드** | Auth 설정, Email Confirmation 비활성화, 프로젝트 관리 |
-| **`@supabase/supabase-js`** | 앱 코드에서 DB/Auth 접근 |
-| **`@supabase/ssr`** | Next.js SSR 환경 쿠키 기반 세션 |
+| 도구                        | 용도                                                            |
+| --------------------------- | --------------------------------------------------------------- |
+| **Supabase MCP**            | DB 스키마 조회, SQL 실행(`execute_sql`), RLS 디버깅, 어드바이저 |
+| **Supabase 대시보드**       | Auth 설정, Email Confirmation 비활성화, 프로젝트 관리           |
+| **`@supabase/supabase-js`** | 앱 코드에서 DB/Auth 접근                                        |
+| **`@supabase/ssr`**         | Next.js SSR 환경 쿠키 기반 세션                                 |
 
 ### 마이그레이션 워크플로 (Imperative)
 
@@ -85,6 +85,9 @@ create table public.analyses (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   group_id uuid not null references public.groups(id) on delete cascade,
+  title text not null check (
+    title = btrim(title) and char_length(title) between 1 and 30
+  ),
   chemistry_score int2 not null check (chemistry_score between 0 and 100),
   metrics jsonb not null,
   group_atmosphere jsonb not null,
@@ -284,10 +287,12 @@ export const createClient = async () => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return cookieStore.getAll(); },
+        getAll() {
+          return cookieStore.getAll();
+        },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
+            cookieStore.set(name, value, options),
           );
         },
       },
@@ -346,7 +351,9 @@ export function useProfile() {
   return useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Unauthorized');
 
       const { data, error } = await supabase
@@ -364,13 +371,13 @@ export function useProfile() {
 
 ### 4-5. 보안 규칙
 
-| 규칙 | 설명 |
-|---|---|
-| `getUser()` 필수 | 모든 Server Action 시작 시 인증 확인 |
-| `service_role` 서버 전용 | `NEXT_PUBLIC_` 접두사 절대 금지 |
+| 규칙                           | 설명                                     |
+| ------------------------------ | ---------------------------------------- |
+| `getUser()` 필수               | 모든 Server Action 시작 시 인증 확인     |
+| `service_role` 서버 전용       | `NEXT_PUBLIC_` 접두사 절대 금지          |
 | `user_metadata` 권한 판단 금지 | 사용자가 수정 가능 → `app_metadata` 사용 |
-| `dangerouslySetInnerHTML` 금지 | AI 응답에 XSS 방지 |
-| 입력 검증 이중화 | 클라이언트 Zod + DB CHECK 제약 조건 |
+| `dangerouslySetInnerHTML` 금지 | AI 응답에 XSS 방지                       |
+| 입력 검증 이중화               | 클라이언트 Zod + DB CHECK 제약 조건      |
 
 ### 4-6. 환경 변수
 

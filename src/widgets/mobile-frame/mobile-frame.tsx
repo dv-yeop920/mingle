@@ -4,7 +4,12 @@ import type { MobileFrameProps } from './types';
 
 const MobileFrame = ({ children, className }: MobileFrameProps) => {
   return (
-    <div className={cn('mx-auto max-w-[390px] min-h-dvh bg-background', className)}>
+    <div
+      className={cn(
+        'mx-auto min-h-dvh max-w-[390px] bg-background pt-[max(12px,env(safe-area-inset-top))]',
+        className,
+      )}
+    >
       {children}
     </div>
   );

@@ -8,6 +8,7 @@ import { Button } from '@/shared/ui/button';
 import { MbtiPicker } from '@/entities/mbti';
 import type { Gender } from '@/entities/member';
 
+import { convertMembersToNicknameErrors } from '@/features/test-flow/model/schemas';
 import { useTestFlowStore } from '@/features/test-flow/model/store';
 
 import { EditableMemberCard } from '../editable-member-card';
@@ -17,7 +18,7 @@ import type { MemberSetupFormProps } from './types';
 const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
   const { members, addMember, updateMember, removeMember } = useTestFlowStore();
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
-  const [nicknameErrors, setNicknameErrors] = useState<Record<string, string | undefined>>({});
+  const nicknameErrors = convertMembersToNicknameErrors(members);
 
   const handleAdd = () => {
     addMember({
@@ -32,12 +33,6 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
   const handleNicknameChange = (id: string, value: string) => {
     const filtered = value.replace(/[^가-힣a-zA-Zㄱ-ㅎㅏ-ㅣ]/g, '').slice(0, 8);
     updateMember(id, { nickname: filtered });
-
-    if (filtered.length === 0) {
-      setNicknameErrors((prev) => ({ ...prev, [id]: '닉네임을 입력해주세요' }));
-    } else {
-      setNicknameErrors((prev) => ({ ...prev, [id]: undefined }));
-    }
   };
 
   const handleMbtiSelect = (id: string) => {
@@ -57,11 +52,6 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
 
   const handleDelete = (id: string) => {
     removeMember(id);
-    setNicknameErrors((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
   };
 
   return (

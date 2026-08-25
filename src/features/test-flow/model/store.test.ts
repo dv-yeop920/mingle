@@ -1,6 +1,8 @@
 import { act } from 'react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { createAnalysisResultFixture } from '../testing/analysis-result-fixture';
+
 import { useTestFlowStore } from './store';
 import type { TestMember } from './store';
 
@@ -79,7 +81,9 @@ describe('useTestFlowStore', () => {
   it('멤버를 업데이트한다', () => {
     act(() => {
       useTestFlowStore.getState().addMember(MOCK_MEMBER);
-      useTestFlowStore.getState().updateMember('member-1', { nickname: '민지2' });
+      useTestFlowStore
+        .getState()
+        .updateMember('member-1', { nickname: '민지2' });
     });
     expect(useTestFlowStore.getState().members[0].nickname).toBe('민지2');
   });
@@ -87,7 +91,9 @@ describe('useTestFlowStore', () => {
   it('존재하지 않는 멤버 업데이트는 무시한다', () => {
     act(() => {
       useTestFlowStore.getState().addMember(MOCK_MEMBER);
-      useTestFlowStore.getState().updateMember('nonexistent', { nickname: '없음' });
+      useTestFlowStore
+        .getState()
+        .updateMember('nonexistent', { nickname: '없음' });
     });
     expect(useTestFlowStore.getState().members).toHaveLength(1);
     expect(useTestFlowStore.getState().members[0].nickname).toBe('민지');
@@ -117,9 +123,37 @@ describe('useTestFlowStore', () => {
     expect(useTestFlowStore.getState().analysisId).toBe('analysis-123');
   });
 
+  it('새 게스트 분석 결과를 설정하면 이전 분석 ID를 비운다', () => {
+    act(() => {
+      useTestFlowStore.getState().setAnalysisId('old-analysis-id');
+      useTestFlowStore
+        .getState()
+        .setAnalysisResult(createAnalysisResultFixture());
+    });
+
+    expect(useTestFlowStore.getState().analysisId).toBeNull();
+    expect(useTestFlowStore.getState().analysisResult).not.toBeNull();
+  });
+
+  it('세션에 저장된 멤버 초안을 복원한다', () => {
+    act(() => {
+      useTestFlowStore.getState().restoreMemberDraft({
+        schemaVersion: 1,
+        groupType: 'family',
+        memberCount: 2,
+        members: [MOCK_MEMBER, MOCK_MEMBER_2],
+      });
+    });
+
+    const state = useTestFlowStore.getState();
+    expect(state.groupType).toBe('family');
+    expect(state.memberCount).toBe(2);
+    expect(state.members).toEqual([MOCK_MEMBER, MOCK_MEMBER_2]);
+  });
+
   it('리셋하면 초기 상태로 돌아간다', () => {
     act(() => {
-      useTestFlowStore.getState().setGroupType('work');
+      useTestFlowStore.getState().setGroupType('company');
       useTestFlowStore.getState().addMember(MOCK_MEMBER);
       useTestFlowStore.getState().setIsAnalyzing(true);
       useTestFlowStore.getState().setAnalysisId('id-1');

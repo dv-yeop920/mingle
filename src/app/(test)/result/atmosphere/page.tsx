@@ -9,4 +9,5 @@ const AtmospherePage = async ({
   return <AtmosphereView analysisId={id} />;
 };
 
+export const instant = false;
 export default AtmospherePage;

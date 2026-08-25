@@ -1,4 +1,12 @@
-export { buildAnalysisPrompt, type PromptInput } from './api/prompt';
+export {
+  ANALYSIS_INSTRUCTIONS,
+  GROUP_ANALYSIS_RULES,
+  buildAnalysisInput,
+  buildExpectedPairs,
+  type AnalysisInput,
+  type AnalysisMember,
+  type ExpectedPair,
+} from './api/prompt';
 export { useAnalyses, useAnalysis } from './api/hooks';
 export type { Analysis, GroupAtmosphere, MemberRole, Metric, PairChemistry } from './model';
 

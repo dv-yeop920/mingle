@@ -6,7 +6,11 @@ import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 
-import { MemberSetupForm, useTestFlowStore } from '@/features/test-flow';
+import {
+  MemberSetupForm,
+  convertMembersToNicknameErrors,
+  useTestFlowStore,
+} from '@/features/test-flow';
 
 import type { MemberSetupViewProps } from './types';
 
@@ -16,8 +20,9 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
   const groupType = useTestFlowStore((s) => s.groupType);
   const groupTypeLabel = groupType ? (GROUP_TYPE_LABELS[groupType] ?? '그룹') : '그룹';
 
-  const hasEmptyNickname = members.some((m) => m.nickname.trim() === '');
-  const isDisabled = members.length < 2 || hasEmptyNickname;
+  const nicknameErrors = convertMembersToNicknameErrors(members);
+  const hasNicknameError = Object.values(nicknameErrors).some(Boolean);
+  const isDisabled = members.length < 2 || hasNicknameError;
 
   return (
     <div className={cn('flex h-dvh flex-col', className)}>

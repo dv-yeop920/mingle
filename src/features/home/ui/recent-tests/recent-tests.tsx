@@ -23,7 +23,9 @@ const RecentTests = ({ className }: RecentTestsProps) => {
     return (
       <div className={cn('flex flex-col', className)}>
         <div className="px-[24px] pt-[26px] pb-[10px]">
-          <h3 className="text-[16px] font-black text-foreground">최근 테스트</h3>
+          <h3 className="text-[16px] font-black text-foreground">
+            최근 테스트
+          </h3>
         </div>
         <div className="flex items-center justify-center px-5 py-8">
           <p className="text-body text-muted">불러오는 중...</p>
@@ -36,7 +38,9 @@ const RecentTests = ({ className }: RecentTestsProps) => {
     return (
       <div className={cn('flex flex-col', className)}>
         <div className="px-[24px] pt-[26px] pb-[10px]">
-          <h3 className="text-[16px] font-black text-foreground">최근 테스트</h3>
+          <h3 className="text-[16px] font-black text-foreground">
+            최근 테스트
+          </h3>
         </div>
         <div className="flex items-center justify-center px-5 py-8">
           <p className="text-body text-muted">아직 테스트 기록이 없습니다</p>
@@ -49,7 +53,9 @@ const RecentTests = ({ className }: RecentTestsProps) => {
     <div className={cn('flex flex-col', className)}>
       <div className="flex items-center justify-between px-[24px] pt-[26px] pb-[10px]">
         <h3 className="text-[16px] font-black text-foreground">최근 테스트</h3>
-        <span className="cursor-pointer text-[13px] font-extrabold text-primary">전체보기</span>
+        <span className="cursor-pointer text-[13px] font-extrabold text-primary">
+          전체보기
+        </span>
       </div>
 
       <div className="flex flex-col gap-[11px] px-5">
@@ -60,10 +66,6 @@ const RecentTests = ({ className }: RecentTestsProps) => {
             members: { nickname: string; mbti: string; is_self: boolean }[];
           } | null;
           const groupType = group?.type ?? '';
-          const groupName =
-            groupType === 'custom'
-              ? (group?.custom_name ?? '기타')
-              : (GROUP_TYPE_LABELS[groupType] ?? '');
           const members = group?.members ?? [];
           const icon = GROUP_TYPE_ICONS[groupType] ?? '✏️';
           const mbtiStr = members
@@ -85,9 +87,12 @@ const RecentTests = ({ className }: RecentTestsProps) => {
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
                 <div className="flex items-center gap-[7px]">
-                  <span className="text-[15px] font-black text-foreground">{groupName}</span>
+                  <span className="truncate text-[15px] font-black text-foreground">
+                    {item.title}
+                  </span>
                   <span className="text-[11px] font-extrabold text-hint">
-                    {GROUP_TYPE_LABELS[groupType] ?? '기타'} · {members.length}명
+                    {GROUP_TYPE_LABELS[groupType] ?? '기타'} · {members.length}
+                    명
                   </span>
                 </div>
                 <span className="truncate font-nunito text-[11px] font-extrabold text-[#9AAB9F] tracking-[.02em]">
@@ -98,7 +103,9 @@ const RecentTests = ({ className }: RecentTestsProps) => {
                 <span className="font-nunito text-[19px] font-black text-primary">
                   {item.chemistry_score}%
                 </span>
-                <span className="font-nunito text-[10px] font-bold text-[#AFBDB3]">{dateStr}</span>
+                <span className="font-nunito text-[10px] font-bold text-[#AFBDB3]">
+                  {dateStr}
+                </span>
               </div>
             </div>
           );

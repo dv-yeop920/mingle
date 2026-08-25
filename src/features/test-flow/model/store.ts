@@ -5,6 +5,8 @@ import type { MbtiType } from '@/shared/types/mbti';
 
 import type { GroupType } from '@/entities/group';
 
+import type { MemberDraft, PersistedAnalysisResult } from './schemas';
+
 type TestMember = {
   id: string;
   nickname: string;
@@ -15,32 +17,7 @@ type TestMember = {
 
 type SelfMemberSeed = Pick<TestMember, 'gender' | 'mbti' | 'nickname'>;
 
-type AnalysisResult = {
-  chemistryScore: number;
-  tagline: string;
-  metrics: Record<string, number>;
-  groupAtmosphere: Record<string, string>;
-  memberRoles: { nickname: string; mbti: string; role: string; description: string }[];
-  pairChemistry: {
-    memberA: string;
-    memberB: string;
-    score: number;
-    summary: string;
-    description?: string;
-    conversationScore?: number;
-    conflictScore?: number;
-    recommendedSituations?: string;
-  }[];
-  summary: string;
-  members: {
-    nickname: string;
-    mbti: string;
-    gender: Gender;
-    is_self: boolean;
-  }[];
-  groupType: string;
-  customName: string | null;
-};
+type AnalysisResult = PersistedAnalysisResult;
 
 type TestFlowState = {
   groupType: GroupType | null;
@@ -49,6 +26,7 @@ type TestFlowState = {
   isAnalyzing: boolean;
   analysisId: string | null;
   analysisResult: AnalysisResult | null;
+  isAnalysisResultHydrated: boolean;
 };
 
 type TestFlowActions = {
@@ -64,6 +42,8 @@ type TestFlowActions = {
   setIsAnalyzing: (value: boolean) => void;
   setAnalysisId: (id: string | null) => void;
   setAnalysisResult: (result: AnalysisResult | null) => void;
+  setIsAnalysisResultHydrated: (value: boolean) => void;
+  restoreMemberDraft: (draft: MemberDraft) => void;
   reset: () => void;
 };
 
@@ -74,6 +54,7 @@ const INITIAL_STATE: TestFlowState = {
   isAnalyzing: false,
   analysisId: null,
   analysisResult: null,
+  isAnalysisResultHydrated: false,
 };
 
 const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
@@ -104,8 +85,20 @@ const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
     })),
   setIsAnalyzing: (value) => set({ isAnalyzing: value }),
   setAnalysisId: (id) => set({ analysisId: id }),
-  setAnalysisResult: (result) => set({ analysisResult: result }),
-  reset: () => set(INITIAL_STATE),
+  setAnalysisResult: (result) =>
+    set({
+      analysisResult: result,
+      ...(result ? { analysisId: null } : {}),
+    }),
+  setIsAnalysisResultHydrated: (value) =>
+    set({ isAnalysisResultHydrated: value }),
+  restoreMemberDraft: ({ groupType, memberCount, members }) =>
+    set({ groupType, memberCount, members }),
+  reset: () =>
+    set((state) => ({
+      ...INITIAL_STATE,
+      isAnalysisResultHydrated: state.isAnalysisResultHydrated,
+    })),
 }));
 
 export { useTestFlowStore };

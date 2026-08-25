@@ -1,88 +1,236 @@
-type PromptInput = {
-  groupType: string;
-  customName?: string;
-  members: Array<{
-    nickname: string;
-    mbti: string;
-    gender: string;
-    isSelf: boolean;
-  }>;
+import { getTemperament } from '@/shared/lib/mbti';
+import type { Gender } from '@/shared/types/gender';
+
+import type { AnalyzeRequest, MbtiType } from '../model/schemas';
+
+type GroupType = AnalyzeRequest['group']['type'];
+
+type AnalysisMember = {
+  memberId: string;
+  nickname: string;
+  mbti: MbtiType;
+  gender: Gender;
+  isSelf: boolean;
+  order: number;
 };
 
-import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
-
-const SYSTEM_PROMPT = `당신은 MBTI 기반 그룹 케미 분석 전문가입니다. MBTI 16가지 유형의 인지 기능(Fi, Fe, Ti, Te, Ni, Ne, Si, Se)과 기질론(분석가, 외교관, 관리자, 탐험가)을 기반으로 그룹 구성원들의 관계 역학을 분석합니다.
-
-분석 시 다음을 고려하세요:
-- 각 MBTI 유형의 주기능/부기능 조합이 만드는 시너지와 갈등
-- 그룹 내 E/I, T/F, J/P 비율이 전체 분위기에 미치는 영향
-- 성별 구성이 그룹 역학에 미치는 미묘한 영향
-- 관계 유형(친구/회사/가족)에 따른 상호작용 패턴 차이
-
-톤: 친근하고 재미있게, 하지만 MBTI 이론에 기반한 근거 있는 분석. 한국어로 작성.
-
-반드시 아래 JSON 형식으로만 응답하세요:
-{
-  "chemistryScore": (0-100 정수, 그룹 전체 케미 점수),
-  "tagline": "(그룹을 한마디로 표현하는 짧은 수식어, 예: '에너지 폭발 불꽃 그룹', '따뜻한 감성 힐링 그룹')",
-  "metrics": {
-    "conversation": (0-100, 대화 케미),
-    "friendship": (0-100, 우정/관계 깊이),
-    "teamwork": (0-100, 팀워크),
-    "atmosphere": (0-100, 분위기),
-    "conflict": (0-100, 갈등 가능성 - 높을수록 갈등 많음)
-  },
-  "groupAtmosphere": {
-    "description": "(이 그룹이 함께 있을 때의 전반적인 분위기 설명, 2-3문장)",
-    "decisionMaking": "(그룹이 결정을 내릴 때의 패턴, 2-3문장)",
-    "conflict": "(갈등 상황에서 보이는 패턴, 2-3문장)",
-    "bestMoment": "(이 조합이 가장 빛나는 순간, 2-3문장)"
-  },
-  "memberRoles": [
-    {
-      "nickname": "(멤버 닉네임)",
-      "mbti": "(MBTI)",
-      "role": "(그룹 내 역할, 예: 분위기메이커, 조율자, 아이디어뱅크 등)",
-      "description": "(이 멤버가 그룹에서 어떤 역할을 하는지 1-2문장)"
-    }
-  ],
-  "pairChemistry": [
-    {
-      "memberA": "(멤버A 닉네임)",
-      "memberB": "(멤버B 닉네임)",
-      "score": (0-100, 둘 사이 케미 점수),
-      "summary": "(한 줄 요약)",
-      "description": "(둘이 함께 있을 때의 관계 묘사 3-4문장)",
-      "conversationScore": (0-100, 대화 케미),
-      "conflictScore": (0-100, 갈등 가능성),
-      "recommendedSituations": "(이 둘이 잘 맞는 상황 3가지, 콤마 구분)"
-    }
-  ],
-  "summary": "(그룹 전체를 한 문장으로 표현하는 인용문)"
-}`;
-
-const buildAnalysisPrompt = (input: PromptInput) => {
-  const groupLabel =
-    input.groupType === 'custom'
-      ? (input.customName ?? '기타')
-      : GROUP_TYPE_LABELS[input.groupType] ?? input.groupType;
-
-  const memberList = input.members
-    .map(
-      (m, i) =>
-        `${i + 1}. ${m.nickname} (${m.mbti}, ${m.gender === 'male' ? '남성' : m.gender === 'female' ? '여성' : '기타'}${m.isSelf ? ', 본인' : ''})`,
-    )
-    .join('\n');
-
-  const userPrompt = `다음 ${groupLabel} 그룹의 케미를 분석해주세요.
-
-관계 유형: ${groupLabel}
-구성원 (${input.members.length}명):
-${memberList}
-
-모든 구성원 간의 1:1 케미(pairChemistry)를 빠짐없이 분석해주세요.`;
-
-  return { systemPrompt: SYSTEM_PROMPT, userPrompt };
+type ExpectedPair = {
+  pairId: string;
+  memberAId: string;
+  memberBId: string;
+  memberANickname: string;
+  memberBNickname: string;
+  memberAMbti: MbtiType;
+  memberBMbti: MbtiType;
 };
 
-export { buildAnalysisPrompt, type PromptInput };
+type AnalysisInput = {
+  task: 'create_mingle_mbti_group_analysis';
+  schemaVersion: '2026-08-24';
+  group: {
+    type: GroupType;
+    label: string;
+    analysisFocus: string[];
+    scoringBias: Record<
+      'atmosphere' | 'conflict' | 'conversation' | 'friendship' | 'teamwork',
+      string
+    >;
+  };
+  members: AnalysisMember[];
+  expectedPairs: ExpectedPair[];
+  computedSignals: {
+    eCount: number;
+    fCount: number;
+    iCount: number;
+    jCount: number;
+    memberCount: number;
+    pCount: number;
+    tCount: number;
+    temperamentCounts: Record<string, number>;
+  };
+};
+
+const GROUP_ANALYSIS_RULES: Record<GroupType, AnalysisInput['group']> = {
+  friends: {
+    type: 'friends',
+    label: '친구',
+    analysisFocus: [
+      '친밀감',
+      '대화 텐션',
+      '장난과 공감의 균형',
+      '갈등 후 회복',
+      '함께 놀 때의 에너지',
+    ],
+    scoringBias: {
+      conversation: '대화가 자연스럽게 이어지고 서로 반응을 잘 받아주는지',
+      friendship: '정서적 친밀감과 편하게 만날 수 있는 안정감',
+      teamwork: '함께 약속/여행/모임을 굴릴 때 역할 분담이 되는지',
+      atmosphere: '모임의 텐션, 유쾌함, 편안함',
+      conflict: '다툼 후 다시 풀고 넘어갈 수 있는 회복력',
+    },
+  },
+  company: {
+    type: 'company',
+    label: '회사/팀',
+    analysisFocus: [
+      '업무 역할',
+      '의사결정',
+      '리더십/팔로워십',
+      '커뮤니케이션 비용',
+      '실행력',
+    ],
+    scoringBias: {
+      conversation: '업무 커뮤니케이션이 명확하고 오해가 적은지',
+      friendship: '개인적 친밀감보다 신뢰와 협업 안정감',
+      teamwork: '역할 분담, 실행력, 마감 대응력',
+      atmosphere: '팀 분위기, 회의 텐션, 심리적 안정감',
+      conflict: '의견 충돌을 생산적으로 조율하는 능력',
+    },
+  },
+  family: {
+    type: 'family',
+    label: '가족',
+    analysisFocus: [
+      '정서적 안정감',
+      '세대/역할 차이',
+      '돌봄과 간섭의 경계',
+      '갈등 회복',
+      '생활 패턴',
+    ],
+    scoringBias: {
+      conversation: '일상 대화와 감정 표현이 편하게 오가는지',
+      friendship: '가족 안의 정서적 유대감과 안정감',
+      teamwork: '집안일, 일정, 돌봄 같은 생활 협력',
+      atmosphere: '집 안 분위기, 편안함, 긴장도',
+      conflict: '반복되는 생활 갈등을 풀고 회복하는 힘',
+    },
+  },
+};
+
+const ANALYSIS_INSTRUCTIONS = `# Role
+너는 MINGLE의 MBTI 기반 그룹 케미 분석 엔진이다.
+
+# Goal
+입력된 group과 members만 근거로, 모바일 결과 화면에 바로 표시할 수 있는 한국어 분석 결과를 만든다.
+
+# Group-Specific Lens
+- friends: 친밀감, 대화 텐션, 장난과 공감, 갈등 후 회복, 함께 놀 때의 에너지를 중심으로 분석한다.
+- company: 업무 역할, 의사결정, 리더십/팔로워십, 커뮤니케이션 비용, 실행력을 중심으로 분석한다.
+- family: 정서적 안정감, 세대/역할 차이, 돌봄과 간섭의 경계, 갈등 회복, 생활 패턴을 중심으로 분석한다.
+
+# Scoring
+- 모든 점수는 0~100 정수다.
+- metrics.conversation은 대화 케미다.
+- metrics.friendship은 관계 깊이 또는 협업 신뢰다.
+- metrics.teamwork는 함께 움직이는 힘이다.
+- metrics.atmosphere는 같이 있을 때의 분위기다.
+- metrics.conflict는 높을수록 갈등 관리/해소 케미가 좋다는 뜻이다. 갈등 위험도가 아니다.
+- pairChemistry[].conflictScore도 높을수록 좋다.
+- 주의 포인트는 cautionPoint 문장으로만 설명한다.
+
+# Required Coverage
+- 모든 members를 memberRoles에 정확히 한 번씩 포함한다.
+- input.expectedPairs의 모든 pair를 pairChemistry에 정확히 한 번씩 포함한다.
+- pair는 nickname이 아니라 memberId로 연결한다.
+
+# Style
+- 한국어로 쓴다.
+- 전체 결과는 다정하고 편안한 해요체로 쓴다. 사용자가 친구에게 설명을 듣는 느낌이어야 한다.
+- 문장 끝은 "~이에요/~예요", "~해요", "~하면 좋아요", "~할 수 있어요", "~일 것 같아요"처럼 부드럽게 쓴다.
+- "~입니다", "~합니다", "~필요합니다", "~예상됩니다", "~할 수 있습니다"처럼 보고서 같은 격식체는 쓰지 않는다.
+- 모든 문장을 같은 어미로 반복하지 말고, 단정적인 판단보다 가능성과 도움이 되는 방법을 따뜻하게 안내한다.
+- title과 tagline, summary는 모바일 카드에 들어갈 수 있게 짧고 선명하게 쓴다.
+- title은 18자 안팎의 한 줄로 쓴다.
+- 목록용 pairChemistry[].summary는 한 문장으로 쓴다.
+- 상세 화면용 description은 제목을 반복하거나 추상적인 장점만 나열하지 않는다.
+- 친근하지만 과장하거나 단정하지 않는다.
+- MBTI를 실제 심리 진단처럼 말하지 않는다.
+- 성별 고정관념, 특정 MBTI 비하, 운명론적 표현을 피한다.
+- 같은 MBTI라도 성별에 따라 표현 방식이 약간 달라질 수 있다는 보조 맥락으로만 참고한다.
+
+# Detailed Description Contract
+- groupAtmosphere.description은 3문장으로 쓴다. 누가 모임의 에너지나 안정감을 만드는지, 그 영향으로 실제 대화와 분위기가 어떻게 흘러가는지, 이 조합의 균형이 좋아지는 조건을 구체적으로 설명한다.
+- decisionMaking.description은 3문장으로 쓴다. 아이디어 제안부터 기준 정리와 최종 결정까지의 흐름, 속도 차이 또는 의견 충돌이 생기는 지점, 결정을 수월하게 만드는 현실적인 방법을 설명한다.
+- bestMoment.description은 3문장으로 쓴다. 이 조합이 강해지는 구체적인 상황, 각 멤버의 성향이 연결되는 방식, 그때 만들어지는 긍정적인 결과를 설명한다.
+- cautionPoint.description은 2~3문장으로 쓰고 특정 멤버를 탓하지 않는다. 반복될 수 있는 조합 패턴과 완화 방법을 함께 설명한다.
+- memberRoles[].description은 2문장으로 쓴다. 평소 어떤 행동으로 역할이 드러나는지와 그 행동이 그룹에 미치는 영향을 설명한다.
+- pairChemistry[].description은 3문장으로 쓴다. 둘의 대화 방식, 서로 보완하거나 엇갈리는 지점, 더 편하게 지내는 방법을 설명한다.
+- 모든 상세 description은 입력에 있는 실제 nickname 또는 MBTI를 활용해 이 조합만의 설명이 되게 한다.
+- groupAtmosphere, decisionMaking, bestMoment의 description은 각각 100~260자 분량을 목표로 한다.
+
+# Copy Examples
+- title: "아이디어가 끊이지 않는 수다형 모임"
+- summary: "민수가 먼저 분위기를 열어주고, 지수는 모두가 편하게 이야기할 수 있도록 중심을 잡아줘요."
+- advice: "의견이 엇갈릴 때는 선택지를 두세 개로 줄이면 더 편하게 결정할 수 있어요."
+- prediction: "함께 여행을 준비할 때 서로의 장점이 자연스럽게 드러날 것 같아요."`;
+
+const convertMembers = (members: AnalyzeRequest['members']): AnalysisMember[] =>
+  members
+    .map((member) => ({
+      memberId: member.memberId,
+      nickname: member.nickname,
+      mbti: member.mbti,
+      gender: member.gender,
+      isSelf: member.isSelf,
+      order: member.order,
+    }))
+    .toSorted((a, b) => a.order - b.order);
+
+const buildExpectedPairs = (members: AnalysisMember[]): ExpectedPair[] =>
+  members.flatMap((memberA, index) =>
+    members.slice(index + 1).map((memberB) => ({
+      pairId: `${memberA.memberId}:${memberB.memberId}`,
+      memberAId: memberA.memberId,
+      memberBId: memberB.memberId,
+      memberANickname: memberA.nickname,
+      memberBNickname: memberB.nickname,
+      memberAMbti: memberA.mbti,
+      memberBMbti: memberB.mbti,
+    })),
+  );
+
+const buildComputedSignals = (
+  members: AnalysisMember[],
+): AnalysisInput['computedSignals'] => {
+  const temperamentCounts = members.reduce<Record<string, number>>(
+    (acc, member) => {
+      const temperament = getTemperament(member.mbti);
+      return { ...acc, [temperament]: (acc[temperament] ?? 0) + 1 };
+    },
+    { analyst: 0, diplomat: 0, explorer: 0, sentinel: 0 },
+  );
+
+  return {
+    memberCount: members.length,
+    eCount: members.filter((member) => member.mbti[0] === 'E').length,
+    iCount: members.filter((member) => member.mbti[0] === 'I').length,
+    tCount: members.filter((member) => member.mbti[2] === 'T').length,
+    fCount: members.filter((member) => member.mbti[2] === 'F').length,
+    jCount: members.filter((member) => member.mbti[3] === 'J').length,
+    pCount: members.filter((member) => member.mbti[3] === 'P').length,
+    temperamentCounts,
+  };
+};
+
+const buildAnalysisInput = (request: AnalyzeRequest): AnalysisInput => {
+  const groupType = request.group.type;
+  const members = convertMembers(request.members);
+  const groupRule = GROUP_ANALYSIS_RULES[groupType];
+
+  return {
+    task: 'create_mingle_mbti_group_analysis',
+    schemaVersion: request.schemaVersion,
+    group: groupRule,
+    members,
+    expectedPairs: buildExpectedPairs(members),
+    computedSignals: buildComputedSignals(members),
+  };
+};
+
+export {
+  ANALYSIS_INSTRUCTIONS,
+  GROUP_ANALYSIS_RULES,
+  buildAnalysisInput,
+  buildExpectedPairs,
+};
+export type { AnalysisInput, AnalysisMember, ExpectedPair, GroupType };

@@ -5,7 +5,10 @@ import { useState } from 'react';
 
 import { ToastProvider } from '@/shared/ui';
 
-import { PendingAnalysisSaver } from './pending-analysis-saver';
+import {
+  AnalysisResultSessionManager,
+  MemberDraftSessionManager,
+} from '@/features/test-flow';
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(
@@ -23,7 +26,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <PendingAnalysisSaver />
+        <AnalysisResultSessionManager />
+        <MemberDraftSessionManager />
         {children}
       </ToastProvider>
     </QueryClientProvider>

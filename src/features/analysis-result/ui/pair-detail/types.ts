@@ -1,6 +1,7 @@
+import type { PairChemistry } from '@/entities/analysis';
+
 type PairDetailProps = {
-  analysisId?: string;
-  pairIndex?: number;
+  pair: PairChemistry | null;
   className?: string;
 };
 

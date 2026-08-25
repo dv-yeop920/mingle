@@ -17,7 +17,7 @@ import {
 
 import type { SignupFormProps } from './types';
 
-const SignupForm = ({ className }: SignupFormProps) => {
+const SignupForm = ({ className, redirectTo }: SignupFormProps) => {
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -31,7 +31,7 @@ const SignupForm = ({ className }: SignupFormProps) => {
 
   const onFormSubmit = (data: SignupFormValues) => {
     startTransition(async () => {
-      const result = await signup(data);
+      const result = await signup(data, redirectTo);
       if ('error' in result) {
         setError('root', { message: result.error });
       }
@@ -85,7 +85,10 @@ const SignupForm = ({ className }: SignupFormProps) => {
 
         <p className="text-center text-[13px] font-bold text-[#8A9C90]">
           이미 계정이 있나요?{' '}
-          <Link href="/login" className="font-extrabold text-primary">
+          <Link
+            href={redirectTo ? `/login?redirect=${redirectTo}` : '/login'}
+            className="font-extrabold text-primary"
+          >
             로그인
           </Link>
         </p>

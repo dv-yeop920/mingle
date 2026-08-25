@@ -1,13 +1,16 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
+import { queryKeys } from '@/shared/config/query-keys';
+import { createClient } from '@/shared/lib/supabase/client';
 import { cn } from '@/shared/lib/utils';
 import type { MbtiType } from '@/shared/types/mbti';
 
-import type { MemberRole, Metric, PairChemistry } from '@/entities/analysis';
+import type { Metric } from '@/entities/analysis';
 import {
   InsightCard,
   MetricBar,
@@ -17,9 +20,25 @@ import {
   useAnalysis,
 } from '@/entities/analysis';
 
-import { ResultActions } from '@/features/analysis-result';
-import { useTestFlowStore } from '@/features/test-flow';
+import {
+  ResultActions,
+  SaveAnalysisSheet,
+  convertAtmosphereForStorage,
+  saveGuestAnalysis,
+} from '@/features/analysis-result';
+import {
+  PendingAnalysisSaveResumer,
+  deletePendingAnalysisSave,
+  putPendingAnalysisSave,
+  useTestFlowStore,
+  type PendingAnalysisSave,
+} from '@/features/test-flow';
 
+import {
+  normalizeAtmosphereSections,
+  normalizeMemberRoles,
+  normalizePairChemistry,
+} from './lib/normalize-analysis';
 import type { ResultViewProps } from './types';
 
 const METRIC_LABELS: Record<string, string> = {
@@ -27,28 +46,31 @@ const METRIC_LABELS: Record<string, string> = {
   friendship: '우정 / 관계 깊이',
   teamwork: '팀워크',
   atmosphere: '분위기',
-  conflict: '갈등 가능성',
+  conflict: '갈등 회복력',
 };
 
-const ATMOSPHERE_SECTIONS: {
-  key: string;
-  eyebrow: string;
-  variant: 'insight' | 'info' | 'positive';
-}[] = [
-  { key: 'description', eyebrow: 'GROUP ATMOSPHERE', variant: 'insight' },
-  { key: 'decisionMaking', eyebrow: 'DECISION MAKING', variant: 'info' },
-  { key: 'conflict', eyebrow: '주의 포인트', variant: 'positive' },
-  { key: 'bestMoment', eyebrow: 'BEST MOMENT', variant: 'positive' },
-];
+type SaveAnalysisOptions = {
+  isAuthenticated?: boolean;
+  pendingSave?: PendingAnalysisSave;
+};
 
 const ResultView = ({
   analysisId: propAnalysisId,
   className,
 }: ResultViewProps) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const storeAnalysisId = useTestFlowStore((s) => s.analysisId);
   const storeResult = useTestFlowStore((s) => s.analysisResult);
+  const isAnalysisResultHydrated = useTestFlowStore(
+    (s) => s.isAnalysisResultHydrated,
+  );
   const resetStore = useTestFlowStore((s) => s.reset);
+  const setAnalysisResult = useTestFlowStore((s) => s.setAnalysisResult);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaveSheetOpen, setIsSaveSheetOpen] = useState(false);
+  const [pendingSave, setPendingSave] = useState<PendingAnalysisSave>();
+  const [saveError, setSaveError] = useState<string | null>(null);
   const id = propAnalysisId ?? storeAnalysisId ?? '';
 
   const { data: dbAnalysis, isLoading } = useAnalysis(id);
@@ -57,13 +79,30 @@ const ResultView = ({
   const normalized = useMemo(() => {
     if (dbAnalysis) {
       const rawMetrics = dbAnalysis.metrics as Record<string, number>;
-      const rawAtmosphere = dbAnalysis.group_atmosphere as Record<string, string>;
+      const rawAtmosphere = dbAnalysis.group_atmosphere as Record<
+        string,
+        string
+      >;
       const rawRoles = dbAnalysis.member_roles as {
-        nickname: string; mbti: string; role: string; description: string;
+        nickname: string;
+        mbti: string;
+        role?: string;
+        title?: string;
+        description: string;
       }[];
       const rawPairs = dbAnalysis.pair_chemistry as {
-        memberA: string; memberB: string; score: number; summary: string;
-        description?: string; conversationScore?: number; conflictScore?: number; recommendedSituations?: string;
+        memberA?: string;
+        memberB?: string;
+        memberANickname?: string;
+        memberBNickname?: string;
+        memberAMbti?: string;
+        memberBMbti?: string;
+        score: number;
+        summary: string;
+        description?: string;
+        conversationScore?: number;
+        conflictScore?: number;
+        recommendedSituations?: string | string[];
       }[];
       const group = dbAnalysis.groups as {
         type: string;
@@ -75,7 +114,7 @@ const ResultView = ({
         tagline: dbAnalysis.tagline as string | null,
         summary: dbAnalysis.summary,
         metrics: rawMetrics,
-        atmosphere: rawAtmosphere,
+        atmosphereSource: { groupAtmosphere: rawAtmosphere },
         roles: rawRoles,
         pairs: rawPairs,
         members: group?.members ?? [],
@@ -83,13 +122,18 @@ const ResultView = ({
       };
     }
 
-    if (storeResult) {
+    if (storeResult && !id) {
       return {
         chemistryScore: storeResult.chemistryScore,
         tagline: storeResult.tagline,
         summary: storeResult.summary,
         metrics: storeResult.metrics,
-        atmosphere: storeResult.groupAtmosphere,
+        atmosphereSource: {
+          groupAtmosphere: storeResult.groupAtmosphere,
+          decisionMaking: storeResult.decisionMaking,
+          cautionPoint: storeResult.cautionPoint,
+          bestMoment: storeResult.bestMoment,
+        },
         roles: storeResult.memberRoles,
         pairs: storeResult.pairChemistry,
         members: storeResult.members,
@@ -98,7 +142,7 @@ const ResultView = ({
     }
 
     return null;
-  }, [dbAnalysis, storeResult]);
+  }, [dbAnalysis, id, storeResult]);
 
   const handleRetest = () => {
     resetStore();
@@ -109,7 +153,7 @@ const ResultView = ({
     router.push('/members');
   };
 
-  if (!isGuest && isLoading) {
+  if ((!id && !isAnalysisResultHydrated) || (!isGuest && isLoading)) {
     return (
       <div className={cn('flex items-center justify-center py-12', className)}>
         <p className="text-body text-muted">결과를 불러오는 중...</p>
@@ -119,65 +163,139 @@ const ResultView = ({
 
   if (!normalized) {
     return (
-      <div className={cn('flex items-center justify-center py-12', className)}>
-        <p className="text-body text-muted">분석 결과를 찾을 수 없습니다</p>
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center gap-3 py-12',
+          className,
+        )}
+      >
+        <p className="text-body text-muted">
+          {saveError ?? '분석 결과를 찾을 수 없습니다'}
+        </p>
       </div>
     );
   }
 
-  const metrics: Metric[] = Object.entries(normalized.metrics).map(([key, value]) => ({
-    label: METRIC_LABELS[key] ?? key,
-    value,
-    isCaution: key === 'conflict' && value >= 70,
-  }));
-
-  const atmosphereSections = ATMOSPHERE_SECTIONS.map(
-    ({ key, eyebrow, variant }) => ({
-      eyebrow,
-      title: normalized.atmosphere[key] ?? '',
-      variant,
+  const metrics: Metric[] = Object.entries(normalized.metrics).map(
+    ([key, value]) => ({
+      label: METRIC_LABELS[key] ?? key,
+      value,
+      isCaution: false,
     }),
   );
 
-  const roles: MemberRole[] = normalized.roles.map((r, i) => ({
-    memberId: String(i),
-    nickname: r.nickname,
-    mbti: r.mbti as MbtiType,
-    role: r.role,
-    description: r.description,
-  }));
-
-  const mbtiMap = new Map(normalized.members.map((m) => [m.nickname, m.mbti]));
-
-  const pairs: PairChemistry[] = normalized.pairs.map((p) => ({
-    memberA: {
-      nickname: p.memberA,
-      mbti: (mbtiMap.get(p.memberA) ?? 'ENFP') as MbtiType,
-    },
-    memberB: {
-      nickname: p.memberB,
-      mbti: (mbtiMap.get(p.memberB) ?? 'ENFP') as MbtiType,
-    },
-    score: p.score,
-    summary: p.summary,
-    description: p.description,
-    conversationScore: p.conversationScore,
-    conflictScore: p.conflictScore,
-    recommendedSituations: p.recommendedSituations,
-  }));
+  const atmosphereSections = normalizeAtmosphereSections(
+    normalized.atmosphereSource,
+  );
+  const roles = normalizeMemberRoles(normalized.roles);
+  const pairs = normalizePairChemistry(normalized.pairs, normalized.members);
 
   const groupName = GROUP_TYPE_LABELS[normalized.groupType] ?? '그룹';
 
   const memberMbtis = normalized.members.map((m) => m.mbti as MbtiType);
 
   const handlePairClick = (index: number) => {
-    if (isGuest) return;
-    router.push(`/result/pair-detail?id=${id}&pair=${index}`);
+    const idQuery = id ? `&id=${id}` : '';
+    router.push(`/result/pair-detail?pair=${index}${idQuery}`);
   };
 
-  const handleSave = () => {
-    if (isGuest) {
-      router.push('/signup');
+  const handleRoleClick = (index: number) => {
+    const idQuery = id ? `&id=${id}` : '';
+    router.push(`/result/role-detail?role=${index}${idQuery}`);
+  };
+
+  const handlePairsClick = () => {
+    const idQuery = id ? `?id=${id}` : '';
+    router.push(`/result/pairs${idQuery}`);
+  };
+
+  const handleSave = async (
+    title: string,
+    options: SaveAnalysisOptions = {},
+  ) => {
+    if (!storeResult || isSaving) return;
+
+    setSaveError(null);
+    setIsSaving(true);
+
+    const currentPendingSave =
+      options.pendingSave ??
+      (pendingSave?.title === title
+        ? pendingSave
+        : { title, saveOperationId: crypto.randomUUID() });
+    setPendingSave(currentPendingSave);
+
+    try {
+      let isAuthenticated = options.isAuthenticated ?? false;
+
+      if (!isAuthenticated) {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        isAuthenticated = !!user;
+      }
+
+      if (!isAuthenticated) {
+        const isPendingSaveStored = putPendingAnalysisSave(
+          currentPendingSave,
+          window.sessionStorage,
+        );
+
+        if (!isPendingSaveStored) {
+          setSaveError(
+            '제목을 임시로 보관하지 못했어요. 브라우저 설정을 확인한 뒤 다시 시도해 주세요.',
+          );
+          return;
+        }
+
+        router.push('/signup?redirect=/result');
+        return;
+      }
+
+      putPendingAnalysisSave(currentPendingSave, window.sessionStorage);
+
+      const groupAtmosphereForStorage = convertAtmosphereForStorage({
+        groupAtmosphere: storeResult.groupAtmosphere,
+        decisionMaking: storeResult.decisionMaking,
+        cautionPoint: storeResult.cautionPoint,
+        bestMoment: storeResult.bestMoment,
+      });
+
+      const result = await saveGuestAnalysis({
+        title,
+        saveOperationId: currentPendingSave.saveOperationId,
+        groupType: storeResult.groupType,
+        customName: storeResult.customName,
+        members: storeResult.members,
+        chemistryScore: storeResult.chemistryScore,
+        tagline: storeResult.tagline,
+        metrics: storeResult.metrics,
+        groupAtmosphere: groupAtmosphereForStorage,
+        memberRoles: storeResult.memberRoles,
+        pairChemistry: storeResult.pairChemistry,
+        summary: storeResult.summary,
+      });
+
+      if ('error' in result) {
+        setSaveError(
+          result.error ??
+            '결과를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.',
+        );
+        return;
+      }
+
+      deletePendingAnalysisSave(window.sessionStorage);
+      setIsSaveSheetOpen(false);
+      setAnalysisResult(null);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.analyses.all });
+      router.replace('/');
+    } catch {
+      setSaveError(
+        '결과를 저장하지 못했어요. 네트워크를 확인한 뒤 다시 시도해 주세요.',
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -194,6 +312,32 @@ const ResultView = ({
 
   return (
     <div className={cn('flex flex-col', className)}>
+      {isGuest && (
+        <PendingAnalysisSaveResumer
+          onResume={async (storedPendingSave) => {
+            setPendingSave(storedPendingSave);
+            setIsSaveSheetOpen(true);
+
+            try {
+              const supabase = createClient();
+              const {
+                data: { user },
+              } = await supabase.auth.getUser();
+
+              if (!user) return;
+
+              await handleSave(storedPendingSave.title, {
+                isAuthenticated: true,
+                pendingSave: storedPendingSave,
+              });
+            } catch {
+              setSaveError(
+                '로그인 상태를 확인하지 못했어요. 네트워크를 확인한 뒤 다시 시도해 주세요.',
+              );
+            }
+          }}
+        />
+      )}
       <div className="rounded-b-[34px] bg-green-100 pb-[30px]">
         <div className="flex items-center justify-between px-[22px] pb-0 pt-[6px]">
           <button
@@ -238,8 +382,8 @@ const ResultView = ({
         </div>
       </div>
 
-      <div className="flex flex-col gap-[14px] px-5 pt-6">
-        <div className="flex flex-col gap-[15px] rounded-card-lg bg-surface p-5 shadow-md">
+      <div className="flex flex-col gap-8 px-5 pt-8">
+        <section className="flex flex-col gap-[15px] rounded-card-lg bg-surface p-5 shadow-md">
           <h3 className="text-section font-black text-foreground">케미 지표</h3>
           {metrics.map((metric) => (
             <MetricBar
@@ -249,21 +393,24 @@ const ResultView = ({
               isCaution={metric.isCaution}
             />
           ))}
-        </div>
+        </section>
 
         <button
           type="button"
           onClick={() => {
-            if (!isGuest) router.push(`/result/atmosphere?id=${id}`);
+            const idQuery = id ? `?id=${id}` : '';
+            router.push(`/result/atmosphere${idQuery}`);
           }}
           className="cursor-pointer text-left btn-press"
         >
           <div className="flex flex-col gap-[10px]">
             <div className="flex items-center justify-between px-1">
-              <h3 className="text-section font-black text-foreground">그룹 분위기</h3>
-              {!isGuest && (
-                <span className="text-[12.5px] font-extrabold text-primary">상세보기 →</span>
-              )}
+              <h3 className="text-section font-black text-foreground">
+                그룹 분위기
+              </h3>
+              <span className="text-[12.5px] font-extrabold text-primary">
+                상세보기 →
+              </span>
             </div>
             {atmosphereSections.slice(0, 2).map((section) => (
               <InsightCard
@@ -271,37 +418,50 @@ const ResultView = ({
                 variant={section.variant}
                 eyebrow={section.eyebrow}
                 title={section.title}
-                description=""
+                description={section.description}
               />
             ))}
           </div>
         </button>
 
-        <div className="flex flex-col gap-[14px] rounded-card-lg bg-surface p-5 shadow-md">
+        <section className="flex flex-col gap-4 rounded-card-lg bg-surface p-5 shadow-md">
           <h3 className="text-section font-black text-foreground">
             우리 안에서의 역할
           </h3>
-          {roles.map((role) => (
-            <RoleCard
-              key={role.memberId}
-              nickname={role.nickname}
-              mbti={role.mbti}
-              role={role.role}
-              description={role.description}
-            />
-          ))}
-        </div>
+          <div className="flex flex-col gap-[18px]">
+            {roles.map((role, index) => (
+              <RoleCard
+                key={role.memberId}
+                nickname={role.nickname}
+                mbti={role.mbti}
+                role={role.role}
+                description={role.description}
+                onClick={() => handleRoleClick(index)}
+              />
+            ))}
+          </div>
+        </section>
 
-        <div className="flex flex-col gap-[11px]">
+        <section className="flex flex-col gap-[11px]">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-section font-black text-foreground">
               둘 사이의 케미
             </h3>
-            <span className="text-[12.5px] font-extrabold text-primary">
-              전체 {pairs.length}쌍
-            </span>
+            {pairs.length > 2 ? (
+              <button
+                type="button"
+                onClick={handlePairsClick}
+                className="flex min-h-11 cursor-pointer items-center px-1 text-[12.5px] font-extrabold text-primary btn-press"
+              >
+                전체보기 →
+              </button>
+            ) : (
+              <span className="text-[12.5px] font-extrabold text-primary">
+                전체 {pairs.length}쌍
+              </span>
+            )}
           </div>
-          {pairs.map((pair, index) => (
+          {pairs.slice(0, 2).map((pair, index) => (
             <PairCard
               key={`${pair.memberA.nickname}-${pair.memberB.nickname}`}
               memberA={pair.memberA}
@@ -311,18 +471,31 @@ const ResultView = ({
               onClick={() => handlePairClick(index)}
             />
           ))}
-        </div>
+        </section>
       </div>
 
       <div className="flex flex-col gap-[11px] px-5 pb-[46px] pt-6">
         <button
           type="button"
-          onClick={handleSave}
+          onClick={() => setIsSaveSheetOpen(true)}
+          disabled={isSaving || !storeResult}
           className="flex h-[60px] cursor-pointer items-center justify-center rounded-[22px] bg-primary font-extrabold text-[17px] text-primary-foreground shadow-lg btn-press"
         >
-          {isGuest ? '회원가입하고 결과 저장하기' : '결과 저장하기'}
+          {isSaving
+            ? '저장 중...'
+            : isGuest
+              ? '결과 저장하기'
+              : '저장된 결과입니다'}
         </button>
-        <ResultActions onRetest={handleRetest} onAddMembers={handleAddMembers} />
+        {saveError && (
+          <p className="text-center text-caption font-bold text-caution-foreground">
+            {saveError}
+          </p>
+        )}
+        <ResultActions
+          onRetest={handleRetest}
+          onAddMembers={handleAddMembers}
+        />
         <button
           type="button"
           onClick={handleShare}
@@ -331,6 +504,18 @@ const ResultView = ({
           ↗ 결과 공유하기
         </button>
       </div>
+
+      <SaveAnalysisSheet
+        isOpen={isSaveSheetOpen}
+        onClose={() => {
+          setSaveError(null);
+          setIsSaveSheetOpen(false);
+        }}
+        onSubmit={handleSave}
+        isSubmitting={isSaving}
+        submitError={saveError}
+        defaultTitle={pendingSave?.title}
+      />
     </div>
   );
 };

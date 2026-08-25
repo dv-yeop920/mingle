@@ -16,7 +16,7 @@ const MetricBar = ({ label, value, isCaution = false, className }: MetricBarProp
       <div className="h-[10px] rounded-pill bg-border-inner">
         <div
           className={cn(
-            'h-full rounded-pill transition-[width] duration-500 ease-out',
+            'result-progress-fill h-full rounded-pill',
             isCaution ? 'bg-caution' : 'bg-primary',
           )}
           style={{ width: `${clamped}%` }}

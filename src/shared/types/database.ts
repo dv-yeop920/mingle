@@ -22,8 +22,10 @@ export type Database = {
           member_roles: Json;
           metrics: Json;
           pair_chemistry: Json;
+          save_operation_id: string | null;
           summary: string;
           tagline: string | null;
+          title: string;
           user_id: string;
         };
         Insert: {
@@ -35,8 +37,10 @@ export type Database = {
           member_roles: Json;
           metrics: Json;
           pair_chemistry: Json;
+          save_operation_id?: string | null;
           summary: string;
           tagline?: string | null;
+          title: string;
           user_id: string;
         };
         Update: {
@@ -48,8 +52,10 @@ export type Database = {
           member_roles?: Json;
           metrics?: Json;
           pair_chemistry?: Json;
+          save_operation_id?: string | null;
           summary?: string;
           tagline?: string | null;
+          title?: string;
           user_id?: string;
         };
         Relationships: [
@@ -174,7 +180,23 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      save_guest_analysis: {
+        Args: {
+          p_chemistry_score: number;
+          p_custom_name: string | null;
+          p_group_atmosphere: Json;
+          p_group_type: string;
+          p_member_roles: Json;
+          p_members: Json;
+          p_metrics: Json;
+          p_pair_chemistry: Json;
+          p_save_operation_id: string;
+          p_summary: string;
+          p_tagline: string;
+          p_title: string;
+        };
+        Returns: string;
+      };
     };
     Enums: {
       [_ in never]: never;

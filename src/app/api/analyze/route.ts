@@ -1,79 +1,73 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { z } from 'zod';
+import { zodTextFormat } from 'openai/helpers/zod';
 
-import { createClient } from '@/shared/lib/supabase/server';
+import {
+  ANALYSIS_INSTRUCTIONS,
+  buildAnalysisInput,
+} from '@/entities/analysis/api/prompt';
+import {
+  analysisResultSchema,
+  analyzeRequestSchema,
+  type AnalysisResult,
+} from '@/entities/analysis/model/schemas';
 
-import { buildAnalysisPrompt } from '@/entities/analysis/api/prompt';
+type CompletenessResult =
+  | { data: true }
+  | { error: string };
 
-const MBTI_TYPES = [
-  'INTJ', 'INTP', 'ENTJ', 'ENTP',
-  'INFJ', 'INFP', 'ENFJ', 'ENFP',
-  'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ',
-  'ISTP', 'ISFP', 'ESTP', 'ESFP',
-] as const;
+const isOpenAIQuotaError = (error: unknown) =>
+  typeof error === 'object'
+  && error !== null
+  && 'code' in error
+  && error.code === 'insufficient_quota';
 
-const memberSchema = z.object({
-  nickname: z.string().min(1).max(8),
-  mbti: z.enum(MBTI_TYPES),
-  gender: z.enum(['male', 'female', 'other']),
-  isSelf: z.boolean(),
-});
+const isOpenAIRateLimitError = (error: unknown) =>
+  typeof error === 'object'
+  && error !== null
+  && 'status' in error
+  && error.status === 429;
 
-const requestSchema = z.object({
-  groupType: z.enum(['friends', 'work', 'family', 'custom']),
-  customName: z.string().max(20).optional(),
-  members: z.array(memberSchema).min(2).max(10),
-});
+const validateAnalysisCompleteness = (
+  expectedPairIds: Set<string>,
+  expectedMemberIds: Set<string>,
+  result: AnalysisResult,
+): CompletenessResult => {
+  const roleMemberIds = new Set(
+    result.memberRoles.map((role) => role.memberId),
+  );
 
-const aiResponseSchema = z.object({
-  chemistryScore: z.number().int().min(0).max(100),
-  tagline: z.string(),
-  metrics: z.object({
-    conversation: z.number().int().min(0).max(100),
-    friendship: z.number().int().min(0).max(100),
-    teamwork: z.number().int().min(0).max(100),
-    atmosphere: z.number().int().min(0).max(100),
-    conflict: z.number().int().min(0).max(100),
-  }),
-  groupAtmosphere: z.object({
-    description: z.string(),
-    decisionMaking: z.string(),
-    conflict: z.string(),
-    bestMoment: z.string(),
-  }),
-  memberRoles: z.array(
-    z.object({
-      nickname: z.string(),
-      mbti: z.string(),
-      role: z.string(),
-      description: z.string(),
-    }),
-  ),
-  pairChemistry: z.array(
-    z.object({
-      memberA: z.string(),
-      memberB: z.string(),
-      score: z.number().int().min(0).max(100),
-      summary: z.string(),
-      description: z.string(),
-      conversationScore: z.number().int().min(0).max(100),
-      conflictScore: z.number().int().min(0).max(100),
-      recommendedSituations: z.string(),
-    }),
-  ),
-  summary: z.string(),
-});
+  if (roleMemberIds.size !== expectedMemberIds.size) {
+    return { error: '멤버 역할 분석이 누락되었습니다' };
+  }
+
+  for (const memberId of expectedMemberIds) {
+    if (!roleMemberIds.has(memberId)) {
+      return { error: '멤버 역할 분석이 누락되었습니다' };
+    }
+  }
+
+  const actualPairIds = new Set(
+    result.pairChemistry.map((pair) => pair.pairId),
+  );
+
+  if (actualPairIds.size !== expectedPairIds.size) {
+    return { error: '1:1 케미 분석이 누락되었습니다' };
+  }
+
+  for (const pairId of expectedPairIds) {
+    if (!actualPairIds.has(pairId)) {
+      return { error: '1:1 케미 분석이 누락되었습니다' };
+    }
+  }
+
+  return { data: true };
+};
 
 export const POST = async (request: Request) => {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
     const body = await request.json();
-    const parsed = requestSchema.safeParse(body);
+    const parsed = analyzeRequestSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -82,127 +76,97 @@ export const POST = async (request: Request) => {
       );
     }
 
-    const { groupType, customName, members } = parsed.data;
-
-    const { systemPrompt, userPrompt } = buildAnalysisPrompt({
-      groupType,
-      customName,
-      members,
-    });
-
+    const analysisInput = buildAnalysisInput(parsed.data);
     const openai = new OpenAI();
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
+
+    const response = await openai.responses.parse({
+      model: process.env.OPENAI_ANALYSIS_MODEL ?? 'gpt-5.6-luna',
+      instructions: ANALYSIS_INSTRUCTIONS,
+      input: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'input_text',
+              text: JSON.stringify(analysisInput),
+            },
+          ],
+        },
       ],
-      response_format: { type: 'json_object' },
-      temperature: 0.8,
+      text: {
+        format: zodTextFormat(
+          analysisResultSchema,
+          'mingle_analysis_result',
+          {
+            description:
+              'MINGLE MBTI group chemistry analysis result for mobile UI cards.',
+          },
+        ),
+        verbosity: 'high',
+      },
+      reasoning: {
+        effort: 'low',
+      },
+      prompt_cache_key: 'mingle-analysis-v2',
+      store: false,
     });
 
-    const rawContent = completion.choices[0].message.content;
-    if (!rawContent) {
+    if (!response.output_parsed) {
       return NextResponse.json(
-        { error: 'AI 응답이 비어있습니다' },
-        { status: 500 },
+        { error: '분석 결과를 완성하지 못했어요. 다시 시도해주세요' },
+        { status: 502 },
       );
     }
 
-    const aiResult = aiResponseSchema.safeParse(JSON.parse(rawContent));
-    if (!aiResult.success) {
+    const expectedPairIds = new Set(
+      analysisInput.expectedPairs.map((pair) => pair.pairId),
+    );
+    const expectedMemberIds = new Set(
+      analysisInput.members.map((member) => member.memberId),
+    );
+    const completeness = validateAnalysisCompleteness(
+      expectedPairIds,
+      expectedMemberIds,
+      response.output_parsed,
+    );
+
+    if ('error' in completeness) {
       return NextResponse.json(
-        { error: 'AI 응답 형식이 올바르지 않습니다' },
-        { status: 500 },
-      );
-    }
-
-    const analysisData = aiResult.data;
-
-    if (!user) {
-      return NextResponse.json({
-        data: {
-          ...analysisData,
-          members: members.map((m) => ({
-            nickname: m.nickname,
-            mbti: m.mbti,
-            gender: m.gender,
-            is_self: m.isSelf,
-          })),
-          groupType,
-          customName: customName ?? null,
-        },
-      });
-    }
-
-    const { data: group, error: groupError } = await supabase
-      .from('groups')
-      .insert({
-        user_id: user.id,
-        type: groupType,
-        custom_name: customName ?? null,
-      })
-      .select('id')
-      .single();
-
-    if (groupError || !group) {
-      return NextResponse.json(
-        { error: '그룹 생성에 실패했습니다' },
-        { status: 500 },
-      );
-    }
-
-    const memberRows = members.map((m, i) => ({
-      group_id: group.id,
-      nickname: m.nickname,
-      mbti: m.mbti,
-      gender: m.gender,
-      is_self: m.isSelf,
-      order: i,
-    }));
-
-    const { error: membersError } = await supabase
-      .from('members')
-      .insert(memberRows);
-
-    if (membersError) {
-      return NextResponse.json(
-        { error: '멤버 저장에 실패했습니다' },
-        { status: 500 },
-      );
-    }
-
-    const { data: analysis, error: analysisError } = await supabase
-      .from('analyses')
-      .insert({
-        user_id: user.id,
-        group_id: group.id,
-        chemistry_score: analysisData.chemistryScore,
-        tagline: analysisData.tagline,
-        metrics: analysisData.metrics,
-        group_atmosphere: analysisData.groupAtmosphere,
-        member_roles: analysisData.memberRoles,
-        pair_chemistry: analysisData.pairChemistry,
-        summary: analysisData.summary,
-      })
-      .select('id')
-      .single();
-
-    if (analysisError || !analysis) {
-      return NextResponse.json(
-        { error: '분석 결과 저장에 실패했습니다' },
-        { status: 500 },
+        { error: '분석 결과를 완성하지 못했어요. 다시 시도해주세요' },
+        { status: 502 },
       );
     }
 
     return NextResponse.json({
       data: {
-        analysisId: analysis.id,
-        groupId: group.id,
-        ...analysisData,
+        ...response.output_parsed,
+        groupType: analysisInput.group.type,
+        customName: parsed.data.group.customName,
+        members: analysisInput.members.map((member) => ({
+          nickname: member.nickname,
+          mbti: member.mbti,
+          gender: member.gender,
+          is_self: member.isSelf,
+        })),
       },
     });
-  } catch {
+  } catch (error) {
+    console.error('[api/analyze] failed', error);
+
+    if (isOpenAIQuotaError(error)) {
+      return NextResponse.json(
+        { error: 'AI 분석 사용량 한도를 초과했습니다' },
+        { status: 429 },
+      );
+    }
+
+    if (isOpenAIRateLimitError(error)) {
+      return NextResponse.json(
+        { error: '분석 요청이 몰리고 있어요. 잠시 후 다시 시도해주세요' },
+        { status: 429 },
+      );
+    }
+
     return NextResponse.json(
       { error: '분석 중 오류가 발생했습니다' },
       { status: 500 },

@@ -1,4 +1,9 @@
-import type { GroupAtmosphere, MemberRole, Metric, PairChemistry } from '@/entities/analysis';
+import type {
+  GroupAtmosphere,
+  MemberRole,
+  Metric,
+  PairChemistry,
+} from '@/entities/analysis';
 
 type ResultReportProps = {
   chemistryScore: number;

@@ -4,14 +4,9 @@ import { LoginForm } from '@/features/auth';
 
 import type { LoginViewProps } from './types';
 
-const LoginView = ({ className }: LoginViewProps) => {
+const LoginView = ({ className, redirectTo }: LoginViewProps) => {
   return (
-    <div
-      className={cn(
-        'flex min-h-dvh flex-col px-7 pt-[44px]',
-        className,
-      )}
-    >
+    <div className={cn('flex min-h-dvh flex-col px-7 pt-[44px]', className)}>
       <div className="flex flex-col gap-2">
         <div className="mb-5 flex h-[60px] w-[60px] items-center justify-center rounded-[20px] bg-green-100">
           <span className="font-nunito text-[26px] font-black text-[#1F4F32]">
@@ -27,7 +22,7 @@ const LoginView = ({ className }: LoginViewProps) => {
       </div>
 
       <div className="pt-[34px]">
-        <LoginForm />
+        <LoginForm redirectTo={redirectTo} />
       </div>
 
       <p className="mt-auto pb-[46px] text-center text-[12px] font-semibold text-[#A9B8AC]">

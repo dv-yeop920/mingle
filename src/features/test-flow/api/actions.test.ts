@@ -11,18 +11,49 @@ describe('requestAnalysis', () => {
   });
 
   const validInput = {
-    groupType: 'friends',
+    groupType: 'friends' as const,
     members: [
       { id: '1', nickname: '민지', mbti: 'ENFP' as const, gender: 'female' as const, isSelf: true },
       { id: '2', nickname: '하니', mbti: 'ISTJ' as const, gender: 'female' as const, isSelf: false },
     ],
   };
 
+  const expectedBody = {
+    schemaVersion: '2026-08-24',
+    group: {
+      type: 'friends',
+      customName: null,
+    },
+    members: [
+      {
+        memberId: '1',
+        nickname: '민지',
+        mbti: 'ENFP',
+        gender: 'female',
+        isSelf: true,
+        order: 0,
+      },
+      {
+        memberId: '2',
+        nickname: '하니',
+        mbti: 'ISTJ',
+        gender: 'female',
+        isSelf: false,
+        order: 1,
+      },
+    ],
+    options: {
+      locale: 'ko-KR',
+      tone: 'friendly',
+      includeAllPairs: true,
+    },
+  };
+
   it('성공 시 분석 데이터를 반환한다', async () => {
     const mockData = { chemistryScore: 85, summary: '좋은 케미' };
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(mockData),
+      json: () => Promise.resolve({ data: mockData }),
     });
 
     const result = await requestAnalysis(validInput);
@@ -31,7 +62,7 @@ describe('requestAnalysis', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(validInput),
+      body: JSON.stringify(expectedBody),
     });
   });
 
@@ -57,23 +88,28 @@ describe('requestAnalysis', () => {
     expect(result).toEqual({ error: '분석 요청에 실패했습니다' });
   });
 
-  it('customName이 포함된 요청을 올바르게 전송한다', async () => {
-    const inputWithCustom = {
+  it('company 요청을 올바르게 전송한다', async () => {
+    const inputWithCompany = {
       ...validInput,
-      groupType: 'custom',
-      customName: '우리 동아리',
+      groupType: 'company' as const,
     };
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ chemistryScore: 90 }),
+      json: () => Promise.resolve({ data: { chemistryScore: 90 } }),
     });
 
-    await requestAnalysis(inputWithCustom);
+    await requestAnalysis(inputWithCompany);
 
     expect(mockFetch).toHaveBeenCalledWith('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(inputWithCustom),
+      body: JSON.stringify({
+        ...expectedBody,
+        group: {
+          ...expectedBody.group,
+          type: 'company',
+        },
+      }),
     });
   });
 });

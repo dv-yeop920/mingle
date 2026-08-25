@@ -4,7 +4,7 @@ import { SignupForm } from '@/features/auth';
 
 import type { SignupViewProps } from './types';
 
-const SignupView = ({ className }: SignupViewProps) => {
+const SignupView = ({ className, redirectTo }: SignupViewProps) => {
   return (
     <div className={cn('flex min-h-dvh flex-col gap-6 px-7 pt-7', className)}>
       <div className="flex flex-col gap-[6px]">
@@ -16,7 +16,7 @@ const SignupView = ({ className }: SignupViewProps) => {
         </p>
       </div>
 
-      <SignupForm className="flex-1" />
+      <SignupForm className="flex-1" redirectTo={redirectTo} />
     </div>
   );
 };

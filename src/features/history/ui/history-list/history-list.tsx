@@ -38,10 +38,6 @@ const HistoryList = ({ filterType, className }: HistoryListProps) => {
           members: { nickname: string; mbti: string; is_self: boolean }[];
         } | null;
         const groupType = group?.type ?? '';
-        const groupName =
-          groupType === 'custom'
-            ? (group?.custom_name ?? '기타')
-            : (GROUP_TYPE_LABELS[groupType] ?? '');
         const members = group?.members ?? [];
         const dateStr = new Date(item.created_at).toLocaleDateString('ko-KR', {
           year: 'numeric',
@@ -56,7 +52,9 @@ const HistoryList = ({ filterType, className }: HistoryListProps) => {
           >
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-[5px]">
-                <span className="text-[16px] font-black text-foreground">{groupName}</span>
+                <span className="text-[16px] font-black text-foreground">
+                  {item.title}
+                </span>
                 <span className="text-[12px] font-bold text-hint">
                   {GROUP_TYPE_LABELS[groupType] ?? '기타'} · {members.length}명
                 </span>

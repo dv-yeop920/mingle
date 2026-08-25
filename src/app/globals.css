@@ -30,6 +30,36 @@ body {
   50% { transform: translateY(-6px); opacity: 1; }
 }
 
+@property --gauge-progress {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@keyframes mx-gauge-fill {
+  from { --gauge-progress: 0%; }
+}
+
+@keyframes mx-progress-fill {
+  from { transform: scaleX(0); }
+}
+
+.result-gauge-fill {
+  animation: mx-gauge-fill 800ms ease-out both;
+}
+
+.result-progress-fill {
+  animation: mx-progress-fill 800ms ease-out both;
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result-gauge-fill,
+  .result-progress-fill {
+    animation-duration: 1ms;
+  }
+}
+
 @utility btn-press {
   transition-property: transform;
   transition-duration: 120ms;

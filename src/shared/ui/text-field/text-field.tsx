@@ -1,9 +1,23 @@
+import { useId } from 'react';
+
 import { cn } from '@/shared/lib/utils';
 
 import type { TextFieldProps } from './types';
 
-const TextField = ({ label, error, className, ref, id, ...props }: TextFieldProps) => {
-  const inputId = id ?? label?.replace(/\s+/g, '-').toLowerCase();
+const TextField = ({
+  label,
+  error,
+  className,
+  ref,
+  id,
+  ...props
+}: TextFieldProps) => {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+  const errorId = `${inputId}-error`;
+  const describedBy = [props['aria-describedby'], error ? errorId : null]
+    .filter(Boolean)
+    .join(' ') || undefined;
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
@@ -15,6 +29,9 @@ const TextField = ({ label, error, className, ref, id, ...props }: TextFieldProp
       <input
         ref={ref}
         id={inputId}
+        {...props}
+        aria-describedby={describedBy}
+        aria-invalid={error ? true : props['aria-invalid']}
         className={cn(
           'h-[56px] rounded-field bg-surface px-4 text-[15px] font-bold text-foreground',
           'border border-border outline-none',
@@ -23,10 +40,14 @@ const TextField = ({ label, error, className, ref, id, ...props }: TextFieldProp
           'focus:border-border-focus focus:shadow-sm',
           error && 'border-caution',
         )}
-        {...props}
       />
       {error && (
-        <p className="text-caption font-bold text-caution-foreground">{error}</p>
+        <p
+          id={errorId}
+          className="text-caption font-bold text-caution-foreground"
+        >
+          {error}
+        </p>
       )}
     </div>
   );
