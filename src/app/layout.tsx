@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 
@@ -86,12 +87,13 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
 };
 
-const RootLayout = ({ children }: LayoutProps<"/">) => {
+const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
     <html lang="ko" className={`${gothicA1.variable} ${nunito.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
     </html>
   );
 };
