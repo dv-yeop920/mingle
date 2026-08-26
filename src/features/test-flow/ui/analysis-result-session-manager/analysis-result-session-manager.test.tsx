@@ -16,15 +16,18 @@ import { createAnalysisResultFixture } from '@/features/test-flow/testing/analys
 import { AnalysisResultSessionManager } from './analysis-result-session-manager';
 
 let mockPathname = '/result';
+let mockSearchParams = new URLSearchParams();
 const SAVE_OPERATION_ID = '7dbefb4f-8c4a-4dde-975d-4756047a4706';
 
 vi.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
+  useSearchParams: () => mockSearchParams,
 }));
 
 describe('AnalysisResultSessionManager', () => {
   beforeEach(() => {
     mockPathname = '/result';
+    mockSearchParams = new URLSearchParams();
     window.history.replaceState({}, '', '/result');
     sessionStorage.clear();
     act(() => {
@@ -121,6 +124,7 @@ describe('AnalysisResultSessionManager', () => {
     });
 
     mockPathname = '/signup';
+    mockSearchParams = new URLSearchParams('redirect=/result');
     window.history.replaceState({}, '', '/signup?redirect=/result');
     rerender(<AnalysisResultSessionManager />);
 
@@ -143,6 +147,7 @@ describe('AnalysisResultSessionManager', () => {
     });
 
     mockPathname = '/signup';
+    mockSearchParams = new URLSearchParams();
     window.history.replaceState({}, '', '/signup');
     rerender(<AnalysisResultSessionManager />);
 
@@ -160,5 +165,38 @@ describe('AnalysisResultSessionManager', () => {
 
     expect(useTestFlowStore.getState().analysisResult).toBeNull();
     expect(sessionStorage.getItem(ANALYSIS_RESULT_STORAGE_KEY)).toBeNull();
+  });
+
+  it('인증 화면에서 결과가 비워져도 복귀 전에 세션 결과를 복원한다', async () => {
+    const result = createAnalysisResultFixture();
+    putAnalysisResult(result, sessionStorage);
+    const { rerender } = render(<AnalysisResultSessionManager />);
+
+    await waitFor(() => {
+      expect(useTestFlowStore.getState().analysisResult).toEqual(result);
+    });
+
+    mockPathname = '/login';
+    mockSearchParams = new URLSearchParams('redirect=/result');
+    window.history.replaceState({}, '', '/login?redirect=/result');
+    rerender(<AnalysisResultSessionManager />);
+
+    await waitFor(() => {
+      expect(useTestFlowStore.getState().isAnalysisResultHydrated).toBe(false);
+    });
+
+    act(() => useTestFlowStore.getState().setAnalysisResult(null));
+
+    expect(sessionStorage.getItem(ANALYSIS_RESULT_STORAGE_KEY)).not.toBeNull();
+
+    mockPathname = '/result';
+    mockSearchParams = new URLSearchParams();
+    window.history.replaceState({}, '', '/result');
+    rerender(<AnalysisResultSessionManager />);
+
+    await waitFor(() => {
+      expect(useTestFlowStore.getState().analysisResult).toEqual(result);
+      expect(useTestFlowStore.getState().isAnalysisResultHydrated).toBe(true);
+    });
   });
 });

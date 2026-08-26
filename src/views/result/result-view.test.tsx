@@ -95,6 +95,38 @@ describe('ResultView save flow', () => {
     vi.restoreAllMocks();
   });
 
+  it('인증 복귀 결과를 복원하는 동안 빈 상태 대신 로딩을 보여준다', () => {
+    const restoredResult = createAnalysisResultFixture();
+    act(() => {
+      useTestFlowStore.setState({
+        analysisId: null,
+        analysisResult: null,
+        isAnalysisResultHydrated: false,
+      });
+    });
+
+    renderResultView();
+
+    expect(screen.getByText('결과를 불러오는 중...')).toBeInTheDocument();
+    expect(
+      screen.queryByText('분석 결과를 찾을 수 없습니다'),
+    ).not.toBeInTheDocument();
+
+    act(() => {
+      useTestFlowStore.setState({
+        analysisResult: restoredResult,
+        isAnalysisResultHydrated: true,
+      });
+    });
+
+    expect(
+      screen.getByText('다정하게 균형을 맞추는 모임'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('결과를 불러오는 중...'),
+    ).not.toBeInTheDocument();
+  });
+
   it('저장 요청이 예외를 던져도 로딩을 해제하고 재시도 오류를 보여준다', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } } });
     mockSaveGuestAnalysis.mockRejectedValue(new Error('network'));

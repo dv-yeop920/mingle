@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
 import {
@@ -14,6 +14,8 @@ import { useTestFlowStore } from '@/features/test-flow/model/store';
 const RESULT_PATH = '/result';
 const AUTH_PATHS = new Set(['/login', '/signup']);
 
+type ResultFlowState = 'auth-save' | 'outside' | 'result';
+
 const checkIsResultPath = (pathname: string): boolean =>
   pathname === RESULT_PATH || pathname.startsWith(`${RESULT_PATH}/`);
 
@@ -21,18 +23,33 @@ const checkIsResultSavePath = (pathname: string, search: string): boolean =>
   AUTH_PATHS.has(pathname) &&
   new URLSearchParams(search).get('redirect') === RESULT_PATH;
 
+const convertResultFlowState = (
+  pathname: string,
+  search: string,
+): ResultFlowState => {
+  if (checkIsResultPath(pathname)) return 'result';
+  if (checkIsResultSavePath(pathname, search)) return 'auth-save';
+  return 'outside';
+};
+
 const AnalysisResultSessionManager = () => {
   const pathname = usePathname();
-  const initialPathname = useRef(pathname);
-  const previousIsInResultFlow = useRef<boolean | null>(null);
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
+  const initialLocation = useRef({ pathname, search });
+  const currentFlowState = useRef<ResultFlowState>(
+    convertResultFlowState(pathname, search),
+  );
+  const previousFlowState = useRef<ResultFlowState | null>(null);
 
   useEffect(() => {
-    const isInitialResultFlow =
-      checkIsResultPath(initialPathname.current) ||
-      checkIsResultSavePath(initialPathname.current, window.location.search);
+    const initialFlowState = convertResultFlowState(
+      initialLocation.current.pathname,
+      initialLocation.current.search,
+    );
     const currentResult = useTestFlowStore.getState().analysisResult;
 
-    if (!isInitialResultFlow) {
+    if (initialFlowState === 'outside') {
       deleteAnalysisResult(window.sessionStorage);
       deletePendingAnalysisSave(window.sessionStorage);
       if (currentResult) {
@@ -47,36 +64,51 @@ const AnalysisResultSessionManager = () => {
       }
     }
 
-    useTestFlowStore.getState().setIsAnalysisResultHydrated(true);
+    useTestFlowStore
+      .getState()
+      .setIsAnalysisResultHydrated(initialFlowState !== 'auth-save');
 
     return useTestFlowStore.subscribe((state, previousState) => {
       if (state.analysisResult === previousState.analysisResult) return;
 
       if (state.analysisResult) {
         putAnalysisResult(state.analysisResult, window.sessionStorage);
-      } else {
+      } else if (currentFlowState.current !== 'auth-save') {
         deleteAnalysisResult(window.sessionStorage);
       }
     });
   }, []);
 
   useEffect(() => {
-    const isInResultFlow =
-      checkIsResultPath(pathname) ||
-      checkIsResultSavePath(pathname, window.location.search);
+    const nextFlowState = convertResultFlowState(pathname, search);
+    currentFlowState.current = nextFlowState;
 
-    if (previousIsInResultFlow.current === null) {
-      previousIsInResultFlow.current = isInResultFlow;
+    if (previousFlowState.current === null) {
+      previousFlowState.current = nextFlowState;
       return;
     }
 
-    if (previousIsInResultFlow.current && !isInResultFlow) {
+    const previousState = previousFlowState.current;
+
+    if (nextFlowState === 'auth-save') {
+      useTestFlowStore.getState().setIsAnalysisResultHydrated(false);
+    } else if (previousState === 'auth-save' && nextFlowState === 'result') {
+      const currentResult = useTestFlowStore.getState().analysisResult;
+      if (!currentResult) {
+        const storedResult = fetchAnalysisResult(window.sessionStorage);
+        if (storedResult) {
+          useTestFlowStore.getState().setAnalysisResult(storedResult);
+        }
+      }
+      useTestFlowStore.getState().setIsAnalysisResultHydrated(true);
+    } else if (previousState !== 'outside' && nextFlowState === 'outside') {
       deletePendingAnalysisSave(window.sessionStorage);
       useTestFlowStore.getState().setAnalysisResult(null);
+      useTestFlowStore.getState().setIsAnalysisResultHydrated(true);
     }
 
-    previousIsInResultFlow.current = isInResultFlow;
-  }, [pathname]);
+    previousFlowState.current = nextFlowState;
+  }, [pathname, search]);
 
   return null;
 };

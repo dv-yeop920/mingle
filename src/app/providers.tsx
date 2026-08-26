@@ -1,7 +1,7 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 
 import { ToastProvider } from '@/shared/ui';
 
@@ -26,7 +26,9 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <AnalysisResultSessionManager />
+        <Suspense fallback={null}>
+          <AnalysisResultSessionManager />
+        </Suspense>
         <MemberDraftSessionManager />
         {children}
       </ToastProvider>
