@@ -63,16 +63,6 @@ const signup = async (values: SignupFormValues, redirectTo?: string) => {
     return { error: '회원가입에 실패했습니다' };
   }
 
-  const { error: profileError } = await supabase.from('profiles').insert({
-    id: authData.user.id,
-    username,
-    nickname,
-  });
-
-  if (profileError) {
-    return { error: '프로필 생성에 실패했습니다' };
-  }
-
   return { success: true, redirectTo: convertRedirectToPath(redirectTo) };
 };
 

@@ -7,7 +7,6 @@ const mockSignInWithPassword = vi.fn();
 const mockSignUp = vi.fn();
 const mockSignOut = vi.fn();
 const mockGetUser = vi.fn();
-const mockInsert = vi.fn();
 
 vi.mock('@/shared/lib/supabase/server', () => ({
   createClient: vi.fn(() => ({
@@ -17,9 +16,6 @@ vi.mock('@/shared/lib/supabase/server', () => ({
       signOut: mockSignOut,
       getUser: mockGetUser,
     },
-    from: () => ({
-      insert: mockInsert,
-    }),
   })),
 }));
 
@@ -106,7 +102,6 @@ describe('signup', () => {
       data: { user: { id: 'new-user-id' } },
       error: null,
     });
-    mockInsert.mockResolvedValue({ error: null });
 
     const result = await signup(validInput);
 
@@ -115,11 +110,6 @@ describe('signup', () => {
       email: 'newuser@mingle.local',
       password: 'abc123!',
       options: { data: { username: 'newuser', nickname: '테스트' } },
-    });
-    expect(mockInsert).toHaveBeenCalledWith({
-      id: 'new-user-id',
-      username: 'newuser',
-      nickname: '테스트',
     });
   });
 
@@ -138,7 +128,6 @@ describe('signup', () => {
       data: { user: { id: 'new-user-id' } },
       error: null,
     });
-    mockInsert.mockResolvedValue({ error: null });
 
     const result = await signup(validInput, '/result');
 
@@ -150,24 +139,10 @@ describe('signup', () => {
       data: { user: { id: 'new-user-id' } },
       error: null,
     });
-    mockInsert.mockResolvedValue({ error: null });
 
     const result = await signup(validInput, '/result/pairs');
 
     expect(result).toEqual({ success: true, redirectTo: '/' });
-  });
-
-  it('프로필 생성 실패 시 에러를 반환한다', async () => {
-    mockSignUp.mockResolvedValue({
-      data: { user: { id: 'new-user-id' } },
-      error: null,
-    });
-    mockInsert.mockResolvedValue({
-      error: { message: 'insert failed' },
-    });
-
-    const result = await signup(validInput);
-    expect(result).toEqual({ error: '프로필 생성에 실패했습니다' });
   });
 
   it('유효하지 않은 입력값이면 에러를 반환한다', async () => {
