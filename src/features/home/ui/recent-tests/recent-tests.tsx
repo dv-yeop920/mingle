@@ -72,7 +72,7 @@ const RecentTests = ({ className }: RecentTestsProps) => {
             <ResultSummaryCard
               key={item.id}
               title={item.title}
-              groupType={GROUP_TYPE_LABELS[groupType] ?? '기타'}
+              groupType={GROUP_TYPE_LABELS[groupType] ?? '그룹'}
               memberCount={members.length}
               chemistryScore={item.chemistry_score}
               date={dateStr}

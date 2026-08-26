@@ -10,7 +10,6 @@ const GROUP_TYPE_ICONS: Record<string, string> = {
   company: '💼',
   work: '💼',
   family: '🏠',
-  custom: '✏️',
 };
 
 export { GROUP_TYPE_ICONS, GROUP_TYPE_LABELS };

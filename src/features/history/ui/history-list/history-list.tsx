@@ -39,7 +39,7 @@ const HistoryList = ({ filterType, className }: HistoryListProps) => {
         } | null;
         const groupType = group?.type ?? '';
         const members = group?.members ?? [];
-        const icon = GROUP_TYPE_ICONS[groupType] ?? '✏️';
+        const icon = GROUP_TYPE_ICONS[groupType] ?? '🧑‍🤝‍🧑';
         const representativeMbtis = members.map((member) => member.mbti);
         const dateStr = new Date(item.created_at).toLocaleDateString('ko-KR', {
           year: 'numeric',
@@ -51,7 +51,7 @@ const HistoryList = ({ filterType, className }: HistoryListProps) => {
           <ResultSummaryCard
             key={item.id}
             title={item.title}
-            groupType={GROUP_TYPE_LABELS[groupType] ?? '기타'}
+            groupType={GROUP_TYPE_LABELS[groupType] ?? '그룹'}
             memberCount={members.length}
             chemistryScore={item.chemistry_score}
             date={dateStr}

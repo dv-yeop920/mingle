@@ -41,7 +41,7 @@ const PendingAnalysisSaver = () => {
         title: pendingSave.title,
         saveOperationId: pendingSave.saveOperationId,
         groupType: analysisResult.groupType,
-        customName: analysisResult.customName,
+        customName: null,
         members: analysisResult.members,
         chemistryScore: analysisResult.chemistryScore,
         tagline: analysisResult.tagline,

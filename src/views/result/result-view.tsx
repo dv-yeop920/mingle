@@ -251,7 +251,7 @@ const ResultView = ({
         title,
         saveOperationId: currentPendingSave.saveOperationId,
         groupType: storeResult.groupType,
-        customName: storeResult.customName,
+        customName: null,
         members: storeResult.members,
         chemistryScore: storeResult.chemistryScore,
         tagline: storeResult.tagline,

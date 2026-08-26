@@ -80,7 +80,6 @@ const analysisResultSessionSchema = z.object({
       .min(2)
       .max(15),
     groupType: z.enum(['friends', 'company', 'family']),
-    customName: z.string().max(40).nullable(),
   }),
 });
 
