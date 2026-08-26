@@ -26,16 +26,20 @@ const SettingsView = ({
   };
 
   return (
-    <div className={cn('flex flex-col gap-5', className)}>
-      <h1 className="text-title1 font-black text-foreground">설정</h1>
-      <SettingsForm
-        gender={gender}
-        isProfileRequired={isProfileRequired}
-        nickname={nickname}
-        mbti={mbti}
-        redirectTo={redirectTo}
-        onLogout={handleLogout}
-      />
+    <div className={cn('flex flex-col', className)}>
+      <div className="px-6 pt-[10px] pb-[20px]">
+        <h1 className="text-title1 font-black text-foreground">설정</h1>
+      </div>
+      <div className="px-5">
+        <SettingsForm
+          gender={gender}
+          isProfileRequired={isProfileRequired}
+          nickname={nickname}
+          mbti={mbti}
+          redirectTo={redirectTo}
+          onLogout={handleLogout}
+        />
+      </div>
     </div>
   );
 };
