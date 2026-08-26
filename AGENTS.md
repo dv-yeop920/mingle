@@ -165,6 +165,17 @@ shared → entities → features → widgets → views → app
 - Supabase 작업 가이드: `docs/supabase-guide.md`
 - 디자인 요구사항: `docs/requirements.md`
 
+## 9-1. 스킬 자동 참조
+
+| 트리거 | 스킬 파일 |
+|---|---|
+| Supabase 관련 작업 (DB, Auth, RLS, Edge Functions, 마이그레이션 등) | `.agents/skills/supabase/SKILL.md` |
+| Postgres 스키마/마이그레이션/쿼리 최적화 작업 | `.agents/skills/supabase-postgres-best-practices/SKILL.md` |
+| SEO 감사/진단/개선 요청 | `.agents/skills/seo-audit/SKILL.md` |
+| 계획/설계 검증 요청 ("이거 괜찮아?", "허점 없어?" 등) | `.agents/skills/grill-me/SKILL.md` |
+
+해당 작업 시작 전에 스킬 파일을 먼저 읽고 가이드를 따를 것.
+
 ---
 
 ## 10. 역할별 Agent 지침
