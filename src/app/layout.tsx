@@ -1,41 +1,89 @@
-import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
+import type { Metadata, Viewport } from 'next';
+import localFont from 'next/font/local';
 
-import "./globals.css";
-import { Providers } from "./providers";
+import {
+  BRAND_THEME_COLOR,
+  SEO_DESCRIPTION,
+  SEO_KEYWORDS,
+  SEO_TITLE,
+  SITE_NAME,
+  SITE_URL,
+} from '@/shared/config/seo';
+
+import './globals.css';
+import { Providers } from './providers';
 
 const gothicA1 = localFont({
   src: [
-    { path: "./fonts/gothic-a1-400.ttf", weight: "400", style: "normal" },
-    { path: "./fonts/gothic-a1-500.ttf", weight: "500", style: "normal" },
-    { path: "./fonts/gothic-a1-700.ttf", weight: "700", style: "normal" },
-    { path: "./fonts/gothic-a1-800.ttf", weight: "800", style: "normal" },
-    { path: "./fonts/gothic-a1-900.ttf", weight: "900", style: "normal" },
+    { path: './fonts/gothic-a1-400.ttf', weight: '400', style: 'normal' },
+    { path: './fonts/gothic-a1-500.ttf', weight: '500', style: 'normal' },
+    { path: './fonts/gothic-a1-700.ttf', weight: '700', style: 'normal' },
+    { path: './fonts/gothic-a1-800.ttf', weight: '800', style: 'normal' },
+    { path: './fonts/gothic-a1-900.ttf', weight: '900', style: 'normal' },
   ],
-  variable: "--font-gothic-a1",
-  display: "swap",
+  variable: '--font-gothic-a1',
+  display: 'swap',
 });
 
 const nunito = localFont({
   src: [
-    { path: "./fonts/nunito-700.ttf", weight: "700", style: "normal" },
-    { path: "./fonts/nunito-800.ttf", weight: "800", style: "normal" },
-    { path: "./fonts/nunito-900.ttf", weight: "900", style: "normal" },
+    { path: './fonts/nunito-700.ttf', weight: '700', style: 'normal' },
+    { path: './fonts/nunito-800.ttf', weight: '800', style: 'normal' },
+    { path: './fonts/nunito-900.ttf', weight: '900', style: 'normal' },
   ],
-  variable: "--font-nunito",
-  display: "swap",
+  variable: '--font-nunito',
+  display: 'swap',
 });
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  themeColor: BRAND_THEME_COLOR,
+  colorScheme: 'light',
 };
 
 export const metadata: Metadata = {
-  title: "MINGLE",
-  description: "MBTI로 알아보는 우리 사이의 케미",
+  metadataBase: SITE_URL,
+  title: {
+    default: SEO_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SEO_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: SEO_KEYWORDS,
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: 'lifestyle',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    url: '/',
+    siteName: SITE_NAME,
+    title: SEO_TITLE,
+    description: SEO_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO_TITLE,
+    description: SEO_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  manifest: '/manifest.webmanifest',
 };
 
 const RootLayout = ({ children }: LayoutProps<"/">) => {

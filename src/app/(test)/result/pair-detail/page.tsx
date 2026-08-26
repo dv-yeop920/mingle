@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { PairDetailView } from '@/views/result';
 
 const PairDetailPage = async ({
@@ -11,4 +13,5 @@ const PairDetailPage = async ({
 };
 
 export const instant = false;
+export const metadata: Metadata = { title: '둘 사이의 케미' };
 export default PairDetailPage;

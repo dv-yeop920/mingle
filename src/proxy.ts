@@ -2,6 +2,8 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+import { SEO_METADATA_ROUTES } from '@/shared/config/seo';
+
 const PUBLIC_ROUTES = [
   '/',
   '/login',
@@ -10,6 +12,7 @@ const PUBLIC_ROUTES = [
   '/members',
   '/analyzing',
   '/api/analyze',
+  ...SEO_METADATA_ROUTES,
 ];
 
 const PUBLIC_PREFIXES = ['/result'];

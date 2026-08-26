@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { LoginView } from '@/views/login';
 
 type LoginPageProps = {
@@ -11,4 +13,5 @@ const LoginPage = async ({ searchParams }: LoginPageProps) => {
   return <LoginView redirectTo={redirectTo} />;
 };
 
+export const metadata: Metadata = { title: '로그인' };
 export default LoginPage;

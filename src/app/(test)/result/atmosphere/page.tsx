@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { AtmosphereView } from '@/views/result';
 
 const AtmospherePage = async ({
@@ -10,4 +12,5 @@ const AtmospherePage = async ({
 };
 
 export const instant = false;
+export const metadata: Metadata = { title: '그룹 분위기 분석' };
 export default AtmospherePage;

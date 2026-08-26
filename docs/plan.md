@@ -565,7 +565,7 @@ HomeView와 SplashOverlay를 `(main)/page.tsx`에서 동시 마운트하여 데�
 - `proxy.ts` — PUBLIC_ROUTES 확장 (테스트 플로우 전체 공개, `/history`·`/mypage`만 보호)
 - 가입 후 store의 `analysisResult` 자동 DB 저장 플로우
 
-### Phase 10: 디자인 정합 구현
+### Phase 10: 디자인 정합 구현 ✅
 
 디자인 파일(`docs/MIXTI_Mobile_App.dc.html`)과 현재 구현 비교 분석 기반으로 전 화면 UI 수정.
 

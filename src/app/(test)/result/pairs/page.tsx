@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { PairsView } from '@/views/result';
 
 const PairsPage = async ({
@@ -10,4 +12,5 @@ const PairsPage = async ({
 };
 
 export const instant = false;
+export const metadata: Metadata = { title: '전체 멤버 케미' };
 export default PairsPage;

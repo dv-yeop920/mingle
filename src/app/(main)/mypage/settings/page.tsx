@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
@@ -42,4 +43,8 @@ const SettingsPage = async ({ searchParams }: SettingsPageProps) => {
 };
 
 export const instant = false;
+export const metadata: Metadata = {
+  title: '계정 설정',
+  robots: { index: false, follow: false },
+};
 export default SettingsPage;

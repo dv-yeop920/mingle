@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { SignupView } from '@/views/signup';
 
 type SignupPageProps = {
@@ -11,4 +13,5 @@ const SignupPage = async ({ searchParams }: SignupPageProps) => {
   return <SignupView redirectTo={redirectTo} />;
 };
 
+export const metadata: Metadata = { title: '회원가입' };
 export default SignupPage;

@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { RoleDetailView } from '@/views/result';
 
 const RoleDetailPage = async ({
@@ -11,4 +13,5 @@ const RoleDetailPage = async ({
 };
 
 export const instant = false;
+export const metadata: Metadata = { title: '멤버 역할 분석' };
 export default RoleDetailPage;
