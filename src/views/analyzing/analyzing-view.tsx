@@ -32,30 +32,34 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
 
     setError(null);
 
-    const result = await requestAnalysis({
-      groupType,
-      members,
-    });
+    try {
+      const result = await requestAnalysis({
+        groupType,
+        members,
+      });
 
-    if ('error' in result) {
-      setError(result.error);
-      return;
-    }
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
 
-    const { analysisId } = result.data;
+      const { analysisId } = result.data;
 
-    trackAnalysisComplete(
-      groupType,
-      members.length,
-      result.data.chemistryScore,
-    );
+      trackAnalysisComplete(
+        groupType,
+        members.length,
+        result.data.chemistryScore,
+      );
 
-    if (analysisId) {
-      setAnalysisId(analysisId);
-      router.replace(`/result?id=${analysisId}`);
-    } else {
-      setAnalysisResult(result.data);
-      router.replace('/result');
+      if (analysisId) {
+        setAnalysisId(analysisId);
+        router.replace(`/result?id=${analysisId}`);
+      } else {
+        setAnalysisResult(result.data);
+        router.replace('/result');
+      }
+    } catch {
+      setError('분석 요청 중 문제가 발생했어요. 다시 시도해주세요');
     }
   }, [groupType, members, setAnalysisId, setAnalysisResult, router]);
 

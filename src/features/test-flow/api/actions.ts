@@ -7,6 +7,8 @@ type RequestAnalysisInput = {
   members: TestMember[];
 };
 
+const ANALYSIS_TIMEOUT_MS = 60_000;
+
 const requestAnalysis = async (input: RequestAnalysisInput) => {
   const body = {
     schemaVersion: '2026-08-24',
@@ -33,6 +35,7 @@ const requestAnalysis = async (input: RequestAnalysisInput) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(ANALYSIS_TIMEOUT_MS),
   });
 
   if (!response.ok) {

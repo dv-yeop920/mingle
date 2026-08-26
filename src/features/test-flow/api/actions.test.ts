@@ -59,11 +59,12 @@ describe('requestAnalysis', () => {
     const result = await requestAnalysis(validInput);
 
     expect(result).toEqual({ data: mockData });
-    expect(mockFetch).toHaveBeenCalledWith('/api/analyze', {
+    expect(mockFetch).toHaveBeenCalledWith('/api/analyze', expect.objectContaining({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(expectedBody),
-    });
+      signal: expect.any(AbortSignal),
+    }));
   });
 
   it('API 에러 시 에러 메시지를 반환한다', async () => {
@@ -100,7 +101,7 @@ describe('requestAnalysis', () => {
 
     await requestAnalysis(inputWithCompany);
 
-    expect(mockFetch).toHaveBeenCalledWith('/api/analyze', {
+    expect(mockFetch).toHaveBeenCalledWith('/api/analyze', expect.objectContaining({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -110,6 +111,7 @@ describe('requestAnalysis', () => {
           type: 'company',
         },
       }),
-    });
+      signal: expect.any(AbortSignal),
+    }));
   });
 });
