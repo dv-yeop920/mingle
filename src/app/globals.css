@@ -2,7 +2,12 @@
 @import "../shared/styles/tokens.css";
 @import "../shared/styles/theme.css";
 
+html {
+  overflow-x: hidden;
+}
+
 body {
+  overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-family-gothic);

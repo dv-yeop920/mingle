@@ -56,7 +56,7 @@ const EditableMemberCard = ({
               placeholder="닉네임"
               maxLength={8}
               error={nicknameError}
-              className="flex-1 [&_input]:h-[40px] [&_input]:text-[14px]"
+              className="flex-1 [&_input]:h-[40px] [&_input]:text-[16px]"
             />
             {isSelf && (
               <span className="shrink-0 rounded-pill bg-primary-tonal px-2 py-[2px] text-[10px] font-black text-diplomat-fg">
@@ -77,7 +77,7 @@ const EditableMemberCard = ({
         )}
       </div>
 
-      <div className="flex items-center gap-2 pl-[56px]">
+      <div className="flex flex-wrap items-center gap-2 pl-[56px]">
         <button
           type="button"
           onClick={() => onMbtiSelect(id)}

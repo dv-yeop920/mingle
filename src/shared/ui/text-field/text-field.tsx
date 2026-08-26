@@ -33,7 +33,7 @@ const TextField = ({
         aria-describedby={describedBy}
         aria-invalid={error ? true : props['aria-invalid']}
         className={cn(
-          'h-[56px] rounded-field bg-surface px-4 text-[15px] font-bold text-foreground',
+          'h-[56px] w-full rounded-field bg-surface px-4 text-[16px] font-bold text-foreground',
           'border border-border outline-none',
           'transition-all duration-200',
           'placeholder:text-hint',
