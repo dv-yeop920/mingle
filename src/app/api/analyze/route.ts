@@ -99,7 +99,7 @@ export const POST = async (request: Request) => {
           'mingle_analysis_result',
           {
             description:
-              'MINGLE MBTI group chemistry analysis result for mobile UI cards.',
+              'MIXTI MBTI group chemistry analysis result for mobile UI cards.',
           },
         ),
         verbosity: 'high',

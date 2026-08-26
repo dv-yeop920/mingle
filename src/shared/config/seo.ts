@@ -1,5 +1,5 @@
-const SITE_NAME = 'MINGLE';
-const SEO_TITLE = 'MBTI 궁합 테스트 | 친구·가족·팀 케미 분석 MINGLE';
+const SITE_NAME = 'MIXTI';
+const SEO_TITLE = 'MBTI 궁합 테스트 | 친구·가족·팀 케미 분석 MIXTI';
 const SEO_DESCRIPTION =
   '친구, 가족, 회사·팀 멤버의 MBTI를 조합하면 AI가 그룹 궁합과 대화 케미, 역할, 분위기, 갈등 포인트를 따뜻하게 분석해 드려요.';
 const SEO_KEYWORDS = [
@@ -46,7 +46,7 @@ const WEB_APPLICATION_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   name: SITE_NAME,
-  alternateName: 'MINGLE MBTI 케미 테스트',
+  alternateName: 'MIXTI MBTI 케미 테스트',
   url: SITE_URL.toString(),
   description: SEO_DESCRIPTION,
   applicationCategory: 'LifestyleApplication',

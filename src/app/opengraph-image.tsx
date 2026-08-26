@@ -11,7 +11,7 @@ import {
   BRAND_THEME_COLOR,
 } from '@/shared/config/seo';
 
-const alt = 'MINGLE MBTI 그룹 궁합과 케미 테스트';
+const alt = 'MIXTI MBTI 그룹 궁합과 케미 테스트';
 const size = { width: 1200, height: 630 };
 const contentType = 'image/png';
 
@@ -59,7 +59,7 @@ const OpenGraphImage = async () => {
               letterSpacing: '0.08em',
             }}
           >
-            MINGLE
+            MIXTI
           </div>
           <div
             style={{

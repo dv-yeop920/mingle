@@ -16,7 +16,7 @@ const ShareButton = ({ analysisId, className }: ShareButtonProps) => {
       : window.location.href;
 
     const shareData = {
-      title: 'MINGLE 케미 분석 결과',
+      title: 'MIXTI 케미 분석 결과',
       text: '우리 그룹의 MBTI 케미를 확인해보세요!',
       url,
     };

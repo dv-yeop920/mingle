@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ---
 
-# MINGLE 코드 컨벤션
+# MIXTI 코드 컨벤션
 
 MBTI 그룹 케미 시뮬레이터 모바일 웹 서비스.
 Next.js 16.3.1 / React 19 / Tailwind CSS v4 / Supabase / React Query / Zustand / Zod v4 / React Hook Form

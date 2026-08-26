@@ -289,7 +289,7 @@ const ResultView = ({
       ? `${window.location.origin}/`
       : `${window.location.origin}/result?id=${id}`;
     if (navigator.share) {
-      navigator.share({ title: 'MINGLE 케미 분석 결과', url }).catch(() => {});
+      navigator.share({ title: 'MIXTI 케미 분석 결과', url }).catch(() => {});
     } else {
       navigator.clipboard.writeText(url);
     }

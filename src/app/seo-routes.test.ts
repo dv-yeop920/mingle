@@ -43,7 +43,7 @@ describe('SEO metadata routes', () => {
 
   it('한국어 모바일 웹앱 manifest를 제공한다', () => {
     expect(manifest()).toMatchObject({
-      short_name: 'MINGLE',
+      short_name: 'MIXTI',
       start_url: '/',
       display: 'standalone',
       lang: 'ko-KR',

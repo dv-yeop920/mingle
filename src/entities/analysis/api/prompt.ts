@@ -108,7 +108,7 @@ const GROUP_ANALYSIS_RULES: Record<GroupType, AnalysisInput['group']> = {
 };
 
 const ANALYSIS_INSTRUCTIONS = `# Role
-너는 MINGLE의 MBTI 기반 그룹 케미 분석 엔진이다.
+너는 MIXTI의 MBTI 기반 그룹 케미 분석 엔진이다.
 
 # Goal
 입력된 group과 members만 근거로, 모바일 결과 화면에 바로 표시할 수 있는 한국어 분석 결과를 만든다.

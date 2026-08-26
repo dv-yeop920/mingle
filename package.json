@@ -2,6 +2,7 @@
   "name": "mingle",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
@@ -39,7 +40,7 @@
     "eslint-config-next": "16.3.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import-x": "^4.17.1",
-    "jsdom": "^30.0.1",
+    "happy-dom": "^20.11.6",
     "prettier": "^3.9.6",
     "tailwindcss": "^4",
     "typescript": "^5",

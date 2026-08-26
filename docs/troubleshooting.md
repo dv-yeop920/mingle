@@ -1,4 +1,4 @@
-# MINGLE 개발 트러블슈팅 및 최적화 기록
+# MIXTI 개발 트러블슈팅 및 최적화 기록
 
 > 대상: Next.js 16.3.1, React 19, OpenAI Responses API, Supabase, React Query, Zustand, Zod 4
 >
