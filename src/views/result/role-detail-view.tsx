@@ -1,7 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
+import { trackResultDetailView } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 
 import { useAnalysis } from '@/entities/analysis';
@@ -18,6 +20,10 @@ const RoleDetailView = ({
   className,
 }: RoleDetailViewProps) => {
   const router = useRouter();
+
+  useEffect(() => {
+    trackResultDetailView('role_detail');
+  }, []);
   const storeResult = useTestFlowStore((state) => state.analysisResult);
   const isAnalysisResultHydrated = useTestFlowStore(
     (state) => state.isAnalysisResultHydrated,

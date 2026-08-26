@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
+import { trackMembersComplete } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 
@@ -53,7 +54,10 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
         <Button
           variant="primary"
           disabled={isDisabled}
-          onClick={() => router.push('/analyzing')}
+          onClick={() => {
+            if (groupType) trackMembersComplete(groupType, members.length);
+            router.push('/analyzing');
+          }}
         >
           분석 시작
         </Button>

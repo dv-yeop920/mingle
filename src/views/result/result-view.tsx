@@ -6,6 +6,11 @@ import { useMemo, useState } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { queryKeys } from '@/shared/config/query-keys';
+import {
+  trackResultRetest,
+  trackResultSave,
+  trackResultShare,
+} from '@/shared/lib/analytics';
 import { createClient } from '@/shared/lib/supabase/client';
 import { cn } from '@/shared/lib/utils';
 import type { MbtiType } from '@/shared/types/mbti';
@@ -120,6 +125,7 @@ const ResultView = ({
   }, [dbAnalysis, id, storeResult]);
 
   const handleRetest = () => {
+    trackResultRetest();
     resetStore();
     router.push('/group-type');
   };
@@ -270,6 +276,7 @@ const ResultView = ({
         return;
       }
 
+      trackResultSave(storeResult.groupType);
       deletePendingAnalysisSave(window.sessionStorage);
       setIsSaveSheetOpen(false);
       setAnalysisResult(null);
@@ -289,8 +296,10 @@ const ResultView = ({
       ? `${window.location.origin}/`
       : `${window.location.origin}/result?id=${id}`;
     if (navigator.share) {
+      trackResultShare('native_share');
       navigator.share({ title: 'MIXTI 케미 분석 결과', url }).catch(() => {});
     } else {
+      trackResultShare('clipboard');
       navigator.clipboard.writeText(url);
     }
   };

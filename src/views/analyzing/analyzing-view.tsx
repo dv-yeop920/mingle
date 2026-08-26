@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { trackAnalysisComplete } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 
 import {
@@ -42,6 +43,12 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     }
 
     const { analysisId } = result.data;
+
+    trackAnalysisComplete(
+      groupType,
+      members.length,
+      result.data.chemistryScore,
+    );
 
     if (analysisId) {
       setAnalysisId(analysisId);

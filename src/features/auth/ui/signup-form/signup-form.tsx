@@ -2,9 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { trackSignup } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { TextField } from '@/shared/ui/text-field';
@@ -18,6 +20,7 @@ import {
 import type { SignupFormProps } from './types';
 
 const SignupForm = ({ className, redirectTo }: SignupFormProps) => {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -34,7 +37,10 @@ const SignupForm = ({ className, redirectTo }: SignupFormProps) => {
       const result = await signup(data, redirectTo);
       if ('error' in result) {
         setError('root', { message: result.error });
+        return;
       }
+      trackSignup();
+      router.push(result.redirectTo);
     });
   };
 

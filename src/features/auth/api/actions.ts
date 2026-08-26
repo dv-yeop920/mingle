@@ -32,7 +32,7 @@ const login = async (values: LoginFormValues, redirectTo?: string) => {
     return { error: '아이디 또는 비밀번호가 올바르지 않습니다' };
   }
 
-  redirect(convertRedirectToPath(redirectTo));
+  return { success: true, redirectTo: convertRedirectToPath(redirectTo) };
 };
 
 const signup = async (values: SignupFormValues, redirectTo?: string) => {
@@ -73,7 +73,7 @@ const signup = async (values: SignupFormValues, redirectTo?: string) => {
     return { error: '프로필 생성에 실패했습니다' };
   }
 
-  redirect(convertRedirectToPath(redirectTo));
+  return { success: true, redirectTo: convertRedirectToPath(redirectTo) };
 };
 
 const logout = async () => {

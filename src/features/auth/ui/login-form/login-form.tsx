@@ -2,9 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { trackLogin } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { TextField } from '@/shared/ui/text-field';
@@ -18,6 +20,7 @@ import {
 import type { LoginFormProps } from './types';
 
 const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isRemember, setIsRemember] = useState(false);
 
@@ -35,7 +38,10 @@ const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
       const result = await login(data, redirectTo);
       if ('error' in result) {
         setError('root', { message: result.error });
+        return;
       }
+      trackLogin();
+      router.push(result.redirectTo);
     });
   };
 

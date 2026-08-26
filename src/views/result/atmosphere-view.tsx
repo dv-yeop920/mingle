@@ -1,7 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
+import { trackResultDetailView } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 
 import { useAnalysis } from '@/entities/analysis';
@@ -14,6 +16,10 @@ import type { AtmosphereViewProps } from './types';
 
 const AtmosphereView = ({ analysisId, className }: AtmosphereViewProps) => {
   const router = useRouter();
+
+  useEffect(() => {
+    trackResultDetailView('atmosphere');
+  }, []);
   const storeResult = useTestFlowStore((state) => state.analysisResult);
   const isAnalysisResultHydrated = useTestFlowStore(
     (state) => state.isAnalysisResultHydrated,

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { trackTestStart } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 
 import { GROUP_TYPE_OPTIONS, GroupTypeCard } from '@/entities/group';
@@ -32,6 +33,7 @@ const GroupTypeSelector = ({
     setMemberCount(count);
     initializeMembers(count, selfMemberSeed);
     setIsCountModalOpen(false);
+    if (groupType) trackTestStart(groupType);
     onNext?.();
   };
 

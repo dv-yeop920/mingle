@@ -1,7 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
+import { trackResultDetailView } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 
 import { PairCard, useAnalysis } from '@/entities/analysis';
@@ -13,6 +15,10 @@ import type { PairsViewProps } from './types';
 
 const PairsView = ({ analysisId, className }: PairsViewProps) => {
   const router = useRouter();
+
+  useEffect(() => {
+    trackResultDetailView('pairs');
+  }, []);
   const storeResult = useTestFlowStore((state) => state.analysisResult);
   const isAnalysisResultHydrated = useTestFlowStore(
     (state) => state.isAnalysisResultHydrated,
