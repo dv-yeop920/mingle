@@ -1,4 +1,5 @@
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 
@@ -92,6 +93,7 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
     <html lang="ko" className={`${gothicA1.variable} ${nunito.variable}`}>
       <body>
         <Providers>{children}</Providers>
+        <SpeedInsights />
       </body>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
     </html>
