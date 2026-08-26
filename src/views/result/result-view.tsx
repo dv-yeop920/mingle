@@ -2,7 +2,7 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { queryKeys } from '@/shared/config/query-keys';
@@ -26,6 +26,7 @@ import {
 } from '@/entities/analysis';
 
 import {
+  GuestSavePromptSheet,
   ResultActions,
   SaveAnalysisSheet,
   convertAtmosphereForStorage,
@@ -34,7 +35,10 @@ import {
 import {
   PendingAnalysisSaveResumer,
   deletePendingAnalysisSave,
+  deletePendingAnalysisSaveIntent,
+  fetchPendingAnalysisSaveIntent,
   putPendingAnalysisSave,
+  putPendingAnalysisSaveIntent,
   useTestFlowStore,
   type PendingAnalysisSave,
 } from '@/features/test-flow';
@@ -74,13 +78,25 @@ const ResultView = ({
   const resetStore = useTestFlowStore((s) => s.reset);
   const setAnalysisResult = useTestFlowStore((s) => s.setAnalysisResult);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCheckingSavePermission, setIsCheckingSavePermission] =
+    useState(false);
   const [isSaveSheetOpen, setIsSaveSheetOpen] = useState(false);
+  const [isGuestSavePromptOpen, setIsGuestSavePromptOpen] = useState(false);
   const [pendingSave, setPendingSave] = useState<PendingAnalysisSave>();
   const [saveError, setSaveError] = useState<string | null>(null);
   const id = propAnalysisId ?? storeAnalysisId ?? '';
 
   const { data: dbAnalysis, isError, isLoading } = useAnalysis(id);
   const isGuest = !id && !!storeResult;
+
+  useEffect(() => {
+    if (!isAnalysisResultHydrated || !isGuest) return;
+    if (!fetchPendingAnalysisSaveIntent(window.sessionStorage)) return;
+
+    deletePendingAnalysisSaveIntent(window.sessionStorage);
+    const frameId = requestAnimationFrame(() => setIsSaveSheetOpen(true));
+    return () => cancelAnimationFrame(frameId);
+  }, [isAnalysisResultHydrated, isGuest]);
 
   const normalized = useMemo(() => {
     if (dbAnalysis) {
@@ -136,9 +152,15 @@ const ResultView = ({
 
   if ((!id && !isAnalysisResultHydrated) || (!isGuest && isLoading)) {
     return (
-      <div className={cn('flex items-center justify-center py-12', className)}>
-        <p className="text-body text-muted">결과를 불러오는 중...</p>
-      </div>
+      <div
+        role="status"
+        aria-label="결과를 불러오는 중"
+        aria-busy="true"
+        className={cn(
+          'flex min-h-[118px] items-center justify-center py-12',
+          className,
+        )}
+      />
     );
   }
 
@@ -200,6 +222,32 @@ const ResultView = ({
     router.push(`/result/pairs${idQuery}`);
   };
 
+  const handleSaveButtonClick = async () => {
+    if (!isGuest || isSaving || isCheckingSavePermission) return;
+
+    setSaveError(null);
+    setIsCheckingSavePermission(true);
+
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        setIsSaveSheetOpen(true);
+      } else {
+        setIsGuestSavePromptOpen(true);
+      }
+    } catch {
+      setSaveError(
+        '로그인 상태를 확인하지 못했어요. 네트워크를 확인한 뒤 다시 시도해 주세요.',
+      );
+    } finally {
+      setIsCheckingSavePermission(false);
+    }
+  };
+
   const handleSave = async (
     title: string,
     options: SaveAnalysisOptions = {},
@@ -240,7 +288,8 @@ const ResultView = ({
           return;
         }
 
-        router.push('/signup?redirect=/result');
+        setIsSaveSheetOpen(false);
+        setIsGuestSavePromptOpen(true);
         return;
       }
 
@@ -472,12 +521,14 @@ const ResultView = ({
       <div className="flex flex-col gap-[11px] px-5 pb-[46px] pt-6">
         <button
           type="button"
-          onClick={() => setIsSaveSheetOpen(true)}
-          disabled={isSaving || !isGuest}
+          onClick={() => void handleSaveButtonClick()}
+          disabled={isSaving || isCheckingSavePermission || !isGuest}
           className="flex h-[60px] cursor-pointer items-center justify-center rounded-[22px] bg-primary font-extrabold text-[17px] text-primary-foreground shadow-lg btn-press"
         >
           {isSaving
             ? '저장 중...'
+            : isCheckingSavePermission
+              ? '확인 중...'
             : isGuest
               ? '결과 저장하기'
               : '저장된 결과입니다'}
@@ -510,6 +561,25 @@ const ResultView = ({
         isSubmitting={isSaving}
         submitError={saveError}
         defaultTitle={pendingSave?.title}
+      />
+      <GuestSavePromptSheet
+        isOpen={isGuestSavePromptOpen}
+        onClose={() => setIsGuestSavePromptOpen(false)}
+        onConfirm={() => {
+          const isIntentStored = putPendingAnalysisSaveIntent(
+            window.sessionStorage,
+          );
+          if (!isIntentStored) {
+            setSaveError(
+              '저장 흐름을 이어가지 못했어요. 브라우저 설정을 확인한 뒤 다시 시도해 주세요.',
+            );
+            setIsGuestSavePromptOpen(false);
+            return;
+          }
+
+          setIsGuestSavePromptOpen(false);
+          router.push('/signup?redirect=/result');
+        }}
       />
     </div>
   );

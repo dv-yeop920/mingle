@@ -1,11 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { queryKeys } from '@/shared/config/query-keys';
 import { trackLogin } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
@@ -21,6 +23,7 @@ import type { LoginFormProps } from './types';
 
 const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   const [isRemember, setIsRemember] = useState(false);
 
@@ -41,6 +44,7 @@ const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
         return;
       }
       trackLogin();
+      await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
       router.push(result.redirectTo);
     });
   };

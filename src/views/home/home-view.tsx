@@ -8,6 +8,7 @@ import { cn } from '@/shared/lib/utils';
 import { useProfile } from '@/entities/user';
 
 import { HeroCard, RecentTests } from '@/features/home';
+import { MbtiSetupPromptSheet } from '@/features/profile';
 import { useTestFlowStore } from '@/features/test-flow';
 
 import type { HomeViewProps } from './types';
@@ -18,6 +19,7 @@ const HomeView = ({ className }: HomeViewProps) => {
   const reset = useTestFlowStore((s) => s.reset);
   const nickname = profile?.nickname;
   const initials = nickname?.slice(0, 2);
+  const isMbtiSetupRequired = Boolean(profile && !profile.mbti);
 
   useEffect(() => {
     reset();
@@ -50,6 +52,10 @@ const HomeView = ({ className }: HomeViewProps) => {
         <HeroCard onClick={() => router.push('/group-type')} />
       </div>
       {nickname && <RecentTests />}
+      <MbtiSetupPromptSheet
+        isOpen={isMbtiSetupRequired}
+        onConfirm={() => router.push('/mypage/settings')}
+      />
     </div>
   );
 };

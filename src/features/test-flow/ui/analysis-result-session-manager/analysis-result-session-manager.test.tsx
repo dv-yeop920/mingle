@@ -7,6 +7,10 @@ import {
   putAnalysisResult,
 } from '@/features/test-flow/lib/analysis-result-session';
 import {
+  fetchPendingAnalysisSaveIntent,
+  putPendingAnalysisSaveIntent,
+} from '@/features/test-flow/lib/pending-analysis-save-intent-session';
+import {
   fetchPendingAnalysisSave,
   putPendingAnalysisSave,
 } from '@/features/test-flow/lib/pending-analysis-save-session';
@@ -97,6 +101,7 @@ describe('AnalysisResultSessionManager', () => {
   it('결과 영역을 벗어나면 메모리와 세션 결과를 함께 삭제한다', async () => {
     const result = createAnalysisResultFixture();
     putAnalysisResult(result, sessionStorage);
+    putPendingAnalysisSaveIntent(sessionStorage);
     const { rerender } = render(<AnalysisResultSessionManager />);
 
     await waitFor(() => {
@@ -108,6 +113,7 @@ describe('AnalysisResultSessionManager', () => {
 
     expect(useTestFlowStore.getState().analysisResult).toBeNull();
     expect(sessionStorage.getItem(ANALYSIS_RESULT_STORAGE_KEY)).toBeNull();
+    expect(fetchPendingAnalysisSaveIntent(sessionStorage)).toBe(false);
   });
 
   it('결과 저장을 위한 회원가입 이동 중에는 세션 결과를 유지한다', async () => {

@@ -34,9 +34,15 @@ const RoleDetailView = ({
 
   if ((!analysisId && !isAnalysisResultHydrated) || (analysisId && isLoading)) {
     return (
-      <div className={cn('flex items-center justify-center py-12', className)}>
-        <p className="text-body text-muted">불러오는 중...</p>
-      </div>
+      <div
+        role="status"
+        aria-label="결과를 불러오는 중"
+        aria-busy="true"
+        className={cn(
+          'flex min-h-[118px] items-center justify-center py-12',
+          className,
+        )}
+      />
     );
   }
 

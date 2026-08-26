@@ -6,7 +6,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   fetchPendingAnalysisSave,
+  fetchPendingAnalysisSaveIntent,
   putPendingAnalysisSave,
+  putPendingAnalysisSaveIntent,
   useTestFlowStore,
 } from '@/features/test-flow';
 import { createAnalysisResultFixture } from '@/features/test-flow/testing/analysis-result-fixture';
@@ -69,6 +71,7 @@ const renderResultView = (analysisId?: string) => {
 const submitTitle = async (title: string) => {
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+  await screen.findByRole('dialog', { name: '테스트 제목 정하기' });
   await user.type(screen.getByLabelText('테스트 제목'), title);
   await user.click(screen.getByRole('button', { name: '완료' }));
 };
@@ -95,7 +98,7 @@ describe('ResultView save flow', () => {
     vi.restoreAllMocks();
   });
 
-  it('인증 복귀 결과를 복원하는 동안 빈 상태 대신 로딩을 보여준다', () => {
+  it('인증 복귀 결과를 복원하는 동안 로딩 문구 없이 프레임을 유지하고 복원 결과를 보여준다', () => {
     const restoredResult = createAnalysisResultFixture();
     act(() => {
       useTestFlowStore.setState({
@@ -107,7 +110,12 @@ describe('ResultView save flow', () => {
 
     renderResultView();
 
-    expect(screen.getByText('결과를 불러오는 중...')).toBeInTheDocument();
+    expect(
+      screen.getByRole('status', { name: '결과를 불러오는 중' }),
+    ).toHaveAttribute('aria-busy', 'true');
+    expect(
+      screen.queryByText('결과를 불러오는 중...'),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByText('분석 결과를 찾을 수 없습니다'),
     ).not.toBeInTheDocument();
@@ -122,6 +130,23 @@ describe('ResultView save flow', () => {
     expect(
       screen.getByText('다정하게 균형을 맞추는 모임'),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('status', { name: '결과를 불러오는 중' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('저장된 결과를 조회하는 동안에도 로딩 문구를 노출하지 않는다', () => {
+    mockUseAnalysis.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: true,
+    });
+
+    renderResultView('analysis-1');
+
+    expect(
+      screen.getByRole('status', { name: '결과를 불러오는 중' }),
+    ).toHaveAttribute('aria-busy', 'true');
     expect(
       screen.queryByText('결과를 불러오는 중...'),
     ).not.toBeInTheDocument();
@@ -153,20 +178,54 @@ describe('ResultView save flow', () => {
     );
   });
 
-  it('비로그인 사용자의 제목을 보존하고 redirect가 있는 회원가입으로 이동한다', async () => {
+  it('비로그인 사용자는 제목 입력 전에 안내를 확인한 후 회원가입으로 이동한다', async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
     renderResultView();
 
-    await submitTitle('우리 팀 첫 케미');
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
 
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/signup?redirect=/result');
-    });
-    const pendingSave = fetchPendingAnalysisSave(sessionStorage);
-    expect(pendingSave?.title).toBe('우리 팀 첫 케미');
-    expect(pendingSave?.saveOperationId).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-    );
+    expect(
+      await screen.findByText('회원가입을 하면 기록을 저장할 수 있어요'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('dialog', { name: '테스트 제목 정하기' }),
+    ).not.toBeInTheDocument();
+    expect(mockPush).not.toHaveBeenCalledWith('/signup?redirect=/result');
+    expect(mockSaveGuestAnalysis).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: '회원가입하기' }));
+
+    expect(mockPush).toHaveBeenCalledWith('/signup?redirect=/result');
+    expect(fetchPendingAnalysisSaveIntent(sessionStorage)).toBe(true);
+  });
+
+  it('비로그인 저장 안내를 취소하면 결과 화면에 머문다', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: null } });
+    renderResultView();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+    await user.click(await screen.findByRole('button', { name: '취소' }));
+
+    expect(mockPush).not.toHaveBeenCalledWith('/signup?redirect=/result');
+    expect(
+      screen.queryByRole('dialog', { name: '기록을 저장하려면' }),
+    ).not.toBeInTheDocument();
+    expect(fetchPendingAnalysisSaveIntent(sessionStorage)).toBe(false);
+  });
+
+  it('회원가입 후 결과로 돌아오면 제목 입력을 자동으로 연다', async () => {
+    putPendingAnalysisSaveIntent(sessionStorage);
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } } });
+
+    renderResultView();
+
+    expect(
+      await screen.findByRole('dialog', { name: '테스트 제목 정하기' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('테스트 제목')).toBeInTheDocument();
+    expect(fetchPendingAnalysisSaveIntent(sessionStorage)).toBe(false);
     expect(mockSaveGuestAnalysis).not.toHaveBeenCalled();
   });
 

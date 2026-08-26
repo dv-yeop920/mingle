@@ -18,6 +18,12 @@ export {
   putPendingAnalysisSave,
 } from './lib/pending-analysis-save-session';
 export {
+  deletePendingAnalysisSaveIntent,
+  fetchPendingAnalysisSaveIntent,
+  PENDING_ANALYSIS_SAVE_INTENT_STORAGE_KEY,
+  putPendingAnalysisSaveIntent,
+} from './lib/pending-analysis-save-intent-session';
+export {
   convertProfileToSelfMemberSeed,
   type SelfMemberProfile,
 } from './model/converters';

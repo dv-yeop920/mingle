@@ -8,6 +8,7 @@ import {
   fetchAnalysisResult,
   putAnalysisResult,
 } from '@/features/test-flow/lib/analysis-result-session';
+import { deletePendingAnalysisSaveIntent } from '@/features/test-flow/lib/pending-analysis-save-intent-session';
 import { deletePendingAnalysisSave } from '@/features/test-flow/lib/pending-analysis-save-session';
 import { useTestFlowStore } from '@/features/test-flow/model/store';
 
@@ -52,6 +53,7 @@ const AnalysisResultSessionManager = () => {
     if (initialFlowState === 'outside') {
       deleteAnalysisResult(window.sessionStorage);
       deletePendingAnalysisSave(window.sessionStorage);
+      deletePendingAnalysisSaveIntent(window.sessionStorage);
       if (currentResult) {
         useTestFlowStore.getState().setAnalysisResult(null);
       }
@@ -103,6 +105,7 @@ const AnalysisResultSessionManager = () => {
       useTestFlowStore.getState().setIsAnalysisResultHydrated(true);
     } else if (previousState !== 'outside' && nextFlowState === 'outside') {
       deletePendingAnalysisSave(window.sessionStorage);
+      deletePendingAnalysisSaveIntent(window.sessionStorage);
       useTestFlowStore.getState().setAnalysisResult(null);
       useTestFlowStore.getState().setIsAnalysisResultHydrated(true);
     }
