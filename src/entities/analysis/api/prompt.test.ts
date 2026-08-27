@@ -52,7 +52,9 @@ describe('analysis prompt builders', () => {
     expect(ANALYSIS_INSTRUCTIONS).toContain('다정하고 편안한 해요체');
     expect(ANALYSIS_INSTRUCTIONS).toContain('~이에요/~예요');
     expect(ANALYSIS_INSTRUCTIONS).toContain('~입니다');
-    expect(ANALYSIS_INSTRUCTIONS).toContain('선택지를 두세 개로 줄이면');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('Anti-Patterns');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('Voice');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('구체적인 상황이나 행동');
   });
 
   it('회사/팀 분석 input을 구조화한다', () => {
