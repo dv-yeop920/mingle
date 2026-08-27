@@ -35,7 +35,7 @@ const TextField = ({
         className={cn(
           'h-[56px] w-full rounded-field bg-surface px-4 text-[16px] font-bold text-foreground',
           'border border-border outline-none',
-          'transition-all duration-200',
+          'transition-[border-color,box-shadow] duration-200',
           'placeholder:text-hint',
           'focus:border-border-focus focus:shadow-sm',
           error && 'border-caution',

@@ -9,7 +9,6 @@ const Chip = ({ label, isActive = false, onClick, className }: ChipProps) => {
       onClick={onClick}
       className={cn(
         'cursor-pointer rounded-pill px-4 py-[9px] text-caption font-bold btn-press',
-        'transition-colors duration-200 ease-out',
         'border',
         isActive
           ? 'border-primary bg-primary-tonal text-primary-deep shadow-sm'

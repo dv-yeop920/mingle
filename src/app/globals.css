@@ -2,9 +2,16 @@
 @import "../shared/styles/tokens.css";
 @import "../shared/styles/theme.css";
 
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
 html {
   overflow-x: hidden;
   scrollbar-width: none;
+  touch-action: manipulation;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -83,6 +90,8 @@ body {
 @utility btn-press {
   transition-property: transform;
   transition-duration: 120ms;
+  transition-timing-function: ease-out;
+  will-change: transform;
   &:active {
     transform: scale(0.97);
   }

@@ -34,7 +34,7 @@ const MbtiPicker = ({
                     disabled={disabled}
                     onClick={() => onSelect?.(mbti)}
                     className={cn(
-                      'cursor-pointer rounded-field py-3 text-center font-nunito text-label font-black transition-colors duration-150 btn-press',
+                      'cursor-pointer rounded-field py-3 text-center font-nunito text-label font-black btn-press',
                       styles.bg,
                       styles.fg,
                       disabled && 'cursor-not-allowed opacity-60',

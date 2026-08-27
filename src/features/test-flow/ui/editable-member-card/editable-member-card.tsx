@@ -82,7 +82,7 @@ const EditableMemberCard = ({
           type="button"
           onClick={() => onMbtiSelect(id)}
           className={cn(
-            'cursor-pointer rounded-pill px-[9px] py-[3px] font-nunito text-label-sm font-black transition-colors duration-150 btn-press',
+            'cursor-pointer rounded-pill px-[9px] py-[3px] font-nunito text-label-sm font-black btn-press',
             styles.bg,
             styles.fg,
           )}
