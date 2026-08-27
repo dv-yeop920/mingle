@@ -49,7 +49,7 @@ const BottomSheetContent = () => {
     >
       <div
         className={cn(
-          'absolute inset-0 bg-black/50 transition-opacity duration-[260ms] ease-out',
+          'absolute inset-0 bg-black/50 transition-opacity duration-[260ms] ease-out will-change-[opacity]',
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         aria-hidden="true"

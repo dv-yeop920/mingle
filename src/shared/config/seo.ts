@@ -11,7 +11,7 @@ const SEO_KEYWORDS = [
   '팀 궁합',
   'MBTI 관계 분석',
 ];
-const BRAND_THEME_COLOR = '#3FB273';
+const BRAND_THEME_COLOR = '#F5FAF3';
 const BRAND_BACKGROUND_COLOR = '#F5FAF3';
 const BRAND_FOREGROUND_COLOR = '#26382C';
 const BRAND_DEEP_COLOR = '#2E7A4E';
