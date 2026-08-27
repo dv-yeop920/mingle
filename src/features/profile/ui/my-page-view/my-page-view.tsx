@@ -52,7 +52,7 @@ const MyPageView = ({
             <span className="text-[19px] font-black text-foreground">{nickname}</span>
             <div className="flex items-center gap-[7px]">
               {mbti && <MbtiBadge mbti={mbti as MbtiType} />}
-              <span className="text-[12px] font-bold text-[#9AAB9F]">나의 MBTI</span>
+              <span className="text-[12px] font-bold text-hint">나의 MBTI</span>
             </div>
           </div>
           <button
@@ -100,7 +100,7 @@ const MyPageView = ({
             </div>
             <div className="flex flex-1 flex-col gap-[3px] text-left">
               <span className="text-[15.5px] font-black text-foreground">{item.label}</span>
-              <span className="text-[12px] font-semibold text-[#9AAB9F]">{item.description}</span>
+              <span className="text-[12px] font-semibold text-hint">{item.description}</span>
             </div>
             <span className="text-[17px] font-extrabold text-disabled-icon">›</span>
           </button>
@@ -110,7 +110,7 @@ const MyPageView = ({
       <button
         type="button"
         onClick={onLogout}
-        className="cursor-pointer pt-[14px] text-center text-[13px] font-bold text-[#AFBDB3] btn-press"
+        className="cursor-pointer pt-[14px] text-center text-[13px] font-bold text-disabled-foreground btn-press"
       >
         로그아웃
       </button>

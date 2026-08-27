@@ -67,13 +67,16 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     if (hasStarted.current) return;
     hasStarted.current = true;
     startAnalysis();
+    return () => {
+      hasStarted.current = false;
+    };
   }, [startAnalysis]);
 
   if (error) {
     return (
       <div
         className={cn(
-          'flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#F1F9F2] px-6',
+          'flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6',
           className,
         )}
       >

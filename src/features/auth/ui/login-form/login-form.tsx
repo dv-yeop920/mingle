@@ -81,7 +81,7 @@ const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
         >
           {isRemember && '✓'}
         </div>
-        <span className="text-[13px] font-bold text-[#6B8072]">
+        <span className="text-[13px] font-bold text-muted">
           로그인 상태 유지
         </span>
       </button>
@@ -96,7 +96,7 @@ const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
         {isPending ? '로그인 중...' : '로그인'}
       </Button>
 
-      <p className="mt-[2px] text-center text-[14px] font-bold text-[#8A9C90]">
+      <p className="mt-[2px] text-center text-[14px] font-bold text-subtitle">
         아직 계정이 없나요?{' '}
         <Link
           href={redirectTo ? `/signup?redirect=${redirectTo}` : '/signup'}

@@ -22,6 +22,11 @@
   --muted: var(--color-neutral-700);
   --muted-alt: var(--color-neutral-800);
   --hint: var(--color-neutral-600);
+  --subtitle: #8A9C90;
+
+  /* Accent (on-brand surface) */
+  --accent: var(--color-green-400);
+  --accent-foreground: var(--color-green-500);
 
   /* Border */
   --border: var(--color-neutral-200);
@@ -77,6 +82,11 @@
   --color-muted: var(--muted);
   --color-muted-alt: var(--muted-alt);
   --color-hint: var(--hint);
+  --color-subtitle: var(--subtitle);
+
+  /* Color — Accent */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 
   /* Color — Border */
   --color-border: var(--border);

@@ -19,7 +19,13 @@ const ResultActions = ({
       <button
         type="button"
         onClick={onAddMembers}
-        className="flex h-[54px] cursor-pointer items-center justify-center rounded-field border-[1.5px] border-disabled bg-surface text-[14px] font-extrabold text-muted-alt btn-press"
+        disabled={!onAddMembers}
+        className={cn(
+          'flex h-[54px] items-center justify-center rounded-field border-[1.5px] border-disabled text-[14px] font-extrabold',
+          onAddMembers
+            ? 'cursor-pointer bg-surface text-muted-alt btn-press'
+            : 'cursor-not-allowed bg-disabled text-disabled-foreground',
+        )}
       >
         멤버 추가 분석
       </button>

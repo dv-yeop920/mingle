@@ -93,7 +93,7 @@ const SignupForm = ({ className, redirectTo }: SignupFormProps) => {
           {isPending ? '가입 중...' : '가입하고 시작하기'}
         </Button>
 
-        <p className="text-center text-[13px] font-bold text-[#8A9C90]">
+        <p className="text-center text-[13px] font-bold text-subtitle">
           이미 계정이 있나요?{' '}
           <Link
             href={redirectTo ? `/login?redirect=${redirectTo}` : '/login'}

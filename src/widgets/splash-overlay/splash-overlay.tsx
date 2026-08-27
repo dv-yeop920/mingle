@@ -75,10 +75,10 @@ const SplashOverlay = ({ className }: SplashOverlayProps) => {
             M
           </span>
         </div>
-        <span className="font-nunito text-[46px] font-black tracking-[.01em] text-[#1E4630]">
+        <span className="font-nunito text-[46px] font-black tracking-[.01em] text-accent-foreground">
           MIXTI
         </span>
-        <span className="text-[17px] font-bold text-[#1E4630] opacity-[.78]">
+        <span className="text-[17px] font-bold text-accent-foreground opacity-[.78]">
           MBTI로 알아보는 우리 사이의 케미
         </span>
       </div>

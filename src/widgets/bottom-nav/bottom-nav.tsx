@@ -9,8 +9,8 @@ import { NAV_ITEMS } from './constants';
 import type { BottomNavProps } from './types';
 
 const renderIcon = (href: string, isActive: boolean) => {
-  const bg = isActive ? 'bg-[#3FB273]' : 'bg-[#C3D2C7]';
-  const border = isActive ? 'border-[#3FB273]' : 'border-[#C3D2C7]';
+  const bg = isActive ? 'bg-primary' : 'bg-disabled-icon';
+  const border = isActive ? 'border-primary' : 'border-disabled-icon';
 
   switch (href) {
     case '/':
@@ -32,7 +32,7 @@ const BottomNav = ({ className }: BottomNavProps) => {
   return (
     <nav
       className={cn(
-        'fixed bottom-0 left-1/2 z-10 grid w-full max-w-[390px] -translate-x-1/2 grid-cols-3 border-t border-[#EEF4EE] bg-white px-[24px] pb-[28px] pt-[12px]',
+        'fixed bottom-0 left-1/2 z-10 grid w-full max-w-[390px] -translate-x-1/2 grid-cols-3 border-t border-border-inner bg-white px-[24px] pb-[28px] pt-[12px]',
         className,
       )}
     >
@@ -51,8 +51,8 @@ const BottomNav = ({ className }: BottomNavProps) => {
               className={cn(
                 'text-[11px]',
                 isActive
-                  ? 'font-[900] text-[#3FB273]'
-                  : 'font-[800] text-[#AFBDB3]',
+                  ? 'font-[900] text-primary'
+                  : 'font-[800] text-disabled-foreground',
               )}
             >
               {item.label}

@@ -13,6 +13,7 @@ import {
 } from '@/shared/lib/analytics';
 import { createClient } from '@/shared/lib/supabase/client';
 import { cn } from '@/shared/lib/utils';
+import type { Gender } from '@/shared/types/gender';
 import type { MbtiType } from '@/shared/types/mbti';
 
 import type { Metric } from '@/entities/analysis';
@@ -24,6 +25,7 @@ import {
   ScoreGauge,
   useAnalysis,
 } from '@/entities/analysis';
+import type { GroupType } from '@/entities/group';
 
 import {
   GuestSavePromptSheet,
@@ -41,6 +43,7 @@ import {
   putPendingAnalysisSaveIntent,
   useTestFlowStore,
   type PendingAnalysisSave,
+  type TestMember,
 } from '@/features/test-flow';
 
 import {
@@ -102,7 +105,7 @@ const ResultView = ({
     if (dbAnalysis) {
       const group = dbAnalysis.groups as {
         type: string;
-        members: { nickname: string; mbti: string; is_self: boolean }[];
+        members: { nickname: string; mbti: string; gender?: string; is_self: boolean }[];
       } | null;
 
       return {
@@ -146,9 +149,38 @@ const ResultView = ({
     router.push('/group-type');
   };
 
-  const handleAddMembers = () => {
-    router.push('/members');
-  };
+  const isAddMembersAvailable =
+    normalized !== null &&
+    (['friends', 'company', 'family'] as string[]).includes(
+      normalized.groupType,
+    ) &&
+    normalized.members.length >= 2;
+
+  const handleAddMembers = isAddMembersAvailable
+    ? () => {
+        const store = useTestFlowStore.getState();
+        const isStoreStale = !store.groupType || store.members.length < 2 || !!id;
+
+        if (isStoreStale && normalized) {
+          const testMembers: TestMember[] = normalized.members.map((m) => ({
+            id: crypto.randomUUID(),
+            nickname: m.nickname,
+            mbti: m.mbti as MbtiType,
+            gender: ('gender' in m && m.gender ? (m.gender as Gender) : 'other'),
+            isSelf: m.is_self,
+          }));
+
+          store.restoreMemberDraft({
+            schemaVersion: 1 as const,
+            groupType: normalized.groupType as GroupType,
+            memberCount: testMembers.length,
+            members: testMembers,
+          });
+        }
+
+        router.push('/members');
+      }
+    : undefined;
 
   if ((!id && !isAnalysisResultHydrated) || (!isGuest && isLoading)) {
     return (
@@ -387,28 +419,28 @@ const ResultView = ({
             type="button"
             aria-label="이전 화면으로"
             onClick={() => (id ? router.back() : router.push('/'))}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[16px] font-extrabold text-[#2E6644] btn-press"
+            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[16px] font-extrabold text-accent btn-press"
           >
             ‹
           </button>
-          <span className="text-[15px] font-black text-[#1E4630]">
+          <span className="text-[15px] font-black text-accent-foreground">
             {groupName}
           </span>
           <button
             type="button"
             onClick={handleShare}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[15px] text-[#2E6644] btn-press"
+            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[15px] text-accent btn-press"
           >
             ↗
           </button>
         </div>
 
         <div className="flex flex-col items-center gap-4 px-[30px] pt-[22px]">
-          <span className="text-body font-extrabold tracking-wider text-[#2E6644]">
+          <span className="text-body font-extrabold tracking-wider text-accent">
             {normalized.tagline ?? '우리 그룹 케미'}
           </span>
           <ScoreGauge score={normalized.chemistryScore} size="lg" />
-          <p className="text-center text-quote font-extrabold leading-[1.5] text-[#1E4630]">
+          <p className="text-center text-quote font-extrabold leading-[1.5] text-accent-foreground">
             &ldquo;{normalized.summary}&rdquo;
           </p>
           {memberMbtis.length > 0 && (
@@ -416,7 +448,7 @@ const ResultView = ({
               {memberMbtis.map((mbti, i) => (
                 <span
                   key={`${mbti}-${i}`}
-                  className="rounded-pill bg-white/75 px-[11px] py-[5px] font-nunito text-[11.5px] font-black text-[#2E6644]"
+                  className="rounded-pill bg-white/75 px-[11px] py-[5px] font-nunito text-[11.5px] font-black text-accent"
                 >
                   {mbti}
                 </span>

@@ -32,7 +32,7 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
           <button
             type="button"
             onClick={() => router.push('/group-type')}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface text-[16px] font-extrabold text-[#5B7062] btn-press"
+            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface text-[16px] font-extrabold text-muted btn-press"
           >
             ‹
           </button>
@@ -42,7 +42,7 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
         </div>
         <div className="flex flex-col gap-[5px] pt-[22px]">
           <h2 className="text-[24px] font-black tracking-title text-foreground">누구와 함께인가요?</h2>
-          <p className="text-[13.5px] font-semibold text-[#7A8E80]">최소 2명부터 분석할 수 있어요.</p>
+          <p className="text-[13.5px] font-semibold text-subtitle">최소 2명부터 분석할 수 있어요.</p>
         </div>
       </div>
 

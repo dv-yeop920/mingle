@@ -22,8 +22,8 @@ const GroupTypeCard = ({
         isSelected
           ? 'border-2 border-border-focus shadow-[0_10px_22px_rgba(76,120,90,.10)]'
           : isDashed
-            ? 'border-2 border-dashed border-[#D6E4D8]'
-            : 'border-2 border-[#EEF4EE]',
+            ? 'border-2 border-dashed border-disabled'
+            : 'border-2 border-border-inner',
         className,
       )}
     >
@@ -38,7 +38,7 @@ const GroupTypeCard = ({
 
       <div className="flex flex-1 flex-col items-start gap-1">
         <span className="text-[17px] font-black text-foreground">{title}</span>
-        <span className="whitespace-pre-line text-left text-[12.5px] font-semibold leading-[1.45] text-[#8A9C90]">
+        <span className="whitespace-pre-line text-left text-[12.5px] font-semibold leading-[1.45] text-subtitle">
           {description}
         </span>
       </div>

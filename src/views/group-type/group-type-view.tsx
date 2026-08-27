@@ -21,7 +21,7 @@ const GroupTypeView = ({ selfMemberSeed, className }: GroupTypeViewProps) => {
         <h2 className="whitespace-pre-line text-[27px] font-black leading-[1.34] tracking-title text-foreground">
           {'어떤 사이를\n분석해볼까요?'}
         </h2>
-        <p className="text-[14px] font-semibold text-[#7A8E80]">
+        <p className="text-[14px] font-semibold text-subtitle">
           관계에 따라 분석 내용이 달라져요.
         </p>
       </div>

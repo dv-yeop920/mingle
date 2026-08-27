@@ -110,7 +110,7 @@ const PairDetail = ({ pair, className }: PairDetailProps) => {
           <span className="text-caption font-black uppercase tracking-wider text-primary-deep">
             추천 상황
           </span>
-          <p className="text-[15px] font-extrabold leading-[1.5] text-[#1E4630]">
+          <p className="text-[15px] font-extrabold leading-[1.5] text-accent-foreground">
             {recommendedSituations}
           </p>
         </div>
