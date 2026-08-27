@@ -145,8 +145,10 @@ const ResultView = ({
 
   const handleRetest = () => {
     trackResultRetest();
-    resetStore();
-    router.push('/group-type');
+    setTimeout(() => {
+      resetStore();
+      router.push('/group-type');
+    }, 0);
   };
 
   const isAddMembersAvailable =

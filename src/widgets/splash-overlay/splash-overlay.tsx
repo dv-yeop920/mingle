@@ -34,7 +34,7 @@ const SplashOverlay = ({ className }: SplashOverlayProps) => {
   useEffect(() => {
     if (!shouldShow) return;
 
-    const timer = setTimeout(() => setPhase('fading'), 2000);
+    const timer = setTimeout(() => setPhase('fading'), 1200);
     return () => clearTimeout(timer);
   }, [shouldShow]);
 
@@ -51,11 +51,13 @@ const SplashOverlay = ({ className }: SplashOverlayProps) => {
   return (
     <div
       className={cn(
-        'fixed top-0 bottom-0 left-1/2 z-50 flex w-full max-w-[390px] -translate-x-1/2 flex-col bg-green-100 transition-opacity duration-500',
+        'fixed top-0 bottom-0 left-1/2 z-50 flex w-full max-w-[390px] -translate-x-1/2 flex-col bg-green-100 transition-opacity duration-350 will-change-transform',
         phase === 'fading' && 'opacity-0',
         className,
       )}
-      onTransitionEnd={() => setPhase('done')}
+      onTransitionEnd={(e) => {
+        if (e.target === e.currentTarget) setPhase('done');
+      }}
     >
       <div className="absolute left-[44px] top-[120px] flex h-[120px] w-[96px] animate-mx-float items-center justify-center rounded-[24px] bg-white shadow-[0_12px_26px_rgba(30,70,45,.16)]">
         <span className="font-nunito text-[22px] font-black text-analyst-fg">

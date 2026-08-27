@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -7,9 +8,19 @@ import { cn } from '@/shared/lib/utils';
 
 import { useProfile } from '@/entities/user';
 
-import { HeroCard, RecentTests } from '@/features/home';
-import { MbtiSetupPromptSheet } from '@/features/profile';
+import { HeroCard } from '@/features/home';
 import { useTestFlowStore } from '@/features/test-flow';
+
+const RecentTests = dynamic(
+  () => import('@/features/home').then((m) => ({ default: m.RecentTests })),
+);
+
+const MbtiSetupPromptSheet = dynamic(
+  () =>
+    import('@/features/profile').then((m) => ({
+      default: m.MbtiSetupPromptSheet,
+    })),
+);
 
 import type { HomeViewProps } from './types';
 

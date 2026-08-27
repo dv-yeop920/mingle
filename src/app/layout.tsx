@@ -18,7 +18,6 @@ import { Providers } from './providers';
 const gothicA1 = localFont({
   src: [
     { path: './fonts/gothic-a1-400.woff2', weight: '400', style: 'normal' },
-    { path: './fonts/gothic-a1-500.woff2', weight: '500', style: 'normal' },
     { path: './fonts/gothic-a1-700.woff2', weight: '700', style: 'normal' },
     { path: './fonts/gothic-a1-800.woff2', weight: '800', style: 'normal' },
     { path: './fonts/gothic-a1-900.woff2', weight: '900', style: 'normal' },

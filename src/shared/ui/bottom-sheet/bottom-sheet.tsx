@@ -53,7 +53,7 @@ const BottomSheetContent = () => {
     >
       <div
         className={cn(
-          'absolute inset-0 bg-black/50 transition-opacity duration-[260ms] ease-out',
+          'absolute inset-0 bg-black/50 transition-opacity duration-[260ms] ease-out will-change-[opacity]',
           isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         aria-hidden="true"
@@ -70,7 +70,7 @@ const BottomSheetContent = () => {
         onTransitionEnd={handleTransitionEnd}
         className={cn(
           'absolute inset-x-0 bottom-0 rounded-t-sheet bg-surface shadow-sheet',
-          'transition-transform duration-[260ms] ease-out',
+          'transition-transform duration-[260ms] ease-out will-change-transform',
           isVisible ? 'translate-y-0' : 'translate-y-full',
         )}
       >
@@ -110,9 +110,6 @@ const BottomSheet = (props: BottomSheetProps) => {
         cancelled = true;
       };
     }
-
-    const timer = setTimeout(() => setShowContent(false), 300);
-    return () => clearTimeout(timer);
   }, [isOpen]);
 
   const handleExitComplete = () => {

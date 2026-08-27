@@ -54,7 +54,12 @@ body {
 }
 
 .result-gauge-fill {
-  animation: mx-gauge-fill 800ms ease-out both;
+  animation: mx-gauge-fade 300ms ease-out both;
+}
+
+@keyframes mx-gauge-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .result-progress-fill {
