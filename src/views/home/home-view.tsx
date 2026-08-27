@@ -1,40 +1,16 @@
-'use client';
-
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { Suspense } from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
-import { useProfile } from '@/entities/user';
-
 import { HeroCard } from '@/features/home';
-import { useTestFlowStore } from '@/features/test-flow';
+import { MbtiSetupPromptSheet } from '@/features/profile';
 
-const RecentTests = dynamic(
-  () => import('@/features/home').then((m) => ({ default: m.RecentTests })),
-);
-
-const MbtiSetupPromptSheet = dynamic(
-  () =>
-    import('@/features/profile').then((m) => ({
-      default: m.MbtiSetupPromptSheet,
-    })),
-);
-
+import { HomeResetEffect } from './home-reset-effect';
+import { RecentTestsSection } from './recent-tests-section';
 import type { HomeViewProps } from './types';
 
-const HomeView = ({ className }: HomeViewProps) => {
-  const router = useRouter();
-  const { data: profile } = useProfile();
-  const reset = useTestFlowStore((s) => s.reset);
-  const nickname = profile?.nickname;
+const HomeView = ({ nickname, isMbtiSetupRequired, className }: HomeViewProps) => {
   const initials = nickname?.slice(0, 2);
-  const isMbtiSetupRequired = Boolean(profile && !profile.mbti);
-
-  useEffect(() => {
-    reset();
-  }, [reset]);
 
   return (
     <div className={cn('flex flex-col', className)}>
@@ -60,13 +36,15 @@ const HomeView = ({ className }: HomeViewProps) => {
         )}
       </div>
       <div className="px-5 pt-5">
-        <HeroCard onClick={() => router.push('/group-type')} />
+        <HeroCard />
       </div>
-      {nickname && <RecentTests />}
-      <MbtiSetupPromptSheet
-        isOpen={isMbtiSetupRequired}
-        onConfirm={() => router.push('/mypage/settings')}
-      />
+      <HomeResetEffect />
+      {nickname && (
+        <Suspense>
+          <RecentTestsSection />
+        </Suspense>
+      )}
+      <MbtiSetupPromptSheet isOpen={isMbtiSetupRequired} />
     </div>
   );
 };

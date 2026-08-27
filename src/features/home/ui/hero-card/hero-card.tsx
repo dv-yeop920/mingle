@@ -1,24 +1,19 @@
-'use client';
+import Link from 'next/link';
 
 import { cn } from '@/shared/lib/utils';
 
 import type { HeroCardProps } from './types';
 
-const HeroCard = ({ onClick, className }: HeroCardProps) => {
+const HeroCard = ({ className }: HeroCardProps) => {
   return (
-    <section
+    <Link
+      href="/group-type"
+      aria-label="새로운 MBTI 그룹 케미 테스트 시작"
       className={cn(
-        'btn-press relative min-h-[180px] w-full overflow-hidden rounded-hero bg-primary-hero px-6 py-[26px] shadow-hero',
+        'btn-press relative block min-h-[180px] w-full overflow-hidden rounded-hero bg-primary-hero px-6 py-[26px] shadow-hero focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-deep focus-visible:ring-inset',
         className,
       )}
     >
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label="새로운 MBTI 그룹 케미 테스트 시작"
-        className="absolute inset-0 z-10 cursor-pointer rounded-hero focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-deep focus-visible:ring-inset"
-      />
-
       <div
         aria-hidden="true"
         className="absolute right-[-18px] top-[22px] h-[98px] w-[78px] rotate-12 rounded-field bg-surface/55"
@@ -49,7 +44,7 @@ const HeroCard = ({ onClick, className }: HeroCardProps) => {
       >
         ＋ 새로운 케미 테스트
       </div>
-    </section>
+    </Link>
   );
 };
 

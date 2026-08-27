@@ -3,7 +3,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useId,
   useState,
 } from 'react';
@@ -16,7 +15,6 @@ import { useBottomSheetFocus } from './use-bottom-sheet-focus';
 
 type BottomSheetContextValue = BottomSheetProps & {
   titleId: string;
-  showContent: boolean;
   onExitComplete: () => void;
 };
 
@@ -29,12 +27,10 @@ const BottomSheetContent = () => {
     title,
     titleId,
     children,
-    showContent,
     onExitComplete,
   } = useContext(BottomSheetContext)!;
 
-  const isVisible = isOpen && showContent;
-  const { dialogRef, handleKeyDown } = useBottomSheetFocus(isVisible, onClose);
+  const { dialogRef, handleKeyDown } = useBottomSheetFocus(isOpen, onClose);
 
   const handleTransitionEnd = (e: React.TransitionEvent) => {
     if (e.target === e.currentTarget && !isOpen) {
@@ -48,13 +44,13 @@ const BottomSheetContent = () => {
       inert={!isOpen}
       className={cn(
         'fixed inset-0 z-50 mx-auto max-w-[390px]',
-        !isVisible && 'pointer-events-none',
+        !isOpen && 'pointer-events-none',
       )}
     >
       <div
         className={cn(
-          'absolute inset-0 bg-black/50 transition-opacity duration-[260ms] ease-out will-change-[opacity]',
-          isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none',
+          'absolute inset-0 bg-black/50 transition-opacity duration-[260ms] ease-out',
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         aria-hidden="true"
         onClick={onClose}
@@ -69,9 +65,9 @@ const BottomSheetContent = () => {
         onKeyDown={handleKeyDown}
         onTransitionEnd={handleTransitionEnd}
         className={cn(
-          'absolute inset-x-0 bottom-0 rounded-t-sheet bg-surface shadow-sheet',
-          'transition-transform duration-[260ms] ease-out will-change-transform',
-          isVisible ? 'translate-y-0' : 'translate-y-full',
+          'bottom-sheet-panel absolute inset-x-0 bottom-0 rounded-t-sheet bg-surface shadow-sheet',
+          'transition-transform duration-[260ms] ease-out',
+          isOpen ? 'translate-y-0' : 'translate-y-full',
         )}
       >
         <div aria-hidden="true" className="flex justify-center pb-2 pt-3">
@@ -98,19 +94,9 @@ const BottomSheet = (props: BottomSheetProps) => {
   const titleId = useId();
   const [showContent, setShowContent] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      let cancelled = false;
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (!cancelled) setShowContent(true);
-        });
-      });
-      return () => {
-        cancelled = true;
-      };
-    }
-  }, [isOpen]);
+  if (isOpen && !showContent) {
+    setShowContent(true);
+  }
 
   const handleExitComplete = () => {
     setShowContent(false);
@@ -121,7 +107,6 @@ const BottomSheet = (props: BottomSheetProps) => {
       value={{
         ...props,
         titleId,
-        showContent,
         onExitComplete: handleExitComplete,
       }}
     >

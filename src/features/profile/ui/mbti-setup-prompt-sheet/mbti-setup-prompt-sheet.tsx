@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
+
 import { BottomSheet } from '@/shared/ui/bottom-sheet';
-import { Button } from '@/shared/ui/button';
 
 import type { MbtiSetupPromptSheetProps } from './types';
 
@@ -9,7 +10,6 @@ const preventDismiss = () => {};
 
 const MbtiSetupPromptSheet = ({
   isOpen,
-  onConfirm,
 }: MbtiSetupPromptSheetProps) => {
   return (
     <BottomSheet
@@ -21,9 +21,12 @@ const MbtiSetupPromptSheet = ({
         <p className="text-body font-semibold text-muted text-pretty">
           MBTI를 설정하고 이용해 주세요
         </p>
-        <Button type="button" variant="primary" onClick={onConfirm}>
+        <Link
+          href="/mypage/settings"
+          className="flex h-[58px] w-full items-center justify-center rounded-card bg-primary text-[16px] font-extrabold text-primary-foreground shadow-lg btn-press"
+        >
           MBTI 설정하기
-        </Button>
+        </Link>
       </div>
     </BottomSheet>
   );

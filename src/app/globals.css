@@ -74,6 +74,12 @@ body {
   }
 }
 
+.bottom-sheet-panel {
+  @starting-style {
+    transform: translateY(100%);
+  }
+}
+
 @utility btn-press {
   transition-property: transform;
   transition-duration: 120ms;

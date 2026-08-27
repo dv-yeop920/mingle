@@ -1,5 +1,4 @@
 type HeroCardProps = {
-  onClick?: () => void;
   className?: string;
 };
 
