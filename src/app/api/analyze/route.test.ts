@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockParse } = vi.hoisted(() => ({
-  mockParse: vi.fn(),
+const { mockStream } = vi.hoisted(() => ({
+  mockStream: vi.fn(),
 }));
 
 vi.mock('openai', () => ({
   default: class MockOpenAI {
     responses = {
-      parse: mockParse,
+      stream: mockStream,
     };
   },
 }));
@@ -114,22 +114,76 @@ const createRequest = (body: unknown) =>
     body: JSON.stringify(body),
   });
 
+type DeltaHandler = (event: { delta: string }) => void;
+
+const createMockStreamObject = (
+  outputParsed: unknown,
+  textChunks: string[] = ['chunk1', 'chunk2'],
+) => {
+  const handlers = new Map<string, DeltaHandler>();
+
+  return {
+    on: (event: string, handler: DeltaHandler) => {
+      handlers.set(event, handler);
+    },
+    finalResponse: () => {
+      const deltaHandler = handlers.get('response.output_text.delta');
+      if (deltaHandler) {
+        for (const chunk of textChunks) {
+          deltaHandler({ delta: chunk });
+        }
+      }
+      return Promise.resolve({ output_parsed: outputParsed });
+    },
+    abort: vi.fn(),
+  };
+};
+
+const parseSSEResponse = async (response: Response) => {
+  const text = await response.text();
+  const events: { event: string; data: unknown }[] = [];
+
+  for (const block of text.split('\n\n')) {
+    if (!block.trim()) continue;
+    let event = '';
+    let data = '';
+    for (const line of block.split('\n')) {
+      if (line.startsWith('event: ')) event = line.slice(7);
+      else if (line.startsWith('data: ')) data = line.slice(6);
+    }
+    if (event && data) {
+      events.push({ event, data: JSON.parse(data) });
+    }
+  }
+
+  return events;
+};
+
 describe('POST /api/analyze', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('유효한 요청의 분석 결과를 반환한다', async () => {
-    mockParse.mockResolvedValue({ output_parsed: VALID_RESULT });
+  it('유효한 요청의 분석 결과를 SSE로 스트리밍한다', async () => {
+    mockStream.mockReturnValue(
+      createMockStreamObject(VALID_RESULT),
+    );
 
     const response = await POST(createRequest(VALID_BODY));
-    const result = await response.json();
+    const events = await parseSSEResponse(response);
 
-    expect(response.status).toBe(200);
-    expect(result.data.chemistryScore).toBe(82);
-    expect(result.data.groupType).toBe('friends');
-    expect(result.data.members).toHaveLength(2);
-    expect(mockParse).toHaveBeenCalledWith(
+    expect(response.headers.get('Content-Type')).toBe('text/event-stream');
+
+    const progressEvents = events.filter((e) => e.event === 'progress');
+    expect(progressEvents.length).toBeGreaterThanOrEqual(1);
+    expect((progressEvents[0].data as { progress: number }).progress).toBe(2);
+
+    const resultEvent = events.find((e) => e.event === 'result');
+    expect(resultEvent).toBeDefined();
+    expect((resultEvent!.data as { data: { chemistryScore: number } }).data.chemistryScore).toBe(82);
+    expect((resultEvent!.data as { data: { groupType: string } }).data.groupType).toBe('friends');
+
+    expect(mockStream).toHaveBeenCalledWith(
       expect.objectContaining({
         model: 'gpt-5.6-luna',
         store: false,
@@ -143,47 +197,64 @@ describe('POST /api/analyze', () => {
     const response = await POST(createRequest({ group: { type: 'friends' } }));
 
     expect(response.status).toBe(400);
-    expect(mockParse).not.toHaveBeenCalled();
+    expect(mockStream).not.toHaveBeenCalled();
   });
 
-  it('멤버 또는 pair가 누락된 결과를 거부한다', async () => {
-    mockParse.mockResolvedValue({
-      output_parsed: {
+  it('멤버 또는 pair가 누락된 결과를 error 이벤트로 전송한다', async () => {
+    mockStream.mockReturnValue(
+      createMockStreamObject({
         ...VALID_RESULT,
         pairChemistry: [],
-      },
-    });
+      }),
+    );
 
     const response = await POST(createRequest(VALID_BODY));
+    const events = await parseSSEResponse(response);
 
-    expect(response.status).toBe(502);
+    const errorEvent = events.find((e) => e.event === 'error');
+    expect(errorEvent).toBeDefined();
+    expect((errorEvent!.data as { error: string }).error).toContain('다시 시도해주세요');
   });
 
-  it('OpenAI quota 오류를 사용자 메시지로 변환한다', async () => {
-    mockParse.mockRejectedValue({
-      code: 'insufficient_quota',
-      status: 429,
-    });
+  it('OpenAI quota 오류를 error 이벤트로 전송한다', async () => {
+    const mockObj = createMockStreamObject(null);
+    mockObj.finalResponse = () =>
+      Promise.reject({ code: 'insufficient_quota', status: 429 });
+    mockStream.mockReturnValue(mockObj);
 
     const response = await POST(createRequest(VALID_BODY));
-    const result = await response.json();
+    const events = await parseSSEResponse(response);
 
-    expect(response.status).toBe(429);
-    expect(result.error).toBe('AI 분석 사용량 한도를 초과했습니다');
+    const errorEvent = events.find((e) => e.event === 'error');
+    expect(errorEvent).toBeDefined();
+    expect((errorEvent!.data as { error: string }).error).toBe(
+      'AI 분석 사용량 한도를 초과했습니다',
+    );
   });
 
   it('일시적인 rate limit 오류를 quota와 구분한다', async () => {
-    mockParse.mockRejectedValue({
-      code: 'rate_limit_exceeded',
-      status: 429,
-    });
+    const mockObj = createMockStreamObject(null);
+    mockObj.finalResponse = () =>
+      Promise.reject({ code: 'rate_limit_exceeded', status: 429 });
+    mockStream.mockReturnValue(mockObj);
 
     const response = await POST(createRequest(VALID_BODY));
-    const result = await response.json();
+    const events = await parseSSEResponse(response);
 
-    expect(response.status).toBe(429);
-    expect(result.error).toBe(
+    const errorEvent = events.find((e) => e.event === 'error');
+    expect(errorEvent).toBeDefined();
+    expect((errorEvent!.data as { error: string }).error).toBe(
       '분석 요청이 몰리고 있어요. 잠시 후 다시 시도해주세요',
     );
+  });
+
+  it('output_parsed가 null이면 error 이벤트를 전송한다', async () => {
+    mockStream.mockReturnValue(createMockStreamObject(null));
+
+    const response = await POST(createRequest(VALID_BODY));
+    const events = await parseSSEResponse(response);
+
+    const errorEvent = events.find((e) => e.event === 'error');
+    expect(errorEvent).toBeDefined();
   });
 });

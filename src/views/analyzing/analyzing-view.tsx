@@ -18,6 +18,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
   const router = useRouter();
   const hasStarted = useRef(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
 
   const groupType = useTestFlowStore((s) => s.groupType);
   const members = useTestFlowStore((s) => s.members);
@@ -31,11 +32,13 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     }
 
     setError(null);
+    setProgress(0);
 
     try {
       const result = await requestAnalysis({
         groupType,
         members,
+        onProgress: setProgress,
       });
 
       if ('error' in result) {
@@ -95,7 +98,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     );
   }
 
-  return <AnalysisAnimation className={className} />;
+  return <AnalysisAnimation progress={progress} className={className} />;
 };
 
 export { AnalyzingView };

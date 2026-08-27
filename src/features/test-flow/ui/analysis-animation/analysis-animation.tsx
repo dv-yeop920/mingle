@@ -1,23 +1,31 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
 import { CHECKLIST_ITEMS, TITLE_MESSAGES } from './constants';
 import type { AnalysisAnimationProps } from './types';
 
-const AnalysisAnimation = ({ className }: AnalysisAnimationProps) => {
-  const [progress, setProgress] = useState(0);
-  const [messageIndex, setMessageIndex] = useState(0);
+const AnalysisAnimation = ({
+  progress: externalProgress,
+  className,
+}: AnalysisAnimationProps) => {
+  const [internalProgress, setInternalProgress] = useState(0);
+  const [uncontrolledMessageIndex, setUncontrolledMessageIndex] = useState(0);
+
+  const isControlled = externalProgress !== undefined;
+  const progress = isControlled ? externalProgress : internalProgress;
 
   useEffect(() => {
+    if (isControlled) return;
+
     const progressTimer = setInterval(() => {
-      setProgress((prev) => (prev >= 95 ? 95 : prev + 1));
-    }, 80);
+      setInternalProgress((prev) => (prev >= 95 ? 95 : prev + 1));
+    }, 200);
 
     const messageTimer = setInterval(() => {
-      setMessageIndex((prev) =>
+      setUncontrolledMessageIndex((prev) =>
         prev < TITLE_MESSAGES.length - 1 ? prev + 1 : prev,
       );
     }, 2400);
@@ -26,7 +34,16 @@ const AnalysisAnimation = ({ className }: AnalysisAnimationProps) => {
       clearInterval(progressTimer);
       clearInterval(messageTimer);
     };
-  }, []);
+  }, [isControlled]);
+
+  const controlledMessageIndex = useMemo(
+    () => (progress >= 67 ? 2 : progress >= 34 ? 1 : 0),
+    [progress],
+  );
+
+  const messageIndex = isControlled
+    ? controlledMessageIndex
+    : uncontrolledMessageIndex;
 
   const completedCount = progress < 34 ? 0 : progress < 67 ? 1 : 2;
 
@@ -65,8 +82,8 @@ const AnalysisAnimation = ({ className }: AnalysisAnimationProps) => {
         <div className="flex w-full flex-col gap-[10px]">
           <div className="h-[10px] overflow-hidden rounded-pill bg-[#E1EFE3]">
             <div
-              className="h-full rounded-pill bg-primary transition-[width] duration-200 ease-out"
-              style={{ width: `${progress}%` }}
+              className="h-full w-full origin-left rounded-pill bg-primary transition-transform duration-200 ease-out will-change-transform"
+              style={{ transform: `scaleX(${progress / 100})` }}
             />
           </div>
           <div className="flex justify-between font-nunito text-[11.5px] font-extrabold text-[#9AAB9F]">

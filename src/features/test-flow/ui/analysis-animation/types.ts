@@ -1,4 +1,5 @@
 type AnalysisAnimationProps = {
+  progress?: number;
   className?: string;
 };
 

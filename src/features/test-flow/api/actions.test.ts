@@ -5,6 +5,29 @@ import { requestAnalysis } from './actions';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
+const encodeSSE = (events: { event: string; data: unknown }[]) => {
+  const encoder = new TextEncoder();
+  return encoder.encode(
+    events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join(''),
+  );
+};
+
+const createSSEResponse = (events: { event: string; data: unknown }[]) => {
+  const encoded = encodeSSE(events);
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoded);
+      controller.close();
+    },
+  });
+
+  return {
+    ok: true,
+    body: stream,
+    headers: new Headers({ 'Content-Type': 'text/event-stream' }),
+  };
+};
+
 describe('requestAnalysis', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,12 +72,16 @@ describe('requestAnalysis', () => {
     },
   };
 
-  it('성공 시 분석 데이터를 반환한다', async () => {
+  it('SSE 스트림에서 분석 데이터를 파싱하여 반환한다', async () => {
     const mockData = { chemistryScore: 85, summary: '좋은 케미' };
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ data: mockData }),
-    });
+    mockFetch.mockResolvedValue(
+      createSSEResponse([
+        { event: 'progress', data: { progress: 2 } },
+        { event: 'progress', data: { progress: 45 } },
+        { event: 'progress', data: { progress: 90 } },
+        { event: 'result', data: { data: mockData } },
+      ]),
+    );
 
     const result = await requestAnalysis(validInput);
 
@@ -65,6 +92,39 @@ describe('requestAnalysis', () => {
       body: JSON.stringify(expectedBody),
       signal: expect.any(AbortSignal),
     }));
+  });
+
+  it('onProgress 콜백이 progress 이벤트마다 호출된다', async () => {
+    const mockData = { chemistryScore: 85 };
+    mockFetch.mockResolvedValue(
+      createSSEResponse([
+        { event: 'progress', data: { progress: 2 } },
+        { event: 'progress', data: { progress: 50 } },
+        { event: 'progress', data: { progress: 95 } },
+        { event: 'result', data: { data: mockData } },
+      ]),
+    );
+
+    const onProgress = vi.fn();
+    await requestAnalysis({ ...validInput, onProgress });
+
+    expect(onProgress).toHaveBeenCalledWith(2);
+    expect(onProgress).toHaveBeenCalledWith(50);
+    expect(onProgress).toHaveBeenCalledWith(95);
+    expect(onProgress).toHaveBeenCalledWith(100);
+  });
+
+  it('SSE error 이벤트를 에러로 반환한다', async () => {
+    mockFetch.mockResolvedValue(
+      createSSEResponse([
+        { event: 'progress', data: { progress: 2 } },
+        { event: 'error', data: { error: '분석에 실패했습니다' } },
+      ]),
+    );
+
+    const result = await requestAnalysis(validInput);
+
+    expect(result).toEqual({ error: '분석에 실패했습니다' });
   });
 
   it('API 에러 시 에러 메시지를 반환한다', async () => {
@@ -94,10 +154,12 @@ describe('requestAnalysis', () => {
       ...validInput,
       groupType: 'company' as const,
     };
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ data: { chemistryScore: 90 } }),
-    });
+    mockFetch.mockResolvedValue(
+      createSSEResponse([
+        { event: 'progress', data: { progress: 2 } },
+        { event: 'result', data: { data: { chemistryScore: 90 } } },
+      ]),
+    );
 
     await requestAnalysis(inputWithCompany);
 
