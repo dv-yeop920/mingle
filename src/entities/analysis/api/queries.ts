@@ -21,20 +21,12 @@ const fetchAnalyses = async () => {
 
 const fetchAnalysisById = async (id: string) => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return null;
-  }
 
   const { data } = await supabase
     .from('analyses')
     .select('*, groups(type, custom_name, members(nickname, mbti, gender, is_self, order))')
     .eq('id', id)
-    .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
   return data;
 };

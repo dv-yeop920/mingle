@@ -170,8 +170,32 @@ const saveGuestAnalysis = async (params: SaveGuestAnalysisParams) => {
   return { data: { id: data } };
 };
 
+const makeAnalysisPublic = async (analysisId: string) => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: '인증이 필요합니다' };
+  }
+
+  const { error } = await supabase
+    .from('analyses')
+    .update({ is_public: true })
+    .eq('id', analysisId)
+    .eq('user_id', user.id);
+
+  if (error) {
+    return { error: '공유 설정에 실패했습니다' };
+  }
+
+  return { data: { success: true } };
+};
+
 export {
   deleteAnalysis,
+  makeAnalysisPublic,
   saveAnalysis,
   saveGuestAnalysis,
   type SaveAnalysisParams,

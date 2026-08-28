@@ -1,4 +1,4 @@
-export { saveGuestAnalysis } from './api/actions';
+export { makeAnalysisPublic, saveGuestAnalysis } from './api/actions';
 export {
   convertAtmosphereForStorage,
   type ConvertAtmosphereForStorageParams,

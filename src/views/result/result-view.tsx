@@ -32,6 +32,7 @@ import {
   ResultActions,
   SaveAnalysisSheet,
   convertAtmosphereForStorage,
+  makeAnalysisPublic,
   saveGuestAnalysis,
 } from '@/features/analysis-result';
 import {
@@ -374,7 +375,11 @@ const ResultView = ({
     }
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
+    if (id) {
+      await makeAnalysisPublic(id);
+    }
+
     const url = isGuest
       ? `${window.location.origin}/`
       : `${window.location.origin}/result?id=${id}`;

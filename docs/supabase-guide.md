@@ -249,6 +249,58 @@ create policy "analyses_insert" on public.analyses
 create policy "analyses_delete" on public.analyses
   for delete to authenticated
   using ( (select auth.uid()) = user_id );
+
+create policy "analyses_update" on public.analyses
+  for update to authenticated
+  using ( (select auth.uid()) = user_id )
+  with check ( (select auth.uid()) = user_id );
+
+-- 공유 링크 공개 접근 (is_public = true인 분석)
+create policy "analyses_select_public" on public.analyses
+  for select to anon
+  using ( is_public = true );
+
+create policy "analyses_select_public_auth" on public.analyses
+  for select to authenticated
+  using ( is_public = true );
+
+create policy "groups_select_public" on public.groups
+  for select to anon
+  using (
+    exists (
+      select 1 from public.analyses
+      where analyses.group_id = groups.id and analyses.is_public = true
+    )
+  );
+
+create policy "groups_select_public_auth" on public.groups
+  for select to authenticated
+  using (
+    exists (
+      select 1 from public.analyses
+      where analyses.group_id = groups.id and analyses.is_public = true
+    )
+  );
+
+create policy "members_select_public" on public.members
+  for select to anon
+  using (
+    exists (
+      select 1 from public.groups g
+      join public.analyses a on a.group_id = g.id
+      where g.id = members.group_id and a.is_public = true
+    )
+  );
+
+create policy "members_select_public_auth" on public.members
+  for select to authenticated
+  using (
+    exists (
+      select 1 from public.groups g
+      join public.analyses a on a.group_id = g.id
+      where g.id = members.group_id and a.is_public = true
+    )
+  );
 ```
 
 ### Auth 설정 (대시보드)

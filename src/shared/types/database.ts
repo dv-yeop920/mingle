@@ -19,6 +19,7 @@ export type Database = {
           group_atmosphere: Json;
           group_id: string;
           id: string;
+          is_public: boolean;
           member_roles: Json;
           metrics: Json;
           pair_chemistry: Json;
@@ -34,6 +35,7 @@ export type Database = {
           group_atmosphere: Json;
           group_id: string;
           id?: string;
+          is_public?: boolean;
           member_roles: Json;
           metrics: Json;
           pair_chemistry: Json;
@@ -49,6 +51,7 @@ export type Database = {
           group_atmosphere?: Json;
           group_id?: string;
           id?: string;
+          is_public?: boolean;
           member_roles?: Json;
           metrics?: Json;
           pair_chemistry?: Json;
