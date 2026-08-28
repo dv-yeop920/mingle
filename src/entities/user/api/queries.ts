@@ -1,8 +1,7 @@
-import { createClient } from '@/shared/lib/supabase/server';
+import { getAuthenticatedClient } from '@/shared/lib/supabase/server';
 
 const fetchProfile = async () => {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedClient();
 
   if (!user) {
     return null;
@@ -18,10 +17,7 @@ const fetchProfile = async () => {
 };
 
 const fetchUserStats = async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedClient();
 
   if (!user) {
     return null;

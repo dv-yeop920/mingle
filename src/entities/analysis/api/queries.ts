@@ -1,10 +1,8 @@
 import { createClient } from '@/shared/lib/supabase/server';
+import { getAuthenticatedClient } from '@/shared/lib/supabase/server';
 
 const fetchAnalyses = async (groupType?: string) => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedClient();
 
   if (!user) {
     return [];

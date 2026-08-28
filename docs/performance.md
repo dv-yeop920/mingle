@@ -626,3 +626,12 @@ HomeView (Server)
 | **합계** | | **-260~390ms** | |
 
 변경 파일: 18개 (16 수정, 2 신규) — 커밋 `3dc2075`
+
+---
+
+## 6. 홈 SSR 데이터 패칭 리팩토링 (2026-08-28)
+
+→ 별도 문서: [`performance-home-ssr.md`](./performance-home-ssr.md)
+
+queryOptions 분리 + HydrationBoundary + useSuspenseQuery 적용.
+LCP 756ms → 706ms (−6.6%), hydration mismatch 해소.

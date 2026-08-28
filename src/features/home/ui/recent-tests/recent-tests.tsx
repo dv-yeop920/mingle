@@ -1,31 +1,17 @@
 'use client';
 
-import { GROUP_TYPE_ICONS, GROUP_TYPE_LABELS } from '@/shared/config/group-types';
+import {
+  GROUP_TYPE_ICONS,
+  GROUP_TYPE_LABELS,
+} from '@/shared/config/group-types';
 import { cn } from '@/shared/lib/utils';
 
-import { ResultSummaryCard, useAnalyses } from '@/entities/analysis';
+import { ResultSummaryCard } from '@/entities/analysis';
 
 import type { RecentTestsProps } from './types';
 
-const RecentTests = ({ className }: RecentTestsProps) => {
-  const { data: analyses, isLoading } = useAnalyses();
-
-  const recentItems = (analyses ?? []).slice(0, 3);
-
-  if (isLoading) {
-    return (
-      <div className={cn('flex flex-col', className)}>
-        <div className="px-[24px] pt-[26px] pb-[10px]">
-          <h3 className="text-[16px] font-black text-foreground">
-            최근 테스트
-          </h3>
-        </div>
-        <div className="flex items-center justify-center px-5 py-8">
-          <p className="text-body text-muted">불러오는 중...</p>
-        </div>
-      </div>
-    );
-  }
+const RecentTests = ({ analyses, className }: RecentTestsProps) => {
+  const recentItems = analyses.slice(0, 3);
 
   if (recentItems.length === 0) {
     return (
@@ -53,20 +39,19 @@ const RecentTests = ({ className }: RecentTestsProps) => {
 
       <div className="flex flex-col gap-[11px] px-5">
         {recentItems.map((item) => {
-          const group = item.groups as {
-            type: string;
-            custom_name: string | null;
-            members: { nickname: string; mbti: string; is_self: boolean }[];
-          } | null;
+          const group = item.groups;
           const groupType = group?.type ?? '';
           const members = group?.members ?? [];
           const icon = GROUP_TYPE_ICONS[groupType] ?? '✏️';
           const representativeMbtis = members.map((member) => member.mbti);
-          const dateStr = new Date(item.created_at).toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-          });
+          const dateStr = new Date(item.created_at).toLocaleDateString(
+            'ko-KR',
+            {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            },
+          );
 
           return (
             <ResultSummaryCard

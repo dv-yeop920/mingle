@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 
 import type { Database } from '@/shared/types/database';
 
@@ -27,3 +28,12 @@ export const createClient = async () => {
     },
   );
 };
+
+// 요청당 1회만 인증 — 같은 요청 내 여러 쿼리가 getUser()를 중복 호출하지 않음
+export const getAuthenticatedClient = cache(async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { supabase, user };
+});

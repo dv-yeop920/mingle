@@ -2,55 +2,57 @@ import { Suspense } from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
-import { HeroCard } from '@/features/home';
-import { MbtiSetupPromptSheet } from '@/features/profile';
+import { HeroCard, SeoIntro } from '@/features/home';
 
+import { HomeHeader } from './home-header';
 import { HomeResetEffect } from './home-reset-effect';
 import { RecentTestsSection } from './recent-tests-section';
 import type { HomeViewProps } from './types';
 
-const HomeView = ({
-  nickname,
-  isMbtiSetupRequired,
-  className,
-}: HomeViewProps) => {
-  const initials = nickname?.slice(0, 2);
+const HeaderSkeleton = () => (
+  <div className="flex items-center justify-between px-[24px] pt-[8px]">
+    <div className="flex gap-[5px]">
+      <div className="h-[28px] w-[72px] animate-pulse rounded-[8px] bg-muted/30" />
+      <div className="h-[28px] w-[80px] animate-pulse rounded-[8px] bg-muted/30" />
+    </div>
+    <div className="h-[44px] w-[44px] animate-pulse rounded-[16px] bg-muted/30" />
+  </div>
+);
 
+const RecentTestsSkeleton = () => (
+  <div className="flex flex-col">
+    <div className="px-[24px] pt-[26px] pb-[10px]">
+      <div className="h-[20px] w-[80px] animate-pulse rounded-[6px] bg-muted/30" />
+    </div>
+    <div className="flex flex-col gap-[11px] px-5">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-[80px] animate-pulse rounded-[16px] bg-muted/30"
+        />
+      ))}
+    </div>
+  </div>
+);
+
+const HomeView = ({ className }: HomeViewProps) => {
   return (
     <div className={cn('flex flex-col', className)}>
-      <div className="flex items-center justify-between px-[24px] pt-[8px]">
-        {nickname ? (
-          <>
-            <div className="flex flex-col gap-[2px]">
-              <span className="text-[13px] font-bold text-hint">
-                안녕하세요
-              </span>
-              <span className="text-[21px] font-black tracking-title text-foreground">
-                {nickname}님 👋
-              </span>
-            </div>
-            <div className="flex h-[44px] w-[44px] items-center justify-center rounded-[16px] bg-primary-tonal">
-              <span className="font-nunito text-[15px] font-black text-primary-deep">
-                {initials}
-              </span>
-            </div>
-          </>
-        ) : (
-          <span className="text-[21px] font-black tracking-title text-foreground">
-            안녕하세요 👋
-          </span>
-        )}
-      </div>
+      <Suspense fallback={<HeaderSkeleton />}>
+        <HomeHeader />
+      </Suspense>
+
       <div className="px-5 pt-5">
         <HeroCard />
       </div>
+
       <HomeResetEffect />
-      {nickname && (
-        <Suspense>
-          <RecentTestsSection />
-        </Suspense>
-      )}
-      <MbtiSetupPromptSheet isOpen={isMbtiSetupRequired} />
+
+      <Suspense fallback={<RecentTestsSkeleton />}>
+        <RecentTestsSection />
+      </Suspense>
+
+      <SeoIntro />
     </div>
   );
 };

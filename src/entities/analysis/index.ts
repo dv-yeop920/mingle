@@ -8,6 +8,7 @@ export {
   type ExpectedPair,
 } from './api/prompt';
 export { useAnalyses, useAnalysis } from './api/hooks';
+export { analysesQueryOptions, analysisQueryOptions } from './api/query-options';
 export type { Analysis, GroupAtmosphere, MemberRole, Metric, PairChemistry } from './model';
 
 export {
