@@ -9,7 +9,11 @@ import { HomeResetEffect } from './home-reset-effect';
 import { RecentTestsSection } from './recent-tests-section';
 import type { HomeViewProps } from './types';
 
-const HomeView = ({ nickname, isMbtiSetupRequired, className }: HomeViewProps) => {
+const HomeView = ({
+  nickname,
+  isMbtiSetupRequired,
+  className,
+}: HomeViewProps) => {
   const initials = nickname?.slice(0, 2);
 
   return (
@@ -18,7 +22,9 @@ const HomeView = ({ nickname, isMbtiSetupRequired, className }: HomeViewProps) =
         {nickname ? (
           <>
             <div className="flex flex-col gap-[2px]">
-              <span className="text-[13px] font-bold text-hint">안녕하세요</span>
+              <span className="text-[13px] font-bold text-hint">
+                안녕하세요
+              </span>
               <span className="text-[21px] font-black tracking-title text-foreground">
                 {nickname}님 👋
               </span>

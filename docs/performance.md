@@ -41,7 +41,7 @@ Nunito 폰트도 TTF(124KB × 3 = 372KB).
 | 지표 | 상태 | 근거 |
 |------|------|------|
 | FCP | 양호 | `display: swap` + route별 `loading.tsx` 존재 |
-| INP | 양호 | React Compiler 활성, 이벤트 핸들러 경량 |
+| INP | 개선 완료 | 456ms → 목표 200ms 이하 (섹션 5 참조) |
 | JS 번들 | 양호 | 최대 청크 236KB, 전체 ~1.3MB (gzip 전) |
 | 렌더링 | 양호 | PPR(Partial Prerender) 활성, Server Component 기본 |
 
@@ -431,3 +431,198 @@ progress = min(receivedChars / estimatedChars × 90, 90)
 | `fetch` + `ReadableStream` (not `EventSource`) | POST 요청 필요 (EventSource는 GET만 지원) |
 | `scaleX` transform 유지 | 섹션 3 B-1에서 적용한 compositor-only 렌더링 유지 |
 | 안전 계수 1.15 | 진행률이 90%를 초과하지 않도록 과소추정 방지 |
+
+---
+
+## 5. 첫 화면 INP 최적화 (2026-08-28)
+
+### 측정 환경
+
+- PageSpeed Insights 기준
+- INP (Interaction to Next Paint): desktop **456ms**, mobile **416ms**
+- Good 기준: 200ms 이하
+
+### 원인 분석
+
+첫 화면(`/`)의 주요 인터랙션(HeroCard 탭, BottomNav 탭, ResultSummaryCard 탭)에서 사용자 입력 → 다음 페인트까지 지연 발생. 5가지 원인이 복합 작용:
+
+| 원인 | 위치 | 영향 |
+|------|------|------|
+| `router.push()` 동기 실행 | `home-view.tsx`, `mbti-setup-prompt-sheet.tsx` | 프리페치 없이 클릭 시 메인 스레드 블로킹 |
+| HomeView 전체 `'use client'` | `views/home/home-view.tsx` | 정적 콘텐츠까지 hydration, 인터랙션 시 전체 트리 재평가 |
+| 전역 세션 매니저 | `app/providers.tsx` | 홈에서도 불필요한 sessionStorage I/O + Zustand 구독 |
+| BottomSheet double-rAF | `shared/ui/bottom-sheet/bottom-sheet.tsx` | 2프레임(~33ms) 지연 + React 재렌더 |
+| SplashOverlay 인터랙션 차단 | `widgets/splash-overlay/splash-overlay.tsx` | z-50 overlay가 하위 콘텐츠 클릭 차단 |
+
+---
+
+### Phase 1: `router.push()` → `<Link>` 전환 (예상 -150~200ms)
+
+가장 큰 INP 병목. `router.push()`는 프리페치 없이 클릭 시 동기적으로 네비게이션 JS를 실행하여 메인 스레드를 블로킹.
+
+**HeroCard**
+
+```diff
+# src/features/home/ui/hero-card/hero-card.tsx
+
+- 'use client';
++ import Link from 'next/link';
+
+- <section className="btn-press ...">
+-   <button onClick={onClick} aria-label="새로운 MBTI 그룹 케미 테스트 시작"
+-     className="absolute inset-0 z-10 cursor-pointer ..." />
+-   ...
+- </section>
++ <Link href="/group-type" aria-label="새로운 MBTI 그룹 케미 테스트 시작"
++   className="btn-press block ...">
++   ...
++ </Link>
+```
+
+- `'use client'` 제거 → Server Component로 전환 가능
+- `<Link>`가 자동 프리페치 → 클릭 시 즉시 전환
+- `onClick` prop 제거 (`types.ts`에서도 삭제)
+
+**MbtiSetupPromptSheet**
+
+```diff
+# src/features/profile/ui/mbti-setup-prompt-sheet/mbti-setup-prompt-sheet.tsx
+
+- <Button type="button" variant="primary" onClick={onConfirm}>
+-   MBTI 설정하기
+- </Button>
++ <Link href="/mypage/settings"
++   className="flex h-[58px] w-full items-center justify-center rounded-card bg-primary ...">
++   MBTI 설정하기
++ </Link>
+```
+
+- `onConfirm` prop 제거
+- `home-view.tsx`에서 `useRouter()` 완전 제거
+
+---
+
+### Phase 2: HomeView Server/Client 분리 (예상 -50~80ms)
+
+`HomeView` 전체가 `'use client'`로 정적 콘텐츠까지 hydration 대상. 인터랙션 시 전체 트리가 재평가됨.
+
+**분리 전:**
+```
+HomeView (Client) — useRouter, useProfile, useTestFlowStore, useEffect 전부 포함
+```
+
+**분리 후:**
+```
+HomeView (Server)
+  ├─ 인사 헤더 (Server, nickname prop으로 렌더)
+  ├─ HeroCard (Server, <Link> 컴포넌트)
+  ├─ HomeResetEffect (Client, renders null — Zustand reset 전용)
+  ├─ <Suspense> → RecentTestsSection (Client)
+  └─ MbtiSetupPromptSheet (Client, isOpen prop)
+```
+
+| 파일 | 변경 |
+|------|------|
+| `app/(main)/page.tsx` | `fetchProfile()` 서버사이드 호출, nickname/isMbtiSetupRequired props 전달 |
+| `views/home/home-view.tsx` | `'use client'` 제거, Server Component로 전환 |
+| `views/home/home-reset-effect.tsx` | 신규 — Zustand reset 전용 client leaf (`null` 렌더) |
+| `views/home/recent-tests-section.tsx` | 신규 — RecentTests 래퍼 client component |
+| `views/home/types.ts` | `nickname`, `isMbtiSetupRequired` props 추가 |
+
+서버사이드 `fetchProfile()`은 `entities/user/api/queries.ts`에 이미 존재. barrel(`entities/user/index.ts`)에는 추가하지 않음 — 서버 전용 모듈(`next/headers`)이 클라이언트 번들에 포함되는 문제 방지.
+
+---
+
+### Phase 3: 세션 매니저 라우트 스코핑 (예상 -20~40ms)
+
+`AnalysisResultSessionManager`와 `MemberDraftSessionManager`가 전역 `Providers`에 마운트되어 홈페이지에서도 불필요한 작업 수행.
+
+```diff
+# src/app/providers.tsx
+
+- import { AnalysisResultSessionManager, MemberDraftSessionManager } from '@/features/test-flow';
+
+  <QueryClientProvider client={queryClient}>
+    <ToastProvider>
+-     <Suspense fallback={null}>
+-       <AnalysisResultSessionManager />
+-     </Suspense>
+-     <MemberDraftSessionManager />
+      {children}
+    </ToastProvider>
+  </QueryClientProvider>
+```
+
+| 이동 대상 | 이동 위치 | 사유 |
+|----------|----------|------|
+| `AnalysisResultSessionManager` | `(test)/layout.tsx` + `(auth)/layout.tsx` | result/auth-save 플로우에서만 필요 |
+| `MemberDraftSessionManager` | `(test)/layout.tsx` | `/members` 라우트에서만 필요 |
+
+---
+
+### Phase 4: BottomSheet double-rAF 제거 (예상 -30~50ms)
+
+```diff
+# src/shared/ui/bottom-sheet/bottom-sheet.tsx
+
+- useEffect(() => {
+-   if (isOpen) {
+-     requestAnimationFrame(() => {
+-       requestAnimationFrame(() => {
+-         if (!cancelled) setShowContent(true);
+-       });
+-     });
+-   }
+- }, [isOpen]);
++ if (isOpen && !showContent) {
++   setShowContent(true);
++ }
+```
+
+- double-rAF(~33ms 지연 + React 재렌더) → 렌더 중 동기 상태 설정으로 교체
+- CSS `@starting-style`로 enter animation 처리 (JS 타이밍 의존 제거)
+- exit animation은 `onTransitionEnd` → `setShowContent(false)`로 유지 (포커스 복귀 보장)
+
+```css
+/* src/app/globals.css */
+.bottom-sheet-panel {
+  @starting-style {
+    transform: translateY(100%);
+  }
+}
+```
+
+- `will-change-[opacity]` / `will-change-transform`은 섹션 3 B-3에서 이미 제거 — `@starting-style`이 더 근본적 해결
+
+---
+
+### Phase 5: SplashOverlay 최적화 (예상 -10~20ms)
+
+```diff
+# src/widgets/splash-overlay/splash-overlay.tsx
+
+- 'fixed ... z-50 ... will-change-transform'
++ 'pointer-events-none fixed ... z-50 ...'
++ phase === 'fading' && 'opacity-0 will-change-[opacity]'
+```
+
+| 변경 | 효과 |
+|------|------|
+| `pointer-events-none` 추가 | 스플래시 아래 콘텐츠와 즉시 인터랙션 가능 |
+| `will-change-transform` 제거 | 실제 전환은 opacity만 사용하므로 불필요한 GPU 레이어 할당 제거 |
+| `will-change-[opacity]` fading 단계에서만 적용 | 전환 중에만 compositor 힌트 활성화 |
+
+---
+
+### 요약 테이블
+
+| Phase | 핵심 변경 | 예상 INP 개선 | 상태 |
+|-------|----------|-------------|------|
+| 1 | `router.push()` → `<Link>` (HeroCard, MbtiSheet) | -150~200ms | ✅ 완료 |
+| 2 | HomeView Server/Client 분리 | -50~80ms | ✅ 완료 |
+| 3 | 세션 매니저 라우트 스코핑 | -20~40ms | ✅ 완료 |
+| 4 | BottomSheet double-rAF → `@starting-style` | -30~50ms | ✅ 완료 |
+| 5 | SplashOverlay `pointer-events-none` + `will-change` 정리 | -10~20ms | ✅ 완료 |
+| **합계** | | **-260~390ms** | |
+
+변경 파일: 18개 (16 수정, 2 신규) — 커밋 `3dc2075`
