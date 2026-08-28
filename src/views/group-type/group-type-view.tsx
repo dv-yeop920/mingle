@@ -1,17 +1,33 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
-import { GroupTypeSelector } from '@/features/test-flow';
+import { isProfileComplete, useProfile } from '@/entities/user';
+
+import {
+  convertProfileToSelfMemberSeed,
+  GroupTypeSelector,
+} from '@/features/test-flow';
 
 import { StepHeader } from '@/widgets/step-header';
 
-import type { GroupTypeViewProps } from './types';
-
-const GroupTypeView = ({ selfMemberSeed, className }: GroupTypeViewProps) => {
+const GroupTypeView = ({ className }: { className?: string }) => {
   const router = useRouter();
+  const { data: profile } = useProfile();
+
+  useEffect(() => {
+    if (profile && !isProfileComplete(profile)) {
+      router.replace('/mypage/settings?required=profile&redirect=/group-type');
+    }
+  }, [profile, router]);
+
+  const selfMemberSeed =
+    profile && isProfileComplete(profile)
+      ? convertProfileToSelfMemberSeed(profile)
+      : null;
 
   return (
     <div className={cn('flex flex-col gap-6 px-5 pt-4', className)}>
