@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 
+import { createAdminClient } from '@/shared/lib/supabase/admin';
 import { createClient } from '@/shared/lib/supabase/server';
 
 import { loginSchema, signupSchema } from '@/features/auth/model/schemas';
@@ -80,4 +81,37 @@ const logout = async () => {
   redirect('/login');
 };
 
-export { login, logout, signup };
+const deleteAccount = async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: '인증이 필요합니다' };
+  }
+
+  const admin = createAdminClient();
+  const userId = user.id;
+
+  const { data: groups } = await admin
+    .from('groups')
+    .select('id')
+    .eq('user_id', userId);
+
+  const groupIds = groups?.map((g) => g.id) ?? [];
+
+  if (groupIds.length > 0) {
+    await admin.from('members').delete().in('group_id', groupIds);
+  }
+  await admin.from('analyses').delete().eq('user_id', userId);
+  await admin.from('groups').delete().eq('user_id', userId);
+  await admin.from('profiles').delete().eq('id', userId);
+
+  await admin.auth.admin.deleteUser(userId);
+  await supabase.auth.signOut();
+
+  redirect('/login');
+};
+
+export { deleteAccount, login, logout, signup };

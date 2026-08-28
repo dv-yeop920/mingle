@@ -1,3 +1,7 @@
+export {
+  DeleteAccountSheet,
+  type DeleteAccountSheetProps,
+} from './ui/delete-account-sheet';
 export { MyPageView, type MyPageViewProps } from './ui/my-page-view';
 export {
   MbtiSetupPromptSheet,
