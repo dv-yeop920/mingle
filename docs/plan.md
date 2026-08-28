@@ -674,3 +674,80 @@ DELETE  → auth.uid() = user_id
 - **Phase 9**: 비로그인 홈→테스트→결과 확인, "저장" → 회원가입 → 가입 후 자동 저장, `/history`·`/mypage` → `/login` 리다이렉트
 - **Phase 10**: 각 화면을 디자인 파일과 나란히 비교, 전체 플로우 브라우저 검증
 - **Phase 11**: mock 삭제 후 빌드 성공, 중복 상수 통합 확인
+
+### Phase 12: 회원 탈퇴 기능
+
+**Context:** 설정 페이지에 "회원탈퇴 (준비 중)" disabled 버튼만 존재. 실제 탈퇴 기능을 구현하여 사용자가 계정과 모든 관련 데이터를 삭제할 수 있게 한다.
+
+**구현 파일:**
+
+1. `src/shared/lib/supabase/admin.ts` — Service Role 클라이언트 생성 (`auth.admin.deleteUser` 용)
+2. `src/features/auth/api/actions.ts` — `deleteAccount` Server Action 추가
+   - 인증 확인 (anon client)
+   - Admin client로 DB 데이터 순차 삭제: analyses → members(via groups) → groups → profiles
+   - `auth.admin.deleteUser(userId)` 호출
+   - 세션 정리 + `/login` 리다이렉트
+3. `src/features/profile/ui/delete-account-sheet/` — 탈퇴 확인 바텀시트 (GuestSavePromptSheet 패턴)
+4. `src/features/profile/ui/settings-form/account-section.tsx` — disabled 제거, 바텀시트 연결
+5. Props 체인: `settings-view.tsx` → `settings-form.tsx` → `account-section.tsx`
+
+**검증:** 설정 → 회원탈퇴 클릭 → 확인 바텀시트 → 탈퇴 → `/login` 리다이렉트 + 재로그인 불가 확인
+
+### Phase 13: React Query staleTime: Infinity + 서버 프리패칭
+
+**Context:** 현재 모든 데이터 패칭이 클라이언트에서 React Query로만 이루어져 페이지 진입 시 로딩 스피너가 노출된다. staleTime 60초로 인해 탭 전환/윈도우 포커스 시 불필요한 refetch도 발생. 데이터 특성상 유저 뮤테이션 없이는 변하지 않으므로, staleTime: Infinity + 서버 프리패칭으로 전환한다.
+
+**Phase 13-1: 서버 쿼리 함수 정렬 (hydration 불일치 방지)**
+
+서버 prefetch 결과와 클라이언트 queryFn 결과의 shape이 다르면 hydration mismatch 발생. 먼저 정렬:
+
+- `src/entities/user/api/queries.ts` — `fetchUserStats` 리턴 프로퍼티명 정렬 (`testCount` → `totalTests`, `groupCount` → `totalGroups`, `avgChemistry` → `averageChemistry`)
+- `src/entities/analysis/api/queries.ts` — `fetchAnalyses`에 `groups!inner(...)` 조인 + optional `groupType` 파라미터 추가
+
+**Phase 13-2: 캐싱 인프라**
+
+- `src/shared/lib/react-query/get-query-client.ts` — 신규 생성. React `cache()`로 요청당 QueryClient 싱글턴 (`staleTime: Infinity`, `retry: 1`)
+- `src/app/providers.tsx` — `staleTime: 60 * 1000` → `staleTime: Infinity`
+
+**Phase 13-3: 페이지별 프리패칭 (`prefetchQuery` + `HydrationBoundary`)**
+
+| 페이지 | 프리패칭 대상 |
+|---|---|
+| `(main)/page.tsx` (홈) | `setQueryData(profile)` + `prefetchQuery(analyses.list)` |
+| `(main)/history/page.tsx` | `prefetchQuery(analyses.list)` |
+| `(main)/mypage/page.tsx` | `prefetchQuery(profile.detail)` + `prefetchQuery(profile.stats)` 병렬 |
+| `(test)/group-type/page.tsx` | `prefetchQuery(profile.detail)` |
+| `(test)/result/page.tsx` | `id` 있을 때만 `prefetchQuery(analyses.detail(id))` |
+| `(test)/result/atmosphere/page.tsx` | 동일 |
+| `(test)/result/pairs/page.tsx` | 동일 |
+| `(test)/result/pair-detail/page.tsx` | 동일 |
+| `(test)/result/role-detail/page.tsx` | 동일 |
+
+변경 없는 페이지: `/mypage/settings` (props 전달), `/members` (fetchProfile gate), `/login`, `/signup`, `/analyzing`
+
+**변경 파일 목록:**
+
+| 파일 | 변경 |
+|---|---|
+| `src/shared/lib/react-query/get-query-client.ts` | 신규 생성 |
+| `src/app/providers.tsx` | staleTime: Infinity |
+| `src/entities/user/api/queries.ts` | fetchUserStats 리턴값 정렬 |
+| `src/entities/analysis/api/queries.ts` | !inner 조인 + groupType 파라미터 |
+| `src/app/(main)/page.tsx` | 프리패칭 + HydrationBoundary |
+| `src/app/(main)/history/page.tsx` | 프리패칭 + HydrationBoundary |
+| `src/app/(main)/mypage/page.tsx` | 프리패칭 + HydrationBoundary |
+| `src/app/(test)/group-type/page.tsx` | 프리패칭 + HydrationBoundary |
+| `src/app/(test)/result/page.tsx` | 조건부 프리패칭 + HydrationBoundary |
+| `src/app/(test)/result/atmosphere/page.tsx` | 조건부 프리패칭 + HydrationBoundary |
+| `src/app/(test)/result/pairs/page.tsx` | 조건부 프리패칭 + HydrationBoundary |
+| `src/app/(test)/result/pair-detail/page.tsx` | 조건부 프리패칭 + HydrationBoundary |
+| `src/app/(test)/result/role-detail/page.tsx` | 조건부 프리패칭 + HydrationBoundary |
+
+총 1개 신규 + 12개 수정. 기존 6곳 invalidation 패턴 유지.
+
+**검증:**
+1. `npm run build` 성공
+2. 각 페이지 접근 시 로딩 스피너 없이 즉시 데이터 렌더링 확인
+3. 설정에서 닉네임 변경 → 마이페이지 반영 확인 (invalidation 동작)
+4. Network 탭에서 탭 전환/윈도우 포커스 시 불필요한 refetch 없는지 확인
+5. 비로그인 결과 페이지 (guest mode) 정상 동작 확인

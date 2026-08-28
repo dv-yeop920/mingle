@@ -11,7 +11,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000,
+            staleTime: Infinity,
             retry: 1,
           },
         },

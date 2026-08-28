@@ -48,7 +48,11 @@ const fetchUserStats = async () => {
         )
       : 0;
 
-  return { testCount, groupCount, avgChemistry };
+  return {
+    totalTests: testCount,
+    totalGroups: groupCount,
+    averageChemistry: avgChemistry,
+  };
 };
 
 export { fetchProfile, fetchUserStats };
