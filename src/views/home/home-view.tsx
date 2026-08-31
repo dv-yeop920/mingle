@@ -4,9 +4,9 @@ import { cn } from '@/shared/lib/utils';
 
 import { HeroCard, SeoIntro } from '@/features/home';
 
-import { HomeHeader } from './home-header';
+import { HomeHeaderContainer } from './home-header-container';
 import { HomeResetEffect } from './home-reset-effect';
-import { RecentTestsSection } from './recent-tests-section';
+import { RecentTestsContainer } from './recent-tests-container';
 import type { HomeViewProps } from './types';
 
 const HeaderSkeleton = () => (
@@ -39,7 +39,7 @@ const HomeView = ({ className }: HomeViewProps) => {
   return (
     <div className={cn('flex flex-col', className)}>
       <Suspense fallback={<HeaderSkeleton />}>
-        <HomeHeader />
+        <HomeHeaderContainer />
       </Suspense>
 
       <div className="px-5 pt-5">
@@ -49,7 +49,7 @@ const HomeView = ({ className }: HomeViewProps) => {
       <HomeResetEffect />
 
       <Suspense fallback={<RecentTestsSkeleton />}>
-        <RecentTestsSection />
+        <RecentTestsContainer />
       </Suspense>
 
       <SeoIntro />

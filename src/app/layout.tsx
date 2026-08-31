@@ -28,12 +28,12 @@ const gothicA1 = localFont({
 
 const nunito = localFont({
   src: [
-    { path: './fonts/nunito-700.woff2', weight: '700', style: 'normal' },
     { path: './fonts/nunito-800.woff2', weight: '800', style: 'normal' },
     { path: './fonts/nunito-900.woff2', weight: '900', style: 'normal' },
   ],
   variable: '--font-nunito',
   display: 'swap',
+  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -90,6 +90,9 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
     <html lang="ko" className={`${gothicA1.variable} ${nunito.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+      </head>
       <body>
         <Providers>{children}</Providers>
         <SpeedInsights />

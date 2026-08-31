@@ -11,7 +11,7 @@ const SignupView = ({ className, redirectTo }: SignupViewProps) => {
         <h1 className="text-[27px] font-black tracking-title text-foreground">
           3초면 시작할 수 있어요
         </h1>
-        <p className="text-[14px] font-semibold text-subtitle">
+        <p className="text-[14px] font-bold text-subtitle">
           닉네임만 정하면 준비 완료입니다.
         </p>
       </div>

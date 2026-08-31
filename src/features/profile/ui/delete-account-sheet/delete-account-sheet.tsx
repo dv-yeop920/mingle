@@ -14,7 +14,7 @@ const DeleteAccountSheet = ({
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="정말 탈퇴하시겠어요?">
       <div className="flex flex-col gap-5">
-        <p className="text-body font-semibold text-muted text-pretty">
+        <p className="text-body font-bold text-muted text-pretty">
           탈퇴하면 모든 테스트 기록과 분석 결과가 삭제되며 복구할 수 없어요.
         </p>
 

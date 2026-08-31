@@ -74,7 +74,7 @@ const AnalysisAnimation = ({
           <p className="whitespace-pre-line text-[22px] font-black tracking-title text-foreground">
             {TITLE_MESSAGES[messageIndex]}
           </p>
-          <p className="text-[14px] font-semibold text-[#7A8E80]">
+          <p className="text-[14px] font-bold text-[#7A8E80]">
             잠시만 기다려주세요 · 분석 중
           </p>
         </div>

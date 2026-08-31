@@ -100,7 +100,7 @@ const MyPageView = ({
             </div>
             <div className="flex flex-1 flex-col gap-[3px] text-left">
               <span className="text-[15.5px] font-black text-foreground">{item.label}</span>
-              <span className="text-[12px] font-semibold text-hint">{item.description}</span>
+              <span className="text-[12px] font-bold text-hint">{item.description}</span>
             </div>
             <span className="text-[17px] font-extrabold text-disabled-icon">›</span>
           </button>

@@ -17,7 +17,7 @@ const GuestSavePromptSheet = ({
       title="기록을 저장하려면"
     >
       <div className="flex flex-col gap-5">
-        <p className="text-body font-semibold text-muted text-pretty">
+        <p className="text-body font-bold text-muted text-pretty">
           회원가입을 하면 기록을 저장할 수 있어요
         </p>
 

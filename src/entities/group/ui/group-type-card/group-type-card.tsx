@@ -38,7 +38,7 @@ const GroupTypeCard = ({
 
       <div className="flex flex-1 flex-col items-start gap-1">
         <span className="text-[17px] font-black text-foreground">{title}</span>
-        <span className="whitespace-pre-line text-left text-[12.5px] font-semibold leading-[1.45] text-subtitle">
+        <span className="whitespace-pre-line text-left text-[12.5px] font-bold leading-[1.45] text-subtitle">
           {description}
         </span>
       </div>

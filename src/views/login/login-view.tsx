@@ -16,7 +16,7 @@ const LoginView = ({ className, redirectTo }: LoginViewProps) => {
         <h1 className="text-[30px] font-black tracking-title text-foreground">
           다시 만나서 반가워요
         </h1>
-        <p className="text-[15px] font-semibold text-subtitle">
+        <p className="text-[15px] font-bold text-subtitle">
           로그인하고 우리 조합을 확인해보세요.
         </p>
       </div>
@@ -25,7 +25,7 @@ const LoginView = ({ className, redirectTo }: LoginViewProps) => {
         <LoginForm redirectTo={redirectTo} />
       </div>
 
-      <p className="mt-auto pb-[46px] text-center text-[12px] font-semibold text-disabled-foreground">
+      <p className="mt-auto pb-[46px] text-center text-[12px] font-bold text-disabled-foreground">
         MIXTI는 MBTI 조합을 재미로 분석하는 서비스입니다.
       </p>
     </div>

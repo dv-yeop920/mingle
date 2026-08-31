@@ -99,7 +99,7 @@ const PairsView = ({ analysisId, className }: PairsViewProps) => {
         <h1 className="text-title2 font-black tracking-title text-foreground">
           둘 사이의 케미
         </h1>
-        <p className="text-body font-semibold text-muted">
+        <p className="text-body font-bold text-muted">
           우리 그룹의 모든 조합 {pairs.length}쌍을 확인해보세요.
         </p>
       </header>

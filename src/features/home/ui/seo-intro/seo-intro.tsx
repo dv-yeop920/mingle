@@ -26,7 +26,7 @@ const SeoIntro = () => {
         >
           MBTI 그룹 궁합, 무엇을 알려주나요?
         </h2>
-        <p className="mt-2 text-body font-semibold text-muted text-pretty">
+        <p className="mt-2 text-body font-bold text-muted text-pretty">
           두 사람만 보는 궁합표가 아니라 친구·가족·회사·팀 전체 조합에서 나타나는
           관계의 흐름을 함께 분석해요.
         </p>
@@ -40,14 +40,14 @@ const SeoIntro = () => {
               <h3 className="text-body font-black text-primary-deep">
                 {item.title}
               </h3>
-              <p className="mt-0.5 text-caption font-semibold text-muted-alt">
+              <p className="mt-0.5 text-caption font-bold text-muted-alt">
                 {item.description}
               </p>
             </li>
           ))}
         </ul>
 
-        <p className="mt-4 border-t border-border-inner pt-3 text-caption font-semibold text-hint text-pretty">
+        <p className="mt-4 border-t border-border-inner pt-3 text-caption font-bold text-hint text-pretty">
           MBTI는 관계를 단정하는 진단이 아니에요. 서로를 이해하고 대화를 시작하는
           참고로 활용해 주세요.
         </p>

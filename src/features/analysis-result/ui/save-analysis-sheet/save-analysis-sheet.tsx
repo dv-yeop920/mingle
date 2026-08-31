@@ -76,7 +76,7 @@ const SaveAnalysisSheet = ({
         className="flex flex-col gap-5"
       >
         <div className="flex flex-col gap-1">
-          <p className="text-body font-semibold text-muted">
+          <p className="text-body font-bold text-muted">
             나중에 쉽게 찾을 수 있도록 이 테스트에 이름을 붙여 주세요.
           </p>
           <p className="text-caption font-bold text-hint">최대 30자</p>

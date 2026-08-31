@@ -99,7 +99,7 @@ const PairDetail = ({ pair, className }: PairDetailProps) => {
           <h3 className="text-[15.5px] font-black text-foreground">
             둘이 있을 때
           </h3>
-          <p className="text-body font-semibold leading-[1.68] text-muted">
+          <p className="text-body font-bold leading-[1.68] text-muted">
             {description}
           </p>
         </div>

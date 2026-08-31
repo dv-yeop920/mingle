@@ -53,7 +53,7 @@ const RoleDetail = ({ role, className }: RoleDetailProps) => {
         <h3 className="text-[15.5px] font-black text-foreground">
           우리 안에서 보여주는 모습
         </h3>
-        <p className="whitespace-pre-line break-words text-pretty text-body font-semibold leading-[1.68] text-muted">
+        <p className="whitespace-pre-line break-words text-pretty text-body font-bold leading-[1.68] text-muted">
           {role.description}
         </p>
       </div>
