@@ -161,9 +161,9 @@ shared → entities → features → widgets → views → app
 
 ## 9. 참조 문서
 
-- 구현 계획: `docs/plan.md`
-- Supabase 작업 가이드: `docs/supabase-guide.md`
-- 디자인 요구사항: `docs/requirements.md`
+- 구현 계획: `docs/design/plan.md`
+- Supabase 작업 가이드: `docs/guides/supabase.md`
+- 디자인 요구사항: `docs/design/requirements.md`
 
 ## 9-1. 스킬 자동 참조
 

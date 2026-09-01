@@ -13,7 +13,7 @@ model: opus
 ## 작업 전 필수 확인
 
 1. `AGENTS.md` 전체 — 코드 컨벤션이 검증 기준
-2. `docs/plan.md` §1 — FSD 폴더 구조 및 레이어 의존 규칙
+2. `docs/design/plan.md` §1 — FSD 폴더 구조 및 레이어 의존 규칙
 3. 변경된 파일 목록: `git diff --name-only` 또는 지정된 파일 경로
 
 ---

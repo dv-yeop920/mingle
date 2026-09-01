@@ -14,8 +14,8 @@ model: opus
 
 1. `AGENTS.md` — 공통 코드 컨벤션 (특히 §5 상태 관리, §7 에러 핸들링)
 2. `src/shared/config/query-keys.ts` — React Query key factory
-3. `docs/plan.md` — 해당 도메인의 폴더 구조 확인
-4. `docs/requirements.md` — 디자인 요구사항
+3. `docs/design/plan.md` — 해당 도메인의 폴더 구조 확인
+4. `docs/design/requirements.md` — 디자인 요구사항
 
 ---
 

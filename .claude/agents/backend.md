@@ -15,7 +15,7 @@ Zod 스키마는 frontend 에이전트가 담당하므로 작성하지 않고, �
 ## 작업 전 필수 확인
 
 1. `AGENTS.md` — 공통 코드 컨벤션 (특히 §7 에러 핸들링, §8 보안)
-2. `docs/supabase-guide.md` — DB 스키마, RLS 정책, 코드 패턴
+2. `docs/guides/supabase.md` — DB 스키마, RLS 정책, 코드 패턴
 3. `src/shared/types/database.ts` — Supabase DB 타입
 4. `src/shared/lib/supabase/server.ts` — 서버 클라이언트 사용법
 

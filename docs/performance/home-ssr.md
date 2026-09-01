@@ -278,7 +278,7 @@ React Query 공식 Next.js App Router 패턴 그대로 적용:
 
 ### 프로덕션 검증 (2026-09-01)
 
-- [x] ~~Lighthouse 프로덕션 빌드 기준 측정~~ → Score 94, LCP 1.7s (simulate), FCP 1.4s — `마이그레이션.md` 참조
+- [x] ~~Lighthouse 프로덕션 빌드 기준 측정~~ → Score 94, LCP 1.7s (simulate), FCP 1.4s — `optimization-log.md` §7 참조
 - [x] ~~PageSpeed Insights 실측~~ → API 쿼터 제한으로 Lighthouse CLI로 대체 측정 완료
 
 ---
