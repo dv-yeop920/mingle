@@ -3,10 +3,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
   useQuery: vi.fn(),
+  queryOptions: vi.fn((opts: Record<string, unknown>) => opts),
 }));
 
 vi.mock('@tanstack/react-query', () => ({
   useQuery: mocks.useQuery,
+  queryOptions: mocks.queryOptions,
 }));
 
 vi.mock('@/shared/lib/supabase/client', () => ({

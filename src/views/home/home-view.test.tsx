@@ -7,8 +7,8 @@ vi.mock('./home-reset-effect', () => ({
   HomeResetEffect: () => null,
 }));
 
-vi.mock('./home-header', () => ({
-  HomeHeader: () => (
+vi.mock('./home-header-container', () => ({
+  HomeHeaderContainer: () => (
     <div>
       <h1>안녕하세요</h1>
       <h1>민지님 👋</h1>
@@ -16,8 +16,8 @@ vi.mock('./home-header', () => ({
   ),
 }));
 
-vi.mock('./recent-tests-section', () => ({
-  RecentTestsSection: () => <div>최근 테스트</div>,
+vi.mock('./recent-tests-container', () => ({
+  RecentTestsContainer: () => <div>최근 테스트</div>,
 }));
 
 describe('HomeView', () => {

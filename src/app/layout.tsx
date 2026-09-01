@@ -1,7 +1,6 @@
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
-import localFont from 'next/font/local';
 
 import {
   BRAND_THEME_COLOR,
@@ -14,27 +13,6 @@ import {
 
 import './globals.css';
 import { Providers } from './providers';
-
-const gothicA1 = localFont({
-  src: [
-    { path: './fonts/gothic-a1-400.woff2', weight: '400', style: 'normal' },
-    { path: './fonts/gothic-a1-700.woff2', weight: '700', style: 'normal' },
-    { path: './fonts/gothic-a1-800.woff2', weight: '800', style: 'normal' },
-    { path: './fonts/gothic-a1-900.woff2', weight: '900', style: 'normal' },
-  ],
-  variable: '--font-gothic-a1',
-  display: 'optional',
-});
-
-const nunito = localFont({
-  src: [
-    { path: './fonts/nunito-800.woff2', weight: '800', style: 'normal' },
-    { path: './fonts/nunito-900.woff2', weight: '900', style: 'normal' },
-  ],
-  variable: '--font-nunito',
-  display: 'swap',
-  preload: false,
-});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -89,8 +67,22 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
-    <html lang="ko" className={`${gothicA1.variable} ${nunito.variable}`}>
+    <html lang="ko">
       <head>
+        <link
+          rel="preload"
+          href="/fonts/v1/gothic-a1-700.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/v1/gothic-a1-900.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
       </head>
       <body>
