@@ -23,7 +23,7 @@ const gothicA1 = localFont({
     { path: './fonts/gothic-a1-900.woff2', weight: '900', style: 'normal' },
   ],
   variable: '--font-gothic-a1',
-  display: 'swap',
+  display: 'optional',
 });
 
 const nunito = localFont({
