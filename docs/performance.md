@@ -49,7 +49,7 @@ Nunito 폰트도 TTF(124KB × 3 = 372KB).
 
 - [x] ~~폰트 weight 축소 가능성 (500 weight 실사용 여부)~~ → Phase 2에서 제거 확정
 - [x] ~~result 뷰 계열 `next/dynamic` lazy loading 검토~~ → Phase 3에서 적용 확정
-- [ ] Lighthouse 실측 후 LCP 수치 확인
+- [x] ~~Lighthouse 실측 후 LCP 수치 확인~~ → 프로덕션 Lighthouse CLI simulate 모드: Score 94, LCP 1.7s (섹션 7 참조)
 - [ ] 이미지 자산 추가 시 `next/image` + WebP/AVIF 적용
 
 ---
@@ -635,3 +635,58 @@ HomeView (Server)
 
 queryOptions 분리 + HydrationBoundary + useSuspenseQuery 적용.
 LCP 756ms → 706ms (−6.6%), hydration mismatch 해소.
+
+---
+
+## 7. 프로덕션 Lighthouse 실측 (2026-09-01)
+
+### 측정 환경
+
+- Lighthouse CLI 13.4.1, `--form-factor=mobile`, `--throttling-method=simulate`
+- 대상: `https://mixti.io/` (Vercel production, 배포 `dpl_2XPoQU3X`)
+- 커밋: `c5f5ce7` (`font-display: optional` 적용)
+
+### 배포 전 (커밋 7223d4a, `font-display: swap`)
+
+| 지표 | 수치 | 상태 |
+|------|------|------|
+| Score | **48** | — |
+| FCP | 8.0s | Poor |
+| LCP | 14.4s | Poor |
+| TBT | 400ms | Needs Improvement |
+| CLS | 0 | Good |
+| Speed Index | 8.0s | Poor |
+
+**원인**: CSS `@font-face`(이전 배포 `dpl_2sr29WJs`)와 HTML RSC 힌트(현재 배포 `dpl_gp2uef9E`)가 서로 다른 `dpl` 쿼리 파라미터로 같은 폰트를 참조 → Gothic A1 4개 weight × 2 = ~2MB 중복 다운로드. `font-display: swap`으로 폰트 로드 완료 시 swap → LCP 재기록.
+
+### 배포 후 (커밋 c5f5ce7, `font-display: optional`)
+
+| 지표 | 수치 | 상태 |
+|------|------|------|
+| Score | **94** | — |
+| FCP | 1.4s | Good |
+| LCP | 1.7s | Good |
+| TBT | 210ms | Needs Improvement |
+| CLS | 0.084 | Good |
+| Speed Index | 2.9s | Good |
+
+### 변화 요약
+
+| 지표 | Before | After | 변화 |
+|------|--------|-------|------|
+| Score | 48 | **94** | **+46** |
+| FCP | 8.0s | **1.4s** | **-82%** |
+| LCP | 14.4s | **1.7s** | **-88%** |
+| TBT | 400ms | **210ms** | **-48%** |
+| Speed Index | 8.0s | **2.9s** | **-64%** |
+| 폰트 요청 | 9개 (1,960KB) | **5개 (987KB)** | **-50%** |
+
+### 개선 원인
+
+1. **폰트 중복 로드 해소**: CSS 재생성으로 모든 폰트가 단일 배포 해시(`dpl_2XPoQU3X`)에서 로드 → ~1MB 네트워크 절감
+2. **`font-display: optional`**: 폰트 로드 완료 시 swap이 발생하지 않아 LCP 재기록 방지 → LCP가 FCP 직후로 이동
+
+### 참고
+
+- CLS 0 → 0.084: Lighthouse simulate 모드에서 `optional`의 block period 내 폰트 로드 시 fallback → 커스텀 폰트 전환으로 발생 추정. RUM 데이터(Vercel Speed Insights P75)에서는 CLS 0 유지.
+- TBT 210ms: Google Analytics(167.9KB, 72.5KB unused)가 주 원인. 서드파티 스크립트이므로 추가 최적화 여지 제한적.

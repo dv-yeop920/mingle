@@ -276,10 +276,10 @@ React Query 공식 Next.js App Router 패턴 그대로 적용:
 - **HTML 페이로드**: 127KB (프리패치 데이터 포함)
 - **이전 기준치 대비**: 756ms → 706ms (−50ms, −6.6%)
 
-### 미완료
+### 프로덕션 검증 (2026-09-01)
 
-- [ ] Lighthouse 프로덕션 빌드 기준 측정 (배포 서버에서 실행 예정)
-- [ ] PageSpeed Insights 실측
+- [x] ~~Lighthouse 프로덕션 빌드 기준 측정~~ → Score 94, LCP 1.7s (simulate), FCP 1.4s — `마이그레이션.md` 참조
+- [x] ~~PageSpeed Insights 실측~~ → API 쿼터 제한으로 Lighthouse CLI로 대체 측정 완료
 
 ---
 
