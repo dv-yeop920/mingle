@@ -855,3 +855,79 @@ Lighthouse CLI `simulate` 모드로 재측정 시 모바일 LCP 8.7s, CLS 0.084 
 > Before: PageSpeed Insights 측정 (2026-08-28, 최적화 전)
 > After: Vercel Speed Insights RUM P75 (2026-08-31)
 > 최적화 내용: `router.push()` → `<Link>` 전환, HomeView Server/Client 분리, 세션 매니저 라우트 스코핑, BottomSheet `@starting-style` 적용, SplashOverlay `pointer-events-none` — §5 참조
+
+---
+
+## 14. 배포 독립 폰트 로딩 — dpl 중복 다운로드 근본 해소 (2026-09-02)
+
+### 문제
+
+§7에서 `font-display: optional`로 LCP 재기록을 방지했지만, 근본 원인은 해결되지 않았다. Vercel의 webpack 캐시가 이전 배포의 CSS를 재사용하면:
+
+- HTML preload: 현재 배포의 `?dpl=ABC` URL
+- CSS `@font-face`: 이전 배포의 `?dpl=XYZ` URL
+
+브라우저는 내용이 같은 파일도 URL이 다르면 별도 리소스로 취급하므로 Gothic A1 4 weight × 2 = **~994KB 중복 다운로드** 발생. `optional`이 swap을 막아 LCP 수치는 양호했지만, 네트워크 대역폭 낭비와 폰트 미표시 확률 증가는 남아있었다.
+
+### 원인
+
+`next/font/local`이 생성하는 폰트 URL에 Vercel `deploymentId`(`?dpl=...`)가 포함됨. CSS는 `/_next/static/media/<hash>-s.p.<dpl>.woff2` 형태로, 배포 간 캐시 불일치 시 동일 바이트의 폰트가 서로 다른 URL로 중복 요청됨.
+
+### 해결
+
+`next/font/local`을 완전히 제거하고, 배포와 무관한 정적 경로(`/fonts/v1/...`)로 전환.
+
+**변경 파일:**
+
+| 파일 | 변경 |
+|------|------|
+| `public/fonts/v1/*.woff2` | 6개 WOFF2를 `src/app/fonts/`에서 이동 (SHA-256 동일 확인) |
+| `src/shared/styles/fonts.css` | 신규 — 6개 `@font-face` + 2개 fallback face + CSS 변수 선언 |
+| `src/app/globals.css` | `fonts.css` import 추가 (Tailwind 다음, tokens/theme 앞) |
+| `src/app/layout.tsx` | `next/font/local` 제거, Gothic A1 700/900 수동 preload 추가 |
+| `next.config.ts` | `/fonts/v1/:path*`에 `Cache-Control: public, max-age=31536000, immutable` |
+| `src/proxy.ts` | 미들웨어 matcher에서 `fonts/` 경로와 `.woff2` 확장자 제외 |
+| `src/app/fonts/*.woff2` | 6개 삭제 (TTF는 OG 이미지용 유지) |
+
+### 핵심 설계 결정
+
+| 결정 | 이유 |
+|------|------|
+| `/fonts/v1/` 버전 폴더 | immutable 캐시 사용. 폰트 바이트 변경 시 v1 덮어쓰기 대신 `/fonts/v2/` 발행 |
+| Gothic A1 700/900만 preload | 홈 LCP 후보인 SeoIntro 본문(700)과 Hero/title(900)에 필요한 weight만 |
+| 수동 fallback 메트릭 보존 | `next/font/local`이 생성했던 Arial 보정값을 그대로 유지 (CLS 방지) |
+| `font-display` 정책 유지 | Gothic A1 `optional`, Nunito `swap` — 기존 family별 동작 보존 |
+
+### 검증 결과
+
+**로컬 브라우저 검증 (production build):**
+
+| 항목 | 결과 |
+|------|------|
+| 폰트 중복 다운로드 | **0건** — 각 파일 정확히 1회 요청 |
+| Preload 동작 | Gothic A1 700/900이 가장 먼저 로드 (요청 #2, #3) |
+| 온디맨드 로드 | 나머지 weight(400, 800, Nunito 900)는 사용 시 로드 |
+| 폰트 URL | 모든 요청이 `/fonts/v1/...` — `?dpl=` 없음 |
+| 응답 헤더 | `200 OK`, `Content-Type: font/woff2`, `Cache-Control: immutable` |
+| OG 이미지 TTF | `gothic-a1-800.ttf` 3개 참조 유지 |
+| 렌더링 | Gothic A1, Nunito 모두 정상 적용 |
+
+**빌드 산출물 검증:**
+
+- CSS `@font-face src`가 모두 `/fonts/v1/...` 참조 — `_next/static/media` 없음
+- HTML preload가 CSS URL과 byte-for-byte 동일 — 브라우저가 요청 재사용
+- `next/font`가 생성하는 자동 font preload 없음
+
+### 부수 수정: 기존 테스트 실패 6건 해결
+
+| 파일 | 원인 | 수정 |
+|------|------|------|
+| `home-view.test.tsx` (2건) | `./home-header` mock → 실제 import는 `./home-header-container` | mock 경로를 `*-container`로 변경 |
+| `hooks.test.ts` (4건) | `@tanstack/react-query` mock에 `queryOptions` export 누락 | `queryOptions: (opts) => opts` 추가 |
+
+### 남은 작업
+
+- [ ] Vercel 프로덕션 배포 후 연속 배포(A→B) 검증 — §설계 문서 "연속 프로덕션 배포 검증" 절차 수행
+- [ ] Speed Insights RUM P75 (LCP, FCP, CLS) 기준선 비교 — 충분한 표본 수집 후
+
+**커밋:** `f525b96` — `feat: 배포 독립 폰트 로딩으로 전환 — dpl 중복 다운로드 해소`
