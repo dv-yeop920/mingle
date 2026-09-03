@@ -40,7 +40,7 @@ const renderSettingsForm = () => {
   return render(
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <SettingsForm nickname="기존닉" mbti="ENFP" gender="female" />
+        <SettingsForm userId="user-id" nickname="기존닉" mbti="ENFP" gender="female" />
       </ToastProvider>
     </QueryClientProvider>,
   );

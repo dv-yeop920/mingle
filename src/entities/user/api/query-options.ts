@@ -11,48 +11,52 @@ type UserStats = {
   averageChemistry: number;
 };
 
-const profileQueryOptions = () =>
+const profileQueryOptions = (userId: string | null) =>
   queryOptions({
-    queryKey: queryKeys.profile.detail(),
-    queryFn: async () => {
+    queryKey: queryKeys.profile.detail(userId),
+    queryFn: async ({ signal }) => {
       const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) return null;
+      if (!user || user.id !== userId) return null;
 
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
+        .abortSignal(signal)
         .single();
 
       if (error) throw error;
       return data;
     },
+    enabled: Boolean(userId),
   });
 
-const userStatsQueryOptions = () =>
+const userStatsQueryOptions = (userId: string | null) =>
   queryOptions({
-    queryKey: queryKeys.profile.stats(),
-    queryFn: async () => {
+    queryKey: queryKeys.profile.stats(userId),
+    queryFn: async ({ signal }) => {
       const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) return null;
+      if (!user || user.id !== userId) return null;
 
       const [analysesResult, groupsResult] = await Promise.all([
         supabase
           .from('analyses')
           .select('chemistry_score')
-          .eq('user_id', user.id),
+          .eq('user_id', user.id)
+          .abortSignal(signal),
         supabase
           .from('groups')
           .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id),
+          .eq('user_id', user.id)
+          .abortSignal(signal),
       ]);
 
       const analyses = analysesResult.data ?? [];
@@ -69,6 +73,7 @@ const userStatsQueryOptions = () =>
       const stats: UserStats = { totalTests, totalGroups, averageChemistry };
       return stats;
     },
+    enabled: Boolean(userId),
   });
 
 export { profileQueryOptions, userStatsQueryOptions, type UserStats };

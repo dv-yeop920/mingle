@@ -5,10 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
-import {
-  trackResultRetest,
-  trackResultShare,
-} from '@/shared/lib/analytics';
+import { trackResultRetest, trackResultShare } from '@/shared/lib/analytics';
 import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import type { Gender } from '@/shared/types/gender';
@@ -43,17 +40,17 @@ import type { ResultViewProps } from './types';
 
 const SaveAnalysisSheet = dynamic(
   () =>
-    import(
-      '@/features/analysis-result/ui/save-analysis-sheet/save-analysis-sheet'
-    ).then((m) => ({ default: m.SaveAnalysisSheet })),
+    import('@/features/analysis-result/ui/save-analysis-sheet/save-analysis-sheet').then(
+      (m) => ({ default: m.SaveAnalysisSheet }),
+    ),
   { ssr: false },
 );
 
 const GuestSavePromptSheet = dynamic(
   () =>
-    import(
-      '@/features/analysis-result/ui/guest-save-prompt-sheet/guest-save-prompt-sheet'
-    ).then((m) => ({ default: m.GuestSavePromptSheet })),
+    import('@/features/analysis-result/ui/guest-save-prompt-sheet/guest-save-prompt-sheet').then(
+      (m) => ({ default: m.GuestSavePromptSheet }),
+    ),
   { ssr: false },
 );
 
@@ -66,6 +63,7 @@ const METRIC_LABELS: Record<string, string> = {
 };
 
 const ResultView = ({
+  userId,
   analysisId: propAnalysisId,
   className,
 }: ResultViewProps) => {
@@ -78,7 +76,7 @@ const ResultView = ({
   const resetStore = useTestFlowStore((s) => s.reset);
   const id = propAnalysisId ?? storeAnalysisId ?? '';
 
-  const { data: dbAnalysis, isError, isLoading } = useAnalysis(id);
+  const { data: dbAnalysis, isError, isLoading } = useAnalysis(userId, id);
   const isGuest = !id && !!storeResult;
 
   const {
@@ -96,7 +94,7 @@ const ResultView = ({
     handleGuestSheetClose,
     handleGuestSheetConfirm,
     onResumePendingSave,
-  } = useResultSave({ isGuest });
+  } = useResultSave({ isGuest, userId });
 
   const [guardedShare] = useGuardedAction(async () => {
     if (id) {
@@ -119,7 +117,12 @@ const ResultView = ({
     if (dbAnalysis) {
       const group = dbAnalysis.groups as {
         type: string;
-        members: { nickname: string; mbti: string; gender?: string; is_self: boolean }[];
+        members: {
+          nickname: string;
+          mbti: string;
+          gender?: string;
+          is_self: boolean;
+        }[];
       } | null;
 
       return {
@@ -175,14 +178,15 @@ const ResultView = ({
   const handleAddMembers = isAddMembersAvailable
     ? () => {
         const store = useTestFlowStore.getState();
-        const isStoreStale = !store.groupType || store.members.length < 2 || !!id;
+        const isStoreStale =
+          !store.groupType || store.members.length < 2 || !!id;
 
         if (isStoreStale && normalized) {
           const testMembers: TestMember[] = normalized.members.map((m) => ({
             id: crypto.randomUUID(),
             nickname: m.nickname,
             mbti: m.mbti as MbtiType,
-            gender: ('gender' in m && m.gender ? (m.gender as Gender) : 'other'),
+            gender: 'gender' in m && m.gender ? (m.gender as Gender) : 'other',
             isSelf: m.is_self,
           }));
 
@@ -267,12 +271,9 @@ const ResultView = ({
     router.push(`/result/pairs${idQuery}`);
   };
 
-
   return (
     <div className={cn('flex flex-col', className)}>
-      {isGuest && (
-        <PendingAnalysisSaveResumer onResume={onResumePendingSave} />
-      )}
+      {isGuest && <PendingAnalysisSaveResumer onResume={onResumePendingSave} />}
 
       <ResultHero
         groupName={groupName}

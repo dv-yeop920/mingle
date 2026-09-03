@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
-import { queryKeys } from '@/shared/config/query-keys';
 import { trackSignup } from '@/shared/lib/analytics';
+import { clearAuthQueryCache } from '@/shared/lib/react-query/clear-auth-query-cache';
 import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
@@ -41,7 +41,7 @@ const SignupForm = ({ className, redirectTo }: SignupFormProps) => {
         return;
       }
       trackSignup();
-      await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
+      await clearAuthQueryCache(queryClient);
       router.push(result.redirectTo);
     },
   );

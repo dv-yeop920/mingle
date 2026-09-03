@@ -10,9 +10,9 @@ import { HistoryFilter, HistoryList } from '@/features/history';
 
 import type { HistoryViewProps } from './types';
 
-const HistoryView = ({ className }: HistoryViewProps) => {
+const HistoryView = ({ userId, className }: HistoryViewProps) => {
   const [activeFilter, setActiveFilter] = useState('all');
-  const { data: analyses } = useAnalyses();
+  const { data: analyses } = useAnalyses(userId);
   const totalCount = analyses?.length ?? 0;
 
   return (
@@ -32,7 +32,7 @@ const HistoryView = ({ className }: HistoryViewProps) => {
         />
       </div>
       <div className="px-5 pt-[18px]">
-        <HistoryList filterType={activeFilter} />
+        <HistoryList userId={userId} filterType={activeFilter} />
       </div>
     </div>
   );

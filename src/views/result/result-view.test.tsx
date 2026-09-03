@@ -63,7 +63,7 @@ const renderResultView = (analysisId?: string) => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <ResultView analysisId={analysisId} />
+      <ResultView userId="user-id" analysisId={analysisId} />
     </QueryClientProvider>,
   );
 };

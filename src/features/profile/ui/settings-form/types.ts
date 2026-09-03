@@ -2,6 +2,7 @@ import type { Gender } from '@/shared/types/gender';
 import type { MbtiType } from '@/shared/types/mbti';
 
 type SettingsFormProps = {
+  userId: string;
   nickname: string;
   mbti: string | null;
   gender: Gender | null;

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 
 import { queryKeys } from '@/shared/config/query-keys';
 import { getQueryClient } from '@/shared/lib/react-query/get-query-client';
+import { getAuthenticatedClient } from '@/shared/lib/supabase/server';
 
 import { fetchAnalysisById } from '@/entities/analysis/api/queries';
 
@@ -14,11 +15,12 @@ const RoleDetailPage = async ({
   searchParams: Promise<{ id?: string; role?: string }>;
 }) => {
   const { id, role } = await searchParams;
+  const { user } = await getAuthenticatedClient();
   const queryClient = getQueryClient();
 
   if (id) {
     await queryClient.prefetchQuery({
-      queryKey: queryKeys.analyses.detail(id),
+      queryKey: queryKeys.analyses.detail(user?.id ?? null, id),
       queryFn: () => fetchAnalysisById(id),
     });
   }
@@ -27,7 +29,11 @@ const RoleDetailPage = async ({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <RoleDetailView analysisId={id} roleIndex={roleIndex} />
+      <RoleDetailView
+        userId={user?.id ?? null}
+        analysisId={id}
+        roleIndex={roleIndex}
+      />
     </HydrationBoundary>
   );
 };

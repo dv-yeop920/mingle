@@ -14,9 +14,11 @@ import {
 
 import { StepHeader } from '@/widgets/step-header';
 
-const GroupTypeView = ({ className }: { className?: string }) => {
+import type { GroupTypeViewProps } from './types';
+
+const GroupTypeView = ({ userId, className }: GroupTypeViewProps) => {
   const router = useRouter();
-  const { data: profile } = useProfile();
+  const { data: profile } = useProfile(userId);
 
   useEffect(() => {
     if (profile && !isProfileComplete(profile)) {
@@ -31,7 +33,11 @@ const GroupTypeView = ({ className }: { className?: string }) => {
 
   return (
     <div className={cn('flex flex-col gap-6 px-5 pt-4', className)}>
-      <StepHeader currentStep={1} totalSteps={3} onBack={() => router.push('/')} />
+      <StepHeader
+        currentStep={1}
+        totalSteps={3}
+        onBack={() => router.push('/')}
+      />
 
       <div className="flex flex-col gap-[7px]">
         <h2 className="whitespace-pre-line text-[27px] font-black leading-[1.34] tracking-title text-foreground">

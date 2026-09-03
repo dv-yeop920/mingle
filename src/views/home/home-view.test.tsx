@@ -1,44 +1,27 @@
 import { render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { HomeView } from './home-view';
-
-const containerState = vi.hoisted(() => ({
-  isSuspended: false,
-  pendingPromise: new Promise<never>(() => undefined),
-}));
 
 vi.mock('./home-reset-effect', () => ({
   HomeResetEffect: () => null,
 }));
 
-vi.mock('./home-header-container', () => ({
-  HomeHeaderContainer: () => {
-    if (containerState.isSuspended) {
-      throw containerState.pendingPromise;
-    }
-
-    return <div>안녕하세요</div>;
-  },
+vi.mock('./home-header', () => ({
+  HomeHeader: ({ userId }: { userId: string | null }) => (
+    <div>{userId ? `회원 헤더: ${userId}` : '게스트 헤더'}</div>
+  ),
 }));
 
-vi.mock('./recent-tests-container', () => ({
-  RecentTestsContainer: () => {
-    if (containerState.isSuspended) {
-      throw containerState.pendingPromise;
-    }
-
-    return <div>최근 테스트</div>;
-  },
+vi.mock('./recent-tests-section', () => ({
+  RecentTestsSection: ({ userId }: { userId: string }) => (
+    <div>최근 테스트: {userId}</div>
+  ),
 }));
 
 describe('HomeView', () => {
-  beforeEach(() => {
-    containerState.isSuspended = false;
-  });
-
   it('새로운 케미 테스트 CTA를 렌더링한다', () => {
-    render(<HomeView />);
+    render(<HomeView userId={null} />);
 
     expect(
       screen.getByRole('link', {
@@ -47,26 +30,25 @@ describe('HomeView', () => {
     ).toHaveAttribute('href', '/group-type');
   });
 
-  it('최근 테스트 섹션이 렌더링된다', () => {
-    render(<HomeView />);
+  it('회원이면 최근 테스트 섹션을 렌더링한다', () => {
+    render(<HomeView userId="user-id" />);
 
-    expect(screen.getByText('최근 테스트')).toBeInTheDocument();
+    expect(screen.getByText('최근 테스트: user-id')).toBeInTheDocument();
   });
 
-  it('개인화 영역이 로딩 중이어도 SEO 안내를 렌더링한다', () => {
-    containerState.isSuspended = true;
+  it('게스트면 최근 테스트 섹션을 렌더링하지 않는다', () => {
+    render(<HomeView userId={null} />);
 
-    render(<HomeView />);
+    expect(screen.queryByText(/최근 테스트/)).not.toBeInTheDocument();
+  });
+
+  it('SEO 안내를 항상 렌더링한다', () => {
+    render(<HomeView userId={null} />);
 
     expect(
       screen.getByRole('heading', {
         level: 2,
         name: 'MBTI 그룹 궁합, 무엇을 알려주나요?',
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', {
-        name: '새로운 MBTI 그룹 케미 테스트 시작',
       }),
     ).toBeInTheDocument();
   });

@@ -1,8 +1,10 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 import { queryKeys } from '@/shared/config/query-keys';
 import { getQueryClient } from '@/shared/lib/react-query/get-query-client';
+import { getAuthenticatedClient } from '@/shared/lib/supabase/server';
 
 import { fetchProfile } from '@/entities/user/api/queries';
 
@@ -11,16 +13,19 @@ import { GroupTypeView } from '@/views/group-type';
 export const metadata: Metadata = { title: '그룹 유형 선택' };
 
 const GroupTypePage = async () => {
+  const { user } = await getAuthenticatedClient();
+  if (!user) redirect('/login');
+
   const queryClient = getQueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: queryKeys.profile.detail(),
+    queryKey: queryKeys.profile.detail(user.id),
     queryFn: fetchProfile,
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <GroupTypeView />
+      <GroupTypeView userId={user.id} />
     </HydrationBoundary>
   );
 };

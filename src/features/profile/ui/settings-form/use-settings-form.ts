@@ -28,6 +28,7 @@ import type { SettingsFormProps } from './types';
 
 type UseSettingsFormProps = Pick<
   SettingsFormProps,
+  | 'userId'
   | 'gender'
   | 'isProfileRequired'
   | 'mbti'
@@ -38,6 +39,7 @@ type UseSettingsFormProps = Pick<
 >;
 
 const useSettingsForm = ({
+  userId,
   gender,
   isProfileRequired = false,
   mbti,
@@ -89,7 +91,7 @@ const useSettingsForm = ({
           nicknameForm.clearErrors('root');
           nicknameForm.reset({ nickname: result.data.nickname });
           await queryClient.invalidateQueries({
-            queryKey: queryKeys.profile.all,
+            queryKey: queryKeys.profile.all(userId),
           });
           showToast({ message: '닉네임이 변경되었습니다' });
         }
@@ -147,7 +149,7 @@ const useSettingsForm = ({
         setIsMbtiPickerOpen(false);
         onMbtiChange?.(result.data.mbti as MbtiType);
         await queryClient.invalidateQueries({
-          queryKey: queryKeys.profile.all,
+          queryKey: queryKeys.profile.all(userId),
         });
         showToast({ message: 'MBTI가 변경되었습니다' });
         handleProfileCompletionRedirect(
@@ -176,7 +178,7 @@ const useSettingsForm = ({
         setCurrentGender(result.data.gender);
         onGenderChange?.(result.data.gender);
         await queryClient.invalidateQueries({
-          queryKey: queryKeys.profile.all,
+          queryKey: queryKeys.profile.all(userId),
         });
         showToast({ message: '성별이 변경되었습니다' });
         handleProfileCompletionRedirect(currentMbti, result.data.gender);

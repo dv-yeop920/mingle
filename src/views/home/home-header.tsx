@@ -1,24 +1,34 @@
 'use client';
 
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 
 import { profileQueryOptions } from '@/entities/user';
 
+import { HeaderError, HeaderSkeleton } from './home-header-fallbacks';
+
 const MbtiSetupPromptSheet = dynamic(
   () =>
-    import(
-      '@/features/profile/ui/mbti-setup-prompt-sheet/mbti-setup-prompt-sheet'
-    ).then((m) => ({ default: m.MbtiSetupPromptSheet })),
+    import('@/features/profile/ui/mbti-setup-prompt-sheet/mbti-setup-prompt-sheet').then(
+      (m) => ({ default: m.MbtiSetupPromptSheet }),
+    ),
   { ssr: false },
 );
 
-const HomeHeader = () => {
-  const { data: profile } = useSuspenseQuery(profileQueryOptions());
+type HomeHeaderProps = {
+  userId: string | null;
+};
 
-  const nickname = profile?.nickname ?? null;
+type HeaderContentProps = {
+  nickname: string | null;
+  isMbtiSetupRequired?: boolean;
+};
+
+const HeaderContent = ({
+  nickname,
+  isMbtiSetupRequired = false,
+}: HeaderContentProps) => {
   const initials = nickname?.slice(0, 2);
-  const isMbtiSetupRequired = Boolean(profile && !profile.mbti);
 
   return (
     <>
@@ -39,6 +49,40 @@ const HomeHeader = () => {
       {isMbtiSetupRequired && <MbtiSetupPromptSheet isOpen />}
     </>
   );
+};
+
+const MemberHomeHeader = ({ userId }: { userId: string }) => {
+  const {
+    data: profile,
+    isError,
+    isFetching,
+    isPending,
+    refetch,
+  } = useQuery(profileQueryOptions(userId));
+  const isInitialFetching = profile === undefined && isPending && isFetching;
+
+  return (
+    <div aria-busy={isInitialFetching}>
+      {isInitialFetching ? (
+        <HeaderSkeleton />
+      ) : isError && profile === undefined ? (
+        <HeaderError onRetry={() => void refetch()} />
+      ) : (
+        <HeaderContent
+          nickname={profile?.nickname ?? null}
+          isMbtiSetupRequired={Boolean(profile && !profile.mbti)}
+        />
+      )}
+    </div>
+  );
+};
+
+const HomeHeader = ({ userId }: HomeHeaderProps) => {
+  if (!userId) {
+    return <HeaderContent nickname={null} />;
+  }
+
+  return <MemberHomeHeader userId={userId} />;
 };
 
 export { HomeHeader };

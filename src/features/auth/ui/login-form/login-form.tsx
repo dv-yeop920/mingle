@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { queryKeys } from '@/shared/config/query-keys';
 import { trackLogin } from '@/shared/lib/analytics';
+import { clearAuthQueryCache } from '@/shared/lib/react-query/clear-auth-query-cache';
 import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
@@ -44,7 +44,7 @@ const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
         return;
       }
       trackLogin();
-      await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
+      await clearAuthQueryCache(queryClient);
       router.push(result.redirectTo);
     },
   );

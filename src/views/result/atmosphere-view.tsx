@@ -14,7 +14,11 @@ import { useTestFlowStore } from '@/features/test-flow';
 import { normalizeAtmosphereSections } from './lib/normalize-analysis';
 import type { AtmosphereViewProps } from './types';
 
-const AtmosphereView = ({ analysisId, className }: AtmosphereViewProps) => {
+const AtmosphereView = ({
+  userId,
+  analysisId,
+  className,
+}: AtmosphereViewProps) => {
   const router = useRouter();
 
   useEffect(() => {
@@ -24,9 +28,11 @@ const AtmosphereView = ({ analysisId, className }: AtmosphereViewProps) => {
   const isAnalysisResultHydrated = useTestFlowStore(
     (state) => state.isAnalysisResultHydrated,
   );
-  const { data: dbAnalysis, isError, isLoading } = useAnalysis(
-    analysisId ?? '',
-  );
+  const {
+    data: dbAnalysis,
+    isError,
+    isLoading,
+  } = useAnalysis(userId, analysisId ?? '');
 
   if ((!analysisId && !isAnalysisResultHydrated) || (analysisId && isLoading)) {
     return (

@@ -33,6 +33,7 @@ const SettingsPage = async ({ searchParams }: SettingsPageProps) => {
 
   return (
     <SettingsView
+      userId={profile.id}
       nickname={profile.nickname}
       mbti={profile.mbti}
       gender={isGender(profile.gender) ? profile.gender : null}

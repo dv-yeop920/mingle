@@ -31,25 +31,25 @@ describe('useAnalyses', () => {
 
   it('그룹 필터가 관계뿐 아니라 분석 행 자체에도 적용된다', async () => {
     const data = [{ id: 'friend-analysis' }];
-    const filteredQuery = Promise.resolve({ data, error: null });
-    const eq = vi.fn().mockReturnValue(filteredQuery);
-    const orderedQuery = Object.assign(
-      Promise.resolve({ data: [], error: null }),
-      { eq },
-    );
-    const order = vi.fn().mockReturnValue(orderedQuery);
-    const select = vi.fn().mockReturnValue({ order });
+    const abortSignal = vi.fn().mockResolvedValue({ data, error: null });
+    const filterEq = vi.fn().mockReturnValue({ abortSignal });
+    const order = vi.fn().mockReturnValue({ eq: filterEq });
+    const userEq = vi.fn().mockReturnValue({ order });
+    const select = vi.fn().mockReturnValue({ eq: userEq });
     const from = vi.fn().mockReturnValue({ select });
+    const getUser = vi
+      .fn()
+      .mockResolvedValue({ data: { user: { id: 'user-id' } } });
 
-    mocks.createClient.mockReturnValue({ from });
+    mocks.createClient.mockReturnValue({ from, auth: { getUser } });
 
-    const queryOptions = useAnalyses('friends') as unknown as QueryOptions;
-    const result = await queryOptions.queryFn();
+    const queryOptions = useAnalyses('user-id', 'friends') as unknown as QueryOptions;
+    const result = await queryOptions.queryFn({ signal: new AbortController().signal } as never);
 
     expect(select).toHaveBeenCalledWith(
       expect.stringContaining('groups!inner'),
     );
-    expect(eq).toHaveBeenCalledWith('groups.type', 'friends');
+    expect(filterEq).toHaveBeenCalledWith('groups.type', 'friends');
     expect(result).toEqual(data);
   });
 });
@@ -65,14 +65,15 @@ describe('useAnalysis', () => {
     const maybeSingle = vi
       .fn()
       .mockResolvedValue({ data: analysis, error: null });
-    const eq = vi.fn().mockReturnValue({ maybeSingle });
+    const abortSignal = vi.fn().mockReturnValue({ maybeSingle });
+    const eq = vi.fn().mockReturnValue({ abortSignal });
     const select = vi.fn().mockReturnValue({ eq });
     const from = vi.fn().mockReturnValue({ select });
 
     mocks.createClient.mockReturnValue({ from });
 
-    const queryOptions = useAnalysis('analysis-id') as unknown as QueryOptions;
-    const result = await queryOptions.queryFn();
+    const queryOptions = useAnalysis('user-id', 'analysis-id') as unknown as QueryOptions;
+    const result = await queryOptions.queryFn({ signal: new AbortController().signal } as never);
 
     expect(from).toHaveBeenCalledWith('analyses');
     expect(select).toHaveBeenCalledWith(
@@ -87,21 +88,22 @@ describe('useAnalysis', () => {
   });
 
   it('분석 ID가 없으면 조회하지 않는다', () => {
-    const queryOptions = useAnalysis('') as unknown as QueryOptions;
+    const queryOptions = useAnalysis('user-id', '') as unknown as QueryOptions;
 
     expect(queryOptions.enabled).toBe(false);
   });
 
   it('RLS로 숨겨졌거나 존재하지 않는 분석은 null을 반환한다', async () => {
     const maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-    const eq = vi.fn().mockReturnValue({ maybeSingle });
+    const abortSignal = vi.fn().mockReturnValue({ maybeSingle });
+    const eq = vi.fn().mockReturnValue({ abortSignal });
     const select = vi.fn().mockReturnValue({ eq });
     const from = vi.fn().mockReturnValue({ select });
 
     mocks.createClient.mockReturnValue({ from });
 
-    const queryOptions = useAnalysis('unknown-id') as unknown as QueryOptions;
+    const queryOptions = useAnalysis('user-id', 'unknown-id') as unknown as QueryOptions;
 
-    await expect(queryOptions.queryFn()).resolves.toBeNull();
+    await expect(queryOptions.queryFn({ signal: new AbortController().signal } as never)).resolves.toBeNull();
   });
 });

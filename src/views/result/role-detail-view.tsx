@@ -15,6 +15,7 @@ import { normalizeMemberRoles } from './lib/normalize-analysis';
 import type { RoleDetailViewProps } from './types';
 
 const RoleDetailView = ({
+  userId,
   analysisId,
   roleIndex,
   className,
@@ -28,9 +29,11 @@ const RoleDetailView = ({
   const isAnalysisResultHydrated = useTestFlowStore(
     (state) => state.isAnalysisResultHydrated,
   );
-  const { data: dbAnalysis, isError, isLoading } = useAnalysis(
-    analysisId ?? '',
-  );
+  const {
+    data: dbAnalysis,
+    isError,
+    isLoading,
+  } = useAnalysis(userId, analysisId ?? '');
 
   if ((!analysisId && !isAnalysisResultHydrated) || (analysisId && isLoading)) {
     return (

@@ -22,6 +22,7 @@ const MbtiPicker = dynamic(
 );
 
 const SettingsForm = ({
+  userId,
   gender,
   isProfileRequired,
   nickname,
@@ -50,6 +51,7 @@ const SettingsForm = ({
     onPasswordSubmit,
     passwordForm,
   } = useSettingsForm({
+    userId,
     gender,
     isProfileRequired,
     mbti,

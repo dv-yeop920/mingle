@@ -13,7 +13,7 @@ import { useTestFlowStore } from '@/features/test-flow';
 import { normalizePairChemistry } from './lib/normalize-analysis';
 import type { PairsViewProps } from './types';
 
-const PairsView = ({ analysisId, className }: PairsViewProps) => {
+const PairsView = ({ userId, analysisId, className }: PairsViewProps) => {
   const router = useRouter();
 
   useEffect(() => {
@@ -23,9 +23,11 @@ const PairsView = ({ analysisId, className }: PairsViewProps) => {
   const isAnalysisResultHydrated = useTestFlowStore(
     (state) => state.isAnalysisResultHydrated,
   );
-  const { data: dbAnalysis, isError, isLoading } = useAnalysis(
-    analysisId ?? '',
-  );
+  const {
+    data: dbAnalysis,
+    isError,
+    isLoading,
+  } = useAnalysis(userId, analysisId ?? '');
 
   if ((!analysisId && !isAnalysisResultHydrated) || (analysisId && isLoading)) {
     return (

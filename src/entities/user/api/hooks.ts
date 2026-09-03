@@ -4,12 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 
 import { profileQueryOptions, userStatsQueryOptions } from './query-options';
 
-const useProfile = () => {
-  return useQuery(profileQueryOptions());
+const useProfile = (userId: string | null) => {
+  return useQuery(profileQueryOptions(userId));
 };
 
-const useUserStats = () => {
-  return useQuery(userStatsQueryOptions());
+const useUserStats = (userId: string | null) => {
+  return useQuery(userStatsQueryOptions(userId));
 };
 
 export { useProfile, useUserStats };

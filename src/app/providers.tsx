@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { AuthQueryCacheSync } from '@/shared/lib/react-query/auth-query-cache-sync';
 import { ToastProvider } from '@/shared/ui';
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
@@ -20,9 +21,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        {children}
-      </ToastProvider>
+      <AuthQueryCacheSync />
+      <ToastProvider>{children}</ToastProvider>
     </QueryClientProvider>
   );
 };

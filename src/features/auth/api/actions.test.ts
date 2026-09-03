@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { login, logout, signup } from './actions';
@@ -161,16 +160,16 @@ describe('logout', () => {
     vi.clearAllMocks();
   });
 
-  it('인증된 사용자가 로그아웃하면 로그인으로 리다이렉트한다', async () => {
+  it('인증된 사용자가 로그아웃하면 성공을 반환한다', async () => {
     mockGetUser.mockResolvedValue({
       data: { user: { id: 'test-id' } },
     });
     mockSignOut.mockResolvedValue({ error: null });
 
-    await expect(logout()).rejects.toThrow('NEXT_REDIRECT:/login');
+    const result = await logout();
 
     expect(mockSignOut).toHaveBeenCalled();
-    expect(redirect).toHaveBeenCalledWith('/login');
+    expect(result).toEqual({ data: { success: true } });
   });
 
   it('미인증 사용자면 에러를 반환한다', async () => {

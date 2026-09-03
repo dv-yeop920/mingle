@@ -24,6 +24,7 @@ import {
 
 type UseResultSaveParams = {
   isGuest: boolean;
+  userId: string | null;
 };
 
 type SaveAnalysisOptions = {
@@ -31,7 +32,7 @@ type SaveAnalysisOptions = {
   pendingSave?: PendingAnalysisSave;
 };
 
-const useResultSave = ({ isGuest }: UseResultSaveParams) => {
+const useResultSave = ({ isGuest, userId }: UseResultSaveParams) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const storeResult = useTestFlowStore((s) => s.analysisResult);
@@ -176,7 +177,9 @@ const useResultSave = ({ isGuest }: UseResultSaveParams) => {
       deletePendingAnalysisSave(window.sessionStorage);
       setIsSaveSheetOpen(false);
       setAnalysisResult(null);
-      void queryClient.invalidateQueries({ queryKey: queryKeys.analyses.all });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.analyses.all(userId),
+      });
       router.replace('/');
     } catch {
       setSaveError(
@@ -197,9 +200,7 @@ const useResultSave = ({ isGuest }: UseResultSaveParams) => {
   };
 
   const handleGuestSheetConfirm = () => {
-    const isIntentStored = putPendingAnalysisSaveIntent(
-      window.sessionStorage,
-    );
+    const isIntentStored = putPendingAnalysisSaveIntent(window.sessionStorage);
     if (!isIntentStored) {
       setSaveError(
         '저장 흐름을 이어가지 못했어요. 브라우저 설정을 확인한 뒤 다시 시도해 주세요.',
@@ -212,7 +213,9 @@ const useResultSave = ({ isGuest }: UseResultSaveParams) => {
     router.push('/signup?redirect=/result');
   };
 
-  const onResumePendingSave = async (storedPendingSave: PendingAnalysisSave) => {
+  const onResumePendingSave = async (
+    storedPendingSave: PendingAnalysisSave,
+  ) => {
     setPendingSave(storedPendingSave);
     setHasEverOpenedSaveSheet(true);
     setIsSaveSheetOpen(true);

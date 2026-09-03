@@ -1,15 +1,18 @@
 'use client';
 
-import { GROUP_TYPE_ICONS, GROUP_TYPE_LABELS } from '@/shared/config/group-types';
+import {
+  GROUP_TYPE_ICONS,
+  GROUP_TYPE_LABELS,
+} from '@/shared/config/group-types';
 import { cn } from '@/shared/lib/utils';
 
 import { ResultSummaryCard, useAnalyses } from '@/entities/analysis';
 
 import type { HistoryListProps } from './types';
 
-const HistoryList = ({ filterType, className }: HistoryListProps) => {
+const HistoryList = ({ userId, filterType, className }: HistoryListProps) => {
   const groupType = filterType === 'all' ? undefined : filterType;
-  const { data: analyses, isLoading } = useAnalyses(groupType);
+  const { data: analyses, isLoading } = useAnalyses(userId, groupType);
 
   if (isLoading) {
     return (

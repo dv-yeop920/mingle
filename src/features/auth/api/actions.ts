@@ -1,7 +1,5 @@
 'use server';
 
-import { redirect } from 'next/navigation';
-
 import { createAdminClient } from '@/shared/lib/supabase/admin';
 import { createClient } from '@/shared/lib/supabase/server';
 
@@ -77,8 +75,13 @@ const logout = async () => {
     return { error: '인증이 필요합니다' };
   }
 
-  await supabase.auth.signOut();
-  redirect('/login');
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    return { error: '로그아웃에 실패했습니다' };
+  }
+
+  return { data: { success: true } };
 };
 
 const deleteAccount = async () => {
@@ -94,24 +97,68 @@ const deleteAccount = async () => {
   const admin = createAdminClient();
   const userId = user.id;
 
-  const { data: groups } = await admin
+  const { data: groups, error: groupsError } = await admin
     .from('groups')
     .select('id')
     .eq('user_id', userId);
 
+  if (groupsError) {
+    return { error: '회원탈퇴에 실패했습니다' };
+  }
+
   const groupIds = groups?.map((g) => g.id) ?? [];
 
   if (groupIds.length > 0) {
-    await admin.from('members').delete().in('group_id', groupIds);
+    const { error } = await admin
+      .from('members')
+      .delete()
+      .in('group_id', groupIds);
+
+    if (error) {
+      return { error: '회원탈퇴에 실패했습니다' };
+    }
   }
-  await admin.from('analyses').delete().eq('user_id', userId);
-  await admin.from('groups').delete().eq('user_id', userId);
-  await admin.from('profiles').delete().eq('id', userId);
 
-  await admin.auth.admin.deleteUser(userId);
-  await supabase.auth.signOut();
+  const { error: analysesError } = await admin
+    .from('analyses')
+    .delete()
+    .eq('user_id', userId);
 
-  redirect('/login');
+  if (analysesError) {
+    return { error: '회원탈퇴에 실패했습니다' };
+  }
+
+  const { error: groupsDeleteError } = await admin
+    .from('groups')
+    .delete()
+    .eq('user_id', userId);
+
+  if (groupsDeleteError) {
+    return { error: '회원탈퇴에 실패했습니다' };
+  }
+
+  const { error: profileError } = await admin
+    .from('profiles')
+    .delete()
+    .eq('id', userId);
+
+  if (profileError) {
+    return { error: '회원탈퇴에 실패했습니다' };
+  }
+
+  const { error: deleteUserError } = await admin.auth.admin.deleteUser(userId);
+
+  if (deleteUserError) {
+    return { error: '회원탈퇴에 실패했습니다' };
+  }
+
+  const { error: signOutError } = await supabase.auth.signOut();
+
+  if (signOutError) {
+    return { error: '회원탈퇴에 실패했습니다' };
+  }
+
+  return { data: { success: true } };
 };
 
 export { deleteAccount, login, logout, signup };
