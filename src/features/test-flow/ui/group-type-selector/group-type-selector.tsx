@@ -18,8 +18,10 @@ const GroupTypeSelector = ({
   onNext,
   className,
 }: GroupTypeSelectorProps) => {
-  const { groupType, setGroupType, setMemberCount, initializeMembers } =
-    useTestFlowStore();
+  const groupType = useTestFlowStore((s) => s.groupType);
+  const setGroupType = useTestFlowStore((s) => s.setGroupType);
+  const setMemberCount = useTestFlowStore((s) => s.setMemberCount);
+  const initializeMembers = useTestFlowStore((s) => s.initializeMembers);
   const [isCountModalOpen, setIsCountModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState(0);
 

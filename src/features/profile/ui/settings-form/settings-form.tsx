@@ -1,8 +1,9 @@
 'use client';
 
-import { cn } from '@/shared/lib/utils';
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
 
-import { MbtiPicker } from '@/entities/mbti';
+import { cn } from '@/shared/lib/utils';
 
 import { AccountSection } from './account-section';
 import { GenderSection } from './gender-section';
@@ -11,6 +12,14 @@ import { NicknameSection } from './nickname-section';
 import { PasswordSection } from './password-section';
 import type { SettingsFormProps } from './types';
 import { useSettingsForm } from './use-settings-form';
+
+const MbtiPicker = dynamic(
+  () =>
+    import('@/entities/mbti/ui/mbti-picker/mbti-picker').then((m) => ({
+      default: m.MbtiPicker,
+    })),
+  { ssr: false },
+);
 
 const SettingsForm = ({
   gender,
@@ -23,6 +32,7 @@ const SettingsForm = ({
   redirectTo,
   className,
 }: SettingsFormProps) => {
+  const [hasEverOpenedMbtiPicker, setHasEverOpenedMbtiPicker] = useState(false);
   const {
     currentGender,
     currentMbti,
@@ -61,7 +71,13 @@ const SettingsForm = ({
         isPending={isNicknamePending}
         onSubmit={onNicknameSubmit}
       />
-      <MbtiSection mbti={currentMbti} onMbtiChange={handleMbtiChangeClick} />
+      <MbtiSection
+        mbti={currentMbti}
+        onMbtiChange={() => {
+          setHasEverOpenedMbtiPicker(true);
+          handleMbtiChangeClick();
+        }}
+      />
       <GenderSection
         gender={currentGender}
         isPending={isGenderPending}
@@ -73,12 +89,14 @@ const SettingsForm = ({
         onSubmit={onPasswordSubmit}
       />
       <AccountSection onLogout={onLogout} />
-      <MbtiPicker
-        isOpen={isMbtiPickerOpen}
-        onClose={handleMbtiPickerClose}
-        onSelect={handleMbtiSelect}
-        disabled={isMbtiPending}
-      />
+      {hasEverOpenedMbtiPicker && (
+        <MbtiPicker
+          isOpen={isMbtiPickerOpen}
+          onClose={handleMbtiPickerClose}
+          onSelect={handleMbtiSelect}
+          disabled={isMbtiPending}
+        />
+      )}
     </div>
   );
 };

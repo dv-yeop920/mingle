@@ -1,10 +1,17 @@
 'use client';
 
 import { useSuspenseQuery } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 
 import { profileQueryOptions } from '@/entities/user';
 
-import { MbtiSetupPromptSheet } from '@/features/profile';
+const MbtiSetupPromptSheet = dynamic(
+  () =>
+    import(
+      '@/features/profile/ui/mbti-setup-prompt-sheet/mbti-setup-prompt-sheet'
+    ).then((m) => ({ default: m.MbtiSetupPromptSheet })),
+  { ssr: false },
+);
 
 const HomeHeader = () => {
   const { data: profile } = useSuspenseQuery(profileQueryOptions());
@@ -29,7 +36,7 @@ const HomeHeader = () => {
           </span>
         </div>
       </div>
-      <MbtiSetupPromptSheet isOpen={isMbtiSetupRequired} />
+      {isMbtiSetupRequired && <MbtiSetupPromptSheet isOpen />}
     </>
   );
 };

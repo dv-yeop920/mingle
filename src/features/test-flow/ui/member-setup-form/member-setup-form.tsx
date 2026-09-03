@@ -1,12 +1,20 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
 import type { MbtiType } from '@/shared/types/mbti';
 import { Button } from '@/shared/ui/button';
 
-import { MbtiPicker } from '@/entities/mbti';
 import type { Gender } from '@/entities/member';
+
+const MbtiPicker = dynamic(
+  () =>
+    import('@/entities/mbti/ui/mbti-picker/mbti-picker').then((m) => ({
+      default: m.MbtiPicker,
+    })),
+  { ssr: false },
+);
 
 import { convertMembersToNicknameErrors } from '@/features/test-flow/model/schemas';
 import { useTestFlowStore } from '@/features/test-flow/model/store';
@@ -16,8 +24,12 @@ import { EditableMemberCard } from '../editable-member-card';
 import type { MemberSetupFormProps } from './types';
 
 const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
-  const { members, addMember, updateMember, removeMember } = useTestFlowStore();
+  const members = useTestFlowStore((s) => s.members);
+  const addMember = useTestFlowStore((s) => s.addMember);
+  const updateMember = useTestFlowStore((s) => s.updateMember);
+  const removeMember = useTestFlowStore((s) => s.removeMember);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
+  const [hasEverOpenedMbtiPicker, setHasEverOpenedMbtiPicker] = useState(false);
   const nicknameErrors = convertMembersToNicknameErrors(members);
 
   const handleAdd = () => {
@@ -36,6 +48,7 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
   };
 
   const handleMbtiSelect = (id: string) => {
+    setHasEverOpenedMbtiPicker(true);
     setActiveMemberId(id);
   };
 
@@ -87,11 +100,13 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
         </Button>
       </div>
 
-      <MbtiPicker
-        isOpen={activeMemberId !== null}
-        onClose={() => setActiveMemberId(null)}
-        onSelect={handleMbtiPick}
-      />
+      {hasEverOpenedMbtiPicker && (
+        <MbtiPicker
+          isOpen={activeMemberId !== null}
+          onClose={() => setActiveMemberId(null)}
+          onSelect={handleMbtiPick}
+        />
+      )}
     </div>
   );
 };

@@ -42,6 +42,10 @@ next-env.d.ts
 
 # screenshots (debug/design)
 *.png
+!docs/**/*.png
 
 # playwright mcp
 .playwright-mcp/
+
+# agent activity logs
+logs/

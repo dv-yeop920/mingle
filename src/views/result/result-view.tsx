@@ -1,59 +1,60 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
-import { queryKeys } from '@/shared/config/query-keys';
 import {
   trackResultRetest,
-  trackResultSave,
   trackResultShare,
 } from '@/shared/lib/analytics';
-import { createClient } from '@/shared/lib/supabase/client';
 import { cn } from '@/shared/lib/utils';
 import type { Gender } from '@/shared/types/gender';
 import type { MbtiType } from '@/shared/types/mbti';
 
-import type { Metric } from '@/entities/analysis';
 import {
   InsightCard,
-  MetricBar,
   PairCard,
   RoleCard,
-  ScoreGauge,
   useAnalysis,
 } from '@/entities/analysis';
 import type { GroupType } from '@/entities/group';
 
-import {
-  GuestSavePromptSheet,
-  ResultActions,
-  SaveAnalysisSheet,
-  convertAtmosphereForStorage,
-  makeAnalysisPublic,
-  saveGuestAnalysis,
-} from '@/features/analysis-result';
+import { makeAnalysisPublic } from '@/features/analysis-result';
 import {
   PendingAnalysisSaveResumer,
-  deletePendingAnalysisSave,
-  deletePendingAnalysisSaveIntent,
-  fetchPendingAnalysisSaveIntent,
-  putPendingAnalysisSave,
-  putPendingAnalysisSaveIntent,
   useTestFlowStore,
-  type PendingAnalysisSave,
   type TestMember,
 } from '@/features/test-flow';
 
+import { useResultSave } from './hooks/use-result-save';
 import {
   normalizeAtmosphereSections,
   normalizeMemberRoles,
   normalizeMetrics,
   normalizePairChemistry,
 } from './lib/normalize-analysis';
+import { ResultActionsFooter } from './result-actions-footer';
+import { ResultHero } from './result-hero';
+import { ResultMetricsSection } from './result-metrics-section';
 import type { ResultViewProps } from './types';
+
+const SaveAnalysisSheet = dynamic(
+  () =>
+    import(
+      '@/features/analysis-result/ui/save-analysis-sheet/save-analysis-sheet'
+    ).then((m) => ({ default: m.SaveAnalysisSheet })),
+  { ssr: false },
+);
+
+const GuestSavePromptSheet = dynamic(
+  () =>
+    import(
+      '@/features/analysis-result/ui/guest-save-prompt-sheet/guest-save-prompt-sheet'
+    ).then((m) => ({ default: m.GuestSavePromptSheet })),
+  { ssr: false },
+);
 
 const METRIC_LABELS: Record<string, string> = {
   conversation: '대화 케미',
@@ -63,44 +64,38 @@ const METRIC_LABELS: Record<string, string> = {
   conflict: '갈등 회복력',
 };
 
-type SaveAnalysisOptions = {
-  isAuthenticated?: boolean;
-  pendingSave?: PendingAnalysisSave;
-};
-
 const ResultView = ({
   analysisId: propAnalysisId,
   className,
 }: ResultViewProps) => {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const storeAnalysisId = useTestFlowStore((s) => s.analysisId);
   const storeResult = useTestFlowStore((s) => s.analysisResult);
   const isAnalysisResultHydrated = useTestFlowStore(
     (s) => s.isAnalysisResultHydrated,
   );
   const resetStore = useTestFlowStore((s) => s.reset);
-  const setAnalysisResult = useTestFlowStore((s) => s.setAnalysisResult);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isCheckingSavePermission, setIsCheckingSavePermission] =
-    useState(false);
-  const [isSaveSheetOpen, setIsSaveSheetOpen] = useState(false);
-  const [isGuestSavePromptOpen, setIsGuestSavePromptOpen] = useState(false);
-  const [pendingSave, setPendingSave] = useState<PendingAnalysisSave>();
-  const [saveError, setSaveError] = useState<string | null>(null);
   const id = propAnalysisId ?? storeAnalysisId ?? '';
 
   const { data: dbAnalysis, isError, isLoading } = useAnalysis(id);
   const isGuest = !id && !!storeResult;
 
-  useEffect(() => {
-    if (!isAnalysisResultHydrated || !isGuest) return;
-    if (!fetchPendingAnalysisSaveIntent(window.sessionStorage)) return;
-
-    deletePendingAnalysisSaveIntent(window.sessionStorage);
-    const frameId = requestAnimationFrame(() => setIsSaveSheetOpen(true));
-    return () => cancelAnimationFrame(frameId);
-  }, [isAnalysisResultHydrated, isGuest]);
+  const {
+    isSaving,
+    isCheckingSavePermission,
+    isSaveSheetOpen,
+    isGuestSavePromptOpen,
+    hasEverOpenedSaveSheet,
+    hasEverOpenedGuestSheet,
+    pendingSave,
+    saveError,
+    handleSaveButtonClick,
+    handleSave,
+    handleSaveSheetClose,
+    handleGuestSheetClose,
+    handleGuestSheetConfirm,
+    onResumePendingSave,
+  } = useResultSave({ isGuest });
 
   const normalized = useMemo(() => {
     if (dbAnalysis) {
@@ -224,13 +219,11 @@ const ResultView = ({
     );
   }
 
-  const metrics: Metric[] = Object.entries(normalized.metrics).map(
-    ([key, value]) => ({
-      label: METRIC_LABELS[key] ?? key,
-      value,
-      isCaution: false,
-    }),
-  );
+  const metrics = Object.entries(normalized.metrics).map(([key, value]) => ({
+    label: METRIC_LABELS[key] ?? key,
+    value,
+    isCaution: false,
+  }));
 
   const atmosphereSections = normalizeAtmosphereSections(
     normalized.atmosphereSource,
@@ -239,7 +232,6 @@ const ResultView = ({
   const pairs = normalizePairChemistry(normalized.pairs, normalized.members);
 
   const groupName = GROUP_TYPE_LABELS[normalized.groupType] ?? '그룹';
-
   const memberMbtis = normalized.members.map((m) => m.mbti as MbtiType);
 
   const handlePairClick = (index: number) => {
@@ -255,124 +247,6 @@ const ResultView = ({
   const handlePairsClick = () => {
     const idQuery = id ? `?id=${id}` : '';
     router.push(`/result/pairs${idQuery}`);
-  };
-
-  const handleSaveButtonClick = async () => {
-    if (!isGuest || isSaving || isCheckingSavePermission) return;
-
-    setSaveError(null);
-    setIsCheckingSavePermission(true);
-
-    try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        setIsSaveSheetOpen(true);
-      } else {
-        setIsGuestSavePromptOpen(true);
-      }
-    } catch {
-      setSaveError(
-        '로그인 상태를 확인하지 못했어요. 네트워크를 확인한 뒤 다시 시도해 주세요.',
-      );
-    } finally {
-      setIsCheckingSavePermission(false);
-    }
-  };
-
-  const handleSave = async (
-    title: string,
-    options: SaveAnalysisOptions = {},
-  ) => {
-    if (!isGuest || !storeResult || isSaving) return;
-
-    setSaveError(null);
-    setIsSaving(true);
-
-    const currentPendingSave =
-      options.pendingSave ??
-      (pendingSave?.title === title
-        ? pendingSave
-        : { title, saveOperationId: crypto.randomUUID() });
-    setPendingSave(currentPendingSave);
-
-    try {
-      let isAuthenticated = options.isAuthenticated ?? false;
-
-      if (!isAuthenticated) {
-        const supabase = createClient();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        isAuthenticated = !!user;
-      }
-
-      if (!isAuthenticated) {
-        const isPendingSaveStored = putPendingAnalysisSave(
-          currentPendingSave,
-          window.sessionStorage,
-        );
-
-        if (!isPendingSaveStored) {
-          setSaveError(
-            '제목을 임시로 보관하지 못했어요. 브라우저 설정을 확인한 뒤 다시 시도해 주세요.',
-          );
-          return;
-        }
-
-        setIsSaveSheetOpen(false);
-        setIsGuestSavePromptOpen(true);
-        return;
-      }
-
-      putPendingAnalysisSave(currentPendingSave, window.sessionStorage);
-
-      const groupAtmosphereForStorage = convertAtmosphereForStorage({
-        groupAtmosphere: storeResult.groupAtmosphere,
-        decisionMaking: storeResult.decisionMaking,
-        cautionPoint: storeResult.cautionPoint,
-        bestMoment: storeResult.bestMoment,
-      });
-
-      const result = await saveGuestAnalysis({
-        title,
-        saveOperationId: currentPendingSave.saveOperationId,
-        groupType: storeResult.groupType,
-        customName: null,
-        members: storeResult.members,
-        chemistryScore: storeResult.chemistryScore,
-        tagline: storeResult.tagline,
-        metrics: storeResult.metrics,
-        groupAtmosphere: groupAtmosphereForStorage,
-        memberRoles: storeResult.memberRoles,
-        pairChemistry: storeResult.pairChemistry,
-        summary: storeResult.summary,
-      });
-
-      if ('error' in result) {
-        setSaveError(
-          result.error ??
-            '결과를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.',
-        );
-        return;
-      }
-
-      trackResultSave(storeResult.groupType);
-      deletePendingAnalysisSave(window.sessionStorage);
-      setIsSaveSheetOpen(false);
-      setAnalysisResult(null);
-      void queryClient.invalidateQueries({ queryKey: queryKeys.analyses.all });
-      router.replace('/');
-    } catch {
-      setSaveError(
-        '결과를 저장하지 못했어요. 네트워크를 확인한 뒤 다시 시도해 주세요.',
-      );
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const handleShare = async () => {
@@ -395,88 +269,21 @@ const ResultView = ({
   return (
     <div className={cn('flex flex-col', className)}>
       {isGuest && (
-        <PendingAnalysisSaveResumer
-          onResume={async (storedPendingSave) => {
-            setPendingSave(storedPendingSave);
-            setIsSaveSheetOpen(true);
-
-            try {
-              const supabase = createClient();
-              const {
-                data: { user },
-              } = await supabase.auth.getUser();
-
-              if (!user) return;
-
-              await handleSave(storedPendingSave.title, {
-                isAuthenticated: true,
-                pendingSave: storedPendingSave,
-              });
-            } catch {
-              setSaveError(
-                '로그인 상태를 확인하지 못했어요. 네트워크를 확인한 뒤 다시 시도해 주세요.',
-              );
-            }
-          }}
-        />
+        <PendingAnalysisSaveResumer onResume={onResumePendingSave} />
       )}
-      <div className="relative rounded-b-[34px] bg-green-100 pb-[30px] before:absolute before:inset-x-0 before:bottom-full before:h-[max(12px,env(safe-area-inset-top))] before:bg-green-100 before:content-['']">
-        <div className="flex items-center justify-between px-[22px] pb-0 pt-[6px]">
-          <button
-            type="button"
-            aria-label="이전 화면으로"
-            onClick={() => (id ? router.back() : router.push('/'))}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[16px] font-extrabold text-accent btn-press"
-          >
-            ‹
-          </button>
-          <span className="text-[15px] font-black text-accent-foreground">
-            {groupName}
-          </span>
-          <button
-            type="button"
-            onClick={handleShare}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[15px] text-accent btn-press"
-          >
-            ↗
-          </button>
-        </div>
 
-        <div className="flex flex-col items-center gap-4 px-[30px] pt-[22px]">
-          <span className="text-body font-extrabold tracking-wider text-accent">
-            {normalized.tagline ?? '우리 그룹 케미'}
-          </span>
-          <ScoreGauge score={normalized.chemistryScore} size="lg" />
-          <p className="text-center text-quote font-extrabold leading-[1.5] text-accent-foreground">
-            &ldquo;{normalized.summary}&rdquo;
-          </p>
-          {memberMbtis.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-[6px] pt-1">
-              {memberMbtis.map((mbti, i) => (
-                <span
-                  key={`${mbti}-${i}`}
-                  className="rounded-pill bg-white/75 px-[11px] py-[5px] font-nunito text-[11.5px] font-black text-accent"
-                >
-                  {mbti}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      <ResultHero
+        groupName={groupName}
+        tagline={normalized.tagline}
+        chemistryScore={normalized.chemistryScore}
+        summary={normalized.summary}
+        memberMbtis={memberMbtis}
+        onBack={() => (id ? router.back() : router.push('/'))}
+        onShare={handleShare}
+      />
 
       <div className="flex flex-col gap-8 px-5 pt-8">
-        <section className="flex flex-col gap-[15px] rounded-card-lg bg-surface p-5 shadow-md">
-          <h3 className="text-section font-black text-foreground">케미 지표</h3>
-          {metrics.map((metric) => (
-            <MetricBar
-              key={metric.label}
-              label={metric.label}
-              value={metric.value}
-              isCaution={metric.isCaution}
-            />
-          ))}
-        </section>
+        <ResultMetricsSection metrics={metrics} />
 
         <button
           type="button"
@@ -557,69 +364,34 @@ const ResultView = ({
         </section>
       </div>
 
-      <div className="flex flex-col gap-[11px] px-5 pb-[46px] pt-6">
-        <button
-          type="button"
-          onClick={() => void handleSaveButtonClick()}
-          disabled={isSaving || isCheckingSavePermission || !isGuest}
-          className="flex h-[60px] cursor-pointer items-center justify-center rounded-[22px] bg-primary font-extrabold text-[17px] text-primary-foreground shadow-lg btn-press"
-        >
-          {isSaving
-            ? '저장 중...'
-            : isCheckingSavePermission
-              ? '확인 중...'
-            : isGuest
-              ? '결과 저장하기'
-              : '저장된 결과입니다'}
-        </button>
-        {saveError && (
-          <p className="text-center text-caption font-bold text-caution-foreground">
-            {saveError}
-          </p>
-        )}
-        <ResultActions
-          onRetest={handleRetest}
-          onAddMembers={handleAddMembers}
+      <ResultActionsFooter
+        isGuest={isGuest}
+        isSaving={isSaving}
+        isCheckingSavePermission={isCheckingSavePermission}
+        saveError={saveError}
+        onSave={() => void handleSaveButtonClick()}
+        onRetest={handleRetest}
+        onAddMembers={handleAddMembers}
+        onShare={handleShare}
+      />
+
+      {hasEverOpenedSaveSheet && (
+        <SaveAnalysisSheet
+          isOpen={isSaveSheetOpen}
+          onClose={handleSaveSheetClose}
+          onSubmit={handleSave}
+          isSubmitting={isSaving}
+          submitError={saveError}
+          defaultTitle={pendingSave?.title}
         />
-        <button
-          type="button"
-          onClick={handleShare}
-          className="flex h-[54px] cursor-pointer items-center justify-center gap-2 rounded-field bg-primary-tonal text-[14.5px] font-black text-primary-deep btn-press"
-        >
-          ↗ 결과 공유하기
-        </button>
-      </div>
-
-      <SaveAnalysisSheet
-        isOpen={isSaveSheetOpen}
-        onClose={() => {
-          setSaveError(null);
-          setIsSaveSheetOpen(false);
-        }}
-        onSubmit={handleSave}
-        isSubmitting={isSaving}
-        submitError={saveError}
-        defaultTitle={pendingSave?.title}
-      />
-      <GuestSavePromptSheet
-        isOpen={isGuestSavePromptOpen}
-        onClose={() => setIsGuestSavePromptOpen(false)}
-        onConfirm={() => {
-          const isIntentStored = putPendingAnalysisSaveIntent(
-            window.sessionStorage,
-          );
-          if (!isIntentStored) {
-            setSaveError(
-              '저장 흐름을 이어가지 못했어요. 브라우저 설정을 확인한 뒤 다시 시도해 주세요.',
-            );
-            setIsGuestSavePromptOpen(false);
-            return;
-          }
-
-          setIsGuestSavePromptOpen(false);
-          router.push('/signup?redirect=/result');
-        }}
-      />
+      )}
+      {hasEverOpenedGuestSheet && (
+        <GuestSavePromptSheet
+          isOpen={isGuestSavePromptOpen}
+          onClose={handleGuestSheetClose}
+          onConfirm={handleGuestSheetConfirm}
+        />
+      )}
     </div>
   );
 };
