@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
+import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 
 import { useProfile, useUserStats } from '@/entities/user';
@@ -15,6 +16,9 @@ const MyPageContainerView = ({ className }: MyPageContainerViewProps) => {
   const router = useRouter();
   const { data: profile } = useProfile();
   const { data: userStats } = useUserStats();
+  const [guardedLogout] = useGuardedAction(async () => {
+    await logout();
+  });
 
   const stats = [
     { label: '테스트', value: userStats?.totalTests ?? 0 },
@@ -36,7 +40,7 @@ const MyPageContainerView = ({ className }: MyPageContainerViewProps) => {
           mbti={profile?.mbti ?? null}
           stats={stats}
           onSettingsClick={() => router.push('/mypage/settings')}
-          onLogout={() => logout()}
+          onLogout={guardedLogout}
         />
       </div>
     </div>

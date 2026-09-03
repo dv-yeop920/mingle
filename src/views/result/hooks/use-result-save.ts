@@ -2,7 +2,7 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { queryKeys } from '@/shared/config/query-keys';
 import { trackResultSave } from '@/shared/lib/analytics';
@@ -49,6 +49,7 @@ const useResultSave = ({ isGuest }: UseResultSaveParams) => {
   const [hasEverOpenedGuestSheet, setHasEverOpenedGuestSheet] = useState(false);
   const [pendingSave, setPendingSave] = useState<PendingAnalysisSave>();
   const [saveError, setSaveError] = useState<string | null>(null);
+  const isSaveButtonRunningRef = useRef(false);
 
   useEffect(() => {
     if (!isAnalysisResultHydrated || !isGuest) return;
@@ -64,6 +65,8 @@ const useResultSave = ({ isGuest }: UseResultSaveParams) => {
 
   const handleSaveButtonClick = async () => {
     if (!isGuest || isSaving || isCheckingSavePermission) return;
+    if (isSaveButtonRunningRef.current) return;
+    isSaveButtonRunningRef.current = true;
 
     setSaveError(null);
     setIsCheckingSavePermission(true);
@@ -87,6 +90,7 @@ const useResultSave = ({ isGuest }: UseResultSaveParams) => {
       );
     } finally {
       setIsCheckingSavePermission(false);
+      isSaveButtonRunningRef.current = false;
     }
   };
 

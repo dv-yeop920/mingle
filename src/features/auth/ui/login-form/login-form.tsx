@@ -4,11 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { queryKeys } from '@/shared/config/query-keys';
 import { trackLogin } from '@/shared/lib/analytics';
+import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { TextField } from '@/shared/ui/text-field';
@@ -24,7 +25,6 @@ import type { LoginFormProps } from './types';
 const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [isPending, startTransition] = useTransition();
   const [isRemember, setIsRemember] = useState(false);
 
   const {
@@ -36,8 +36,8 @@ const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onFormSubmit = (data: LoginFormValues) => {
-    startTransition(async () => {
+  const [guardedSubmit, isPending] = useGuardedAction(
+    async (data: LoginFormValues) => {
       const result = await login(data, redirectTo);
       if ('error' in result) {
         setError('root', { message: result.error });
@@ -46,12 +46,12 @@ const LoginForm = ({ className, redirectTo }: LoginFormProps) => {
       trackLogin();
       await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
       router.push(result.redirectTo);
-    });
-  };
+    },
+  );
 
   return (
     <form
-      onSubmit={handleSubmit(onFormSubmit)}
+      onSubmit={handleSubmit(guardedSubmit)}
       className={cn('flex flex-col gap-[14px]', className)}
     >
       <TextField

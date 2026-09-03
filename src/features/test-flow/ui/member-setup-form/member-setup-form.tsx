@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
+import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
 import type { MbtiType } from '@/shared/types/mbti';
 import { Button } from '@/shared/ui/button';
 
@@ -30,7 +31,8 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
   const removeMember = useTestFlowStore((s) => s.removeMember);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
   const [hasEverOpenedMbtiPicker, setHasEverOpenedMbtiPicker] = useState(false);
-  const nicknameErrors = convertMembersToNicknameErrors(members);
+  const debouncedMembers = useDebouncedValue(members, 300);
+  const nicknameErrors = convertMembersToNicknameErrors(debouncedMembers);
 
   const handleAdd = () => {
     addMember({

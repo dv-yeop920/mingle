@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
+
+import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 
 import { deleteAccount } from '@/features/auth/api/actions';
 import { DeleteAccountSheet } from '@/features/profile/ui/delete-account-sheet';
@@ -11,13 +13,10 @@ type AccountSectionProps = {
 
 const AccountSection = ({ onLogout }: AccountSectionProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
-  const handleDeleteAccount = () => {
-    startTransition(async () => {
-      await deleteAccount();
-    });
-  };
+  const [guardedDeleteAccount, isPending] = useGuardedAction(async () => {
+    await deleteAccount();
+  });
 
   return (
     <section className="flex flex-col gap-3 pt-4">
@@ -39,7 +38,7 @@ const AccountSection = ({ onLogout }: AccountSectionProps) => {
         isOpen={isSheetOpen}
         isPending={isPending}
         onClose={() => setIsSheetOpen(false)}
-        onConfirm={handleDeleteAccount}
+        onConfirm={guardedDeleteAccount}
       />
     </section>
   );

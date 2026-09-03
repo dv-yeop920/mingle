@@ -9,6 +9,7 @@ import {
   trackResultRetest,
   trackResultShare,
 } from '@/shared/lib/analytics';
+import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import type { Gender } from '@/shared/types/gender';
 import type { MbtiType } from '@/shared/types/mbti';
@@ -96,6 +97,23 @@ const ResultView = ({
     handleGuestSheetConfirm,
     onResumePendingSave,
   } = useResultSave({ isGuest });
+
+  const [guardedShare] = useGuardedAction(async () => {
+    if (id) {
+      await makeAnalysisPublic(id);
+    }
+
+    const url = isGuest
+      ? `${window.location.origin}/`
+      : `${window.location.origin}/result?id=${id}`;
+    if (navigator.share) {
+      trackResultShare('native_share');
+      navigator.share({ title: 'MIXTI 케미 분석 결과', url }).catch(() => {});
+    } else {
+      trackResultShare('clipboard');
+      navigator.clipboard.writeText(url);
+    }
+  });
 
   const normalized = useMemo(() => {
     if (dbAnalysis) {
@@ -249,22 +267,6 @@ const ResultView = ({
     router.push(`/result/pairs${idQuery}`);
   };
 
-  const handleShare = async () => {
-    if (id) {
-      await makeAnalysisPublic(id);
-    }
-
-    const url = isGuest
-      ? `${window.location.origin}/`
-      : `${window.location.origin}/result?id=${id}`;
-    if (navigator.share) {
-      trackResultShare('native_share');
-      navigator.share({ title: 'MIXTI 케미 분석 결과', url }).catch(() => {});
-    } else {
-      trackResultShare('clipboard');
-      navigator.clipboard.writeText(url);
-    }
-  };
 
   return (
     <div className={cn('flex flex-col', className)}>
@@ -279,7 +281,7 @@ const ResultView = ({
         summary={normalized.summary}
         memberMbtis={memberMbtis}
         onBack={() => (id ? router.back() : router.push('/'))}
-        onShare={handleShare}
+        onShare={guardedShare}
       />
 
       <div className="flex flex-col gap-8 px-5 pt-8">
@@ -372,7 +374,7 @@ const ResultView = ({
         onSave={() => void handleSaveButtonClick()}
         onRetest={handleRetest}
         onAddMembers={handleAddMembers}
-        onShare={handleShare}
+        onShare={guardedShare}
       />
 
       {hasEverOpenedSaveSheet && (

@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { queryKeys } from '@/shared/config/query-keys';
 import { trackSignup } from '@/shared/lib/analytics';
+import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { TextField } from '@/shared/ui/text-field';
@@ -24,8 +24,6 @@ import type { SignupFormProps } from './types';
 const SignupForm = ({ className, redirectTo }: SignupFormProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [isPending, startTransition] = useTransition();
-
   const {
     register,
     handleSubmit,
@@ -35,8 +33,8 @@ const SignupForm = ({ className, redirectTo }: SignupFormProps) => {
     resolver: zodResolver(signupSchema),
   });
 
-  const onFormSubmit = (data: SignupFormValues) => {
-    startTransition(async () => {
+  const [guardedSubmit, isPending] = useGuardedAction(
+    async (data: SignupFormValues) => {
       const result = await signup(data, redirectTo);
       if ('error' in result) {
         setError('root', { message: result.error });
@@ -45,12 +43,12 @@ const SignupForm = ({ className, redirectTo }: SignupFormProps) => {
       trackSignup();
       await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
       router.push(result.redirectTo);
-    });
-  };
+    },
+  );
 
   return (
     <form
-      onSubmit={handleSubmit(onFormSubmit)}
+      onSubmit={handleSubmit(guardedSubmit)}
       className={cn('flex flex-1 flex-col', className)}
     >
       <div className="flex flex-col gap-[13px]">

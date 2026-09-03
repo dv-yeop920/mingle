@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { trackAnalysisComplete } from '@/shared/lib/analytics';
+import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 
@@ -26,7 +27,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
   const setAnalysisId = useTestFlowStore((s) => s.setAnalysisId);
   const setAnalysisResult = useTestFlowStore((s) => s.setAnalysisResult);
 
-  const startAnalysis = useCallback(async () => {
+  const startAnalysis = async () => {
     if (!groupType || members.length < 2) {
       router.replace('/');
       return;
@@ -65,7 +66,9 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     } catch {
       setError('분석 요청 중 문제가 발생했어요. 다시 시도해주세요');
     }
-  }, [groupType, members, setAnalysisId, setAnalysisResult, router]);
+  };
+
+  const [guardedStartAnalysis] = useGuardedAction(startAnalysis);
 
   useEffect(() => {
     if (hasStarted.current) return;
@@ -74,7 +77,8 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
     return () => {
       hasStarted.current = false;
     };
-  }, [startAnalysis]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (error) {
     return (
@@ -90,7 +94,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
           className="w-auto px-6"
           onClick={() => {
             hasStarted.current = false;
-            startAnalysis();
+            guardedStartAnalysis();
           }}
         >
           다시 시도
