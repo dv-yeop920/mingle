@@ -10,6 +10,35 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ---
 
+## 0. 개발 워크플로우 (필수)
+
+모든 작업은 아래 4단계를 순서대로 따른다. 직접 코딩 금지 — 반드시 에이전트를 통해 작업한다.
+
+| 단계 | 목적 | 에이전트/도구 | 산출물 |
+|---|---|---|---|
+| **1. Research** | 코드베이스 탐색, 영향 범위 파악 | Explore (grep, find, Read) | 변경 대상 파일 목록, 의존 관계 |
+| **2. Plan** | 설계 + 구현 계획 수립 | Frontend §0 5단계 설계 | 설계 문서 (design-note.md) |
+| **3. Implement** | 코드 작성 | Frontend / Backend / UI / Test | 구현 코드 + 테스트 |
+| **4. Review & Ship** | 품질 점검 + 배포 | `/review` → `/test` → `/ship` | 커밋 + 푸시 |
+
+### 규칙
+
+- **Plan 후 승인 대기**: 2단계 설계 완료 후 사용자 승인 없이 3단계로 넘어가지 않는다
+- **에이전트 위임**: 구현은 반드시 해당 역할 에이전트를 호출하여 수행한다
+- **Review 필수**: `/ship` 전에 `/review`로 점검을 완료해야 한다
+
+### 에이전트 선택 기준
+
+| 작업 내용 | 에이전트 |
+|---|---|
+| 마크업, 스타일링, 컴포넌트 퍼블리싱 | **UI** |
+| 상태 관리, React Query, Zod, 폼, 클라이언트 로직 | **Frontend** |
+| Server Action, Supabase, Route Handler | **Backend** |
+| 테스트 작성 + 실행 | **Test** |
+| 코드 품질 점검 | **Review** |
+
+---
+
 # MIXTI 코드 컨벤션
 
 MBTI 그룹 케미 시뮬레이터 모바일 웹 서비스.
@@ -164,6 +193,8 @@ shared → entities → features → widgets → views → app
 - 구현 계획: `docs/design/plan.md`
 - Supabase 작업 가이드: `docs/guides/supabase.md`
 - 디자인 요구사항: `docs/design/requirements.md`
+- 개발 워크플로우: `docs/guides/workflow.md`
+- 에이전트 활동 로그: `logs/agent-activity.jsonl` (자동 생성, `.gitignore` 대상)
 
 ## 9-1. 스킬 자동 참조
 
@@ -201,3 +232,5 @@ Claude command 지침을 source of truth로 둔다.
 | Command | 지침 |
 |---|---|
 | `/ship` | `.claude/commands/ship.md` |
+| `/review` | `.claude/commands/review.md` |
+| `/test` | `.claude/commands/test.md` |
