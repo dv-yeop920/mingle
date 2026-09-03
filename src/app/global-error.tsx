@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/shared/ui/button';
+
 const GlobalError = ({
   error,
   reset,
@@ -15,12 +17,9 @@ const GlobalError = ({
             문제가 발생했습니다
           </p>
           <p className="text-body text-muted">{error.message}</p>
-          <button
-            onClick={reset}
-            className="h-[54px] w-full cursor-pointer rounded-field bg-primary text-[16px] font-extrabold text-primary-foreground btn-press"
-          >
+          <Button variant="primary" onClick={reset}>
             다시 시도
-          </button>
+          </Button>
         </div>
       </body>
     </html>

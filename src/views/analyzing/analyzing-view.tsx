@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { trackAnalysisComplete } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
+import { Button } from '@/shared/ui/button';
 
 import {
   AnalysisAnimation,
@@ -84,16 +85,16 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
         )}
       >
         <p className="text-center text-body text-caution-foreground">{error}</p>
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          className="w-auto px-6"
           onClick={() => {
             hasStarted.current = false;
             startAnalysis();
           }}
-          className="rounded-lg bg-primary px-6 py-3 text-label font-bold text-primary-foreground"
         >
           다시 시도
-        </button>
+        </Button>
       </div>
     );
   }

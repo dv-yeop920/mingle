@@ -55,13 +55,6 @@ const MyPageView = ({
               <span className="text-[12px] font-bold text-hint">나의 MBTI</span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onSettingsClick}
-            className="cursor-pointer text-[12.5px] font-extrabold text-primary btn-press"
-          >
-            수정
-          </button>
         </div>
 
         <div className="mt-[20px] grid grid-cols-3 rounded-[20px] bg-background py-[16px]">

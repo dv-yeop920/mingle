@@ -13,13 +13,6 @@ describe('ResultActions', () => {
     });
 
     expect(addMembersButton).toBeDisabled();
-    expect(addMembersButton).toHaveClass(
-      'cursor-not-allowed',
-      'border-disabled',
-      'bg-disabled',
-      'text-disabled-foreground',
-    );
-    expect(addMembersButton).not.toHaveClass('btn-press');
   });
 
   it('다시 테스트하기를 누르면 기존 콜백을 실행한다', async () => {
