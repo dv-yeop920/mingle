@@ -1,4 +1,4 @@
 export type GroupTypeViewProps = {
-  userId: string;
+  userId: string | null;
   className?: string;
 };

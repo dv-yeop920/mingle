@@ -21,10 +21,10 @@ const GroupTypeView = ({ userId, className }: GroupTypeViewProps) => {
   const { data: profile } = useProfile(userId);
 
   useEffect(() => {
-    if (profile && !isProfileComplete(profile)) {
+    if (userId && profile && !isProfileComplete(profile)) {
       router.replace('/mypage/settings?required=profile&redirect=/group-type');
     }
-  }, [profile, router]);
+  }, [userId, profile, router]);
 
   const selfMemberSeed =
     profile && isProfileComplete(profile)
