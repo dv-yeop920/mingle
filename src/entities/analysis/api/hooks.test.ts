@@ -19,7 +19,7 @@ import { useAnalyses, useAnalysis } from './hooks';
 
 type QueryOptions = {
   queryKey: readonly string[];
-  queryFn: () => Promise<unknown[]>;
+  queryFn: (context: { signal: AbortSignal }) => Promise<unknown>;
   enabled?: boolean;
 };
 
