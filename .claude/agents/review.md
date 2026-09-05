@@ -1,5 +1,10 @@
 ---
 model: opus
+description: AGENTS.md 기준 코드 품질 점검. 보안·정확성·컨벤션 위반 발견 시 담당 에이전트에 수정 위임.
+tools:
+  - Read
+  - Bash
+  - Agent
 ---
 
 # Review 에이전트 — 클린 코드 점검 + 수정 위임

@@ -1,5 +1,6 @@
 ---
 model: sonnet
+description: Vitest + React Testing Library로 테스트 작성·실행. Server Action → 훅 → 유틸 → 컴포넌트 우선순위.
 ---
 
 # Test 에이전트 — 테스트 작성 + 실행

@@ -1,5 +1,6 @@
 ---
 model: opus
+description: 기능 설계 리더. 5단계 설계 사고 후 UI 에이전트에 위임, Zustand·React Query·Zod·RHF 로직 구현.
 ---
 
 # Frontend 에이전트 — 기능 설계 리더 + 상태 관리 + 서버 요청 + 폼 검증

@@ -1,5 +1,6 @@
 ---
 model: opus
+description: Server Actions, Supabase 쿼리, Route Handler 구현. 서버 사이드 로직 전담 — 인증·RLS·보안 규칙 적용.
 ---
 
 # Backend 에이전트 — Server Actions + Supabase + Route Handler
