@@ -61,7 +61,16 @@ const MemberDraftSessionManager = () => {
       }
     }
 
-    return useTestFlowStore.subscribe(() => {
+    let prev = {
+      groupType: useTestFlowStore.getState().groupType,
+      members: useTestFlowStore.getState().members,
+    };
+
+    return useTestFlowStore.subscribe((state) => {
+      if (state.groupType === prev.groupType && state.members === prev.members)
+        return;
+      prev = { groupType: state.groupType, members: state.members };
+
       const nextDraft = fetchCurrentMemberDraft();
       if (nextDraft) putMemberDraft(nextDraft, window.sessionStorage);
     });

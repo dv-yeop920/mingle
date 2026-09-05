@@ -1,9 +1,7 @@
+import { PageSpinner } from '@/shared/ui';
+
 const TestLoading = () => {
-  return (
-    <div className="flex min-h-dvh items-center justify-center bg-background">
-      <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-disabled border-t-primary" />
-    </div>
-  );
+  return <PageSpinner fullHeight />;
 };
 
 export default TestLoading;

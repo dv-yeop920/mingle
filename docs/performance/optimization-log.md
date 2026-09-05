@@ -1022,3 +1022,174 @@ simulate vs devtools 차이 원인은 §12 참조. §7 대비 simulate 점수 �
 
 - Speed Insights 표본 수가 적어(LCP 53건/2일, INP 16건/2일) 추세 확인에는 추가 수집 필요
 - simulate vs devtools 차이, 도구 간 비교 불가 등은 §12, §13 참조
+
+---
+
+## 16. 페이지 전환 속도 개선 — Suspense + Prefetch + 불필요한 Blocking 제거 (2026-09-05)
+
+### 문제
+
+결과 페이지 간 전환(result → atmosphere/pairs/pair-detail/role-detail)과 일부 페이지(members, settings)에서 전환이 느렸다. 사용자가 탭을 클릭하면 전체 화면 스피너가 표시되고, 서버 응답이 완료될 때까지 UI가 나타나지 않았다.
+
+### 원인 분석
+
+3가지 근본 원인이 복합 작용:
+
+| 원인 | 위치 | 영향 |
+| --- | --- | --- |
+| `instant = false` 7개 페이지 | result 5개 + members + settings | Cache Components의 dev validation을 끄고 blocking 경고를 숨김. Next.js가 instant navigation validation을 건너뛰게 함 |
+| Suspense 없는 top-level `await` | result 5개 + settings | `getAuthenticatedClient()` + `prefetchQuery()`를 `<Suspense>` 없이 await → 전체 서버 렌더 완료까지 UI 차단 |
+| `connection()` 강제 dynamic rendering | members + settings | `connection()`이 dynamic rendering을 강제하여 정적 pre-render 불가, 매 요청마다 서버 왕복 |
+| `result/loading.tsx` 부재 | result 하위 | `(test)/loading.tsx`(전체 화면 스피너)로 fallback → layout까지 대체됨 |
+| `MemberDraftSessionManager` 비선택적 구독 | test-flow store | 모든 store 변경에 반응하여 불필요한 sessionStorage 쓰기 발생 |
+| `router.prefetch()` 미사용 | result-view.tsx | 결과 → 하위 페이지 네비게이션 시 prefetch 없음 |
+
+**핵심 인사이트**: 모든 결과 하위 페이지는 동일한 analysis 데이터를 fetch하고, `staleTime: Infinity`이므로 React Query 클라이언트 캐시에 이미 데이터가 있다. 서버 prefetch는 첫 방문에만 유의미하고, Suspense로 감싸면 셸이 즉시 렌더되면서 클라이언트 캐시 데이터로 바로 표시된다.
+
+### 해결 과정
+
+#### Phase 1: Quick Wins
+
+**1-1. `instant = false` 제거 — 7개 페이지**
+
+```diff
+# result/page.tsx, atmosphere/page.tsx, pairs/page.tsx,
+# pair-detail/page.tsx, role-detail/page.tsx, members/page.tsx,
+# mypage/settings/page.tsx
+
+- export const instant = false;
+```
+
+`instant = false`는 dev overlay validation을 숨기는 역할만 했다. 제거하면 blocking 라우트 경고가 표시되어 디버깅 가시성이 높아진다.
+
+**1-2. `result/loading.tsx` 추가**
+
+`(test)/result/loading.tsx` 신규 생성. `min-h-dvh` 대신 `min-h-[60dvh]`로 result 영역만 로딩 표시. layout(MobileFrame + 세션 매니저)이 유지되어 전환 시 콘텐츠 영역만 교체된다.
+
+**1-3. `MemberDraftSessionManager` 구독 최적화**
+
+```diff
+# member-draft-session-manager.tsx
+
+-   return useTestFlowStore.subscribe(() => {
+-     const nextDraft = fetchCurrentMemberDraft();
+-     if (nextDraft) putMemberDraft(nextDraft, window.sessionStorage);
+-   });
+
++   let prev = {
++     groupType: useTestFlowStore.getState().groupType,
++     members: useTestFlowStore.getState().members,
++   };
++
++   return useTestFlowStore.subscribe((state) => {
++     if (state.groupType === prev.groupType && state.members === prev.members)
++       return;
++     prev = { groupType: state.groupType, members: state.members };
++
++     const nextDraft = fetchCurrentMemberDraft();
++     if (nextDraft) putMemberDraft(nextDraft, window.sessionStorage);
++   });
+```
+
+`analysisResult` 같은 큰 객체가 변경돼도 sessionStorage 쓰기가 발생하지 않게 됨.
+
+#### Phase 2: Suspense 구조 개선
+
+**2-1. 결과 5개 페이지 — Suspense 래핑**
+
+blocking 서버 작업(`getAuthenticatedClient()` + `prefetchQuery()`)을 별도 async 컴포넌트로 분리하고 `<Suspense>`로 감쌈.
+
+```diff
+# 5개 결과 페이지 공통 패턴
+
+- const ResultPage = async ({ searchParams }) => {
+-   const { id } = await searchParams;
+-   const { user } = await getAuthenticatedClient();    // blocking
+-   const queryClient = getQueryClient();
+-   if (id) await queryClient.prefetchQuery({...});     // blocking
+-   return <HydrationBoundary ...><ResultView .../></HydrationBoundary>;
+- };
+
++ const ResultPageContent = async ({ analysisId }) => {
++   const { user } = await getAuthenticatedClient();
++   const queryClient = getQueryClient();
++   if (analysisId) await queryClient.prefetchQuery({...});
++   return <HydrationBoundary ...><ResultView .../></HydrationBoundary>;
++ };
++
++ const ResultPage = async ({ searchParams }) => {
++   const { id } = await searchParams;
++   return (
++     <Suspense fallback={<스피너 />}>
++       <ResultPageContent analysisId={id} />
++     </Suspense>
++   );
++ };
+```
+
+**2-2. `router.prefetch()` 추가 — ResultView**
+
+```diff
+# src/views/result/result-view.tsx
+
++ useEffect(() => {
++   if (!normalized) return;
++   const idQuery = id ? `?id=${id}` : '';
++   router.prefetch(`/result/atmosphere${idQuery}`);
++   router.prefetch(`/result/pairs${idQuery}`);
++ }, [normalized, id, router]);
+```
+
+atmosphere와 pairs가 가장 빈번한 네비게이션 대상이므로 이 두 개를 우선 prefetch.
+
+**2-3. `members` 페이지 — `connection()` + 중복 프로필 체크 제거**
+
+`MemberSetupContainer`를 완전 제거. `members/page.tsx`에서 `MemberSetupView`를 직접 렌더.
+
+- `connection()`이 강제하던 dynamic rendering 제거
+- `fetchProfile()` + `isProfileComplete()` 서버사이드 체크 제거 — `group-type-view.tsx`에서 이미 클라이언트 사이드로 동일한 체크를 수행 중이었음
+
+**2-4. `settings` 페이지 — Suspense 구조 전환**
+
+`connection()` + `fetchProfile()`을 `SettingsContent` async 컴포넌트로 분리하고 `<Suspense>`로 감쌈.
+
+### 결과
+
+**빌드 출력 비교:**
+
+| 라우트 | 변경 전 | 변경 후 | 의미 |
+| --- | --- | --- | --- |
+| `/members` | `ƒ (Dynamic)` | `○ (Static)` | 서버 왕복 제거, 즉시 렌더 |
+| `/result` | `◐ (PPR)` | `◐ (PPR)` | Suspense 경계 추가로 셸 즉시 렌더 |
+| `/result/atmosphere` | `◐ (PPR)` | `◐ (PPR)` | 동일 |
+| `/result/pairs` | `◐ (PPR)` | `◐ (PPR)` | 동일 |
+| `/result/pair-detail` | `◐ (PPR)` | `◐ (PPR)` | 동일 |
+| `/result/role-detail` | `◐ (PPR)` | `◐ (PPR)` | 동일 |
+| `/mypage/settings` | `ƒ (Dynamic)` | `◐ (PPR)` | 정적 셸 즉시 렌더 + 동적 데이터 스트리밍 |
+
+**개선 메커니즘:**
+
+| 시나리오 | 변경 전 | 변경 후 |
+| --- | --- | --- |
+| result → atmosphere 전환 | 전체 화면 스피너 → 서버 완료 대기 → UI 렌더 | prefetch된 RSC payload 즉시 로드 + 캐시된 React Query 데이터로 렌더 |
+| result → pair-detail 전환 | 전체 화면 스피너 | result/loading.tsx 부분 스피너 → 클라이언트 캐시 데이터로 즉시 렌더 |
+| members 페이지 진입 | `connection()` → `fetchProfile()` → 서버 응답 대기 | Static pre-render로 즉시 표시 |
+| settings 페이지 진입 | `connection()` → `fetchProfile()` → 전체 UI 차단 | 셸 즉시 렌더 + 프로필 데이터 스트리밍 |
+| store 변경 시 sessionStorage | 모든 store 변경마다 쓰기 | groupType/members 변경 시에만 쓰기 |
+
+### 변경 파일
+
+| 파일 | 변경 |
+| --- | --- |
+| `src/app/(test)/result/page.tsx` | `instant = false` 제거, Suspense 래핑 |
+| `src/app/(test)/result/atmosphere/page.tsx` | 동일 |
+| `src/app/(test)/result/pairs/page.tsx` | 동일 |
+| `src/app/(test)/result/pair-detail/page.tsx` | 동일 |
+| `src/app/(test)/result/role-detail/page.tsx` | 동일 |
+| `src/app/(test)/result/loading.tsx` | 신규 — result 영역 전용 로딩 스피너 |
+| `src/app/(test)/members/page.tsx` | `instant = false` 제거, `MemberSetupView` 직접 렌더 |
+| `src/app/(main)/mypage/settings/page.tsx` | `instant = false` 제거, Suspense 구조 전환 |
+| `src/views/result/result-view.tsx` | `router.prefetch()` 추가 |
+| `src/views/members/member-setup-container.tsx` | 삭제 |
+| `src/views/members/index.ts` | `MemberSetupContainer` export 제거 |
+| `src/features/test-flow/ui/member-draft-session-manager/member-draft-session-manager.tsx` | 선택적 구독으로 변경 |

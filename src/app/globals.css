@@ -70,6 +70,11 @@ body {
   to { opacity: 1; }
 }
 
+@keyframes mx-delayed-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .result-progress-fill {
   animation: mx-progress-fill 800ms ease-out both;
   transform-origin: left center;
@@ -79,6 +84,10 @@ body {
   .result-gauge-fill,
   .result-progress-fill {
     animation-duration: 1ms;
+  }
+  .animate-mx-delayed-fade-in {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
   }
 }
 

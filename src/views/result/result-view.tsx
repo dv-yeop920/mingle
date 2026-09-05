@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { trackResultRetest, trackResultShare } from '@/shared/lib/analytics';
@@ -159,6 +159,13 @@ const ResultView = ({
 
     return null;
   }, [dbAnalysis, id, storeResult]);
+
+  useEffect(() => {
+    if (!normalized) return;
+    const idQuery = id ? `?id=${id}` : '';
+    router.prefetch(`/result/atmosphere${idQuery}`);
+    router.prefetch(`/result/pairs${idQuery}`);
+  }, [normalized, id, router]);
 
   const handleRetest = () => {
     trackResultRetest();

@@ -1,6 +1,7 @@
 export { BottomSheet, type BottomSheetProps } from './bottom-sheet';
 export { Button, type ButtonProps, type ButtonVariant } from './button';
 export { Chip, type ChipProps } from './chip';
+export { PageSpinner, type PageSpinnerProps } from './page-spinner';
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
 export { TextField, type TextFieldProps } from './text-field';
 export { ToastProvider, useToast } from './toast';

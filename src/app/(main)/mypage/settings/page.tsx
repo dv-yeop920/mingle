@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { connection } from 'next/server';
+import { Suspense } from 'react';
+
+import { PageSpinner } from '@/shared/ui';
 
 import { fetchProfile } from '@/entities/user/api/queries';
 import { isGender } from '@/entities/user/model';
@@ -22,8 +24,11 @@ const convertSafeRedirectPath = (value: string | undefined) => {
   return value;
 };
 
-const SettingsPage = async ({ searchParams }: SettingsPageProps) => {
-  await connection();
+const SettingsContent = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string; required?: string }>;
+}) => {
   const { redirect: redirectParam, required } = await searchParams;
   const profile = await fetchProfile();
 
@@ -43,7 +48,14 @@ const SettingsPage = async ({ searchParams }: SettingsPageProps) => {
   );
 };
 
-export const instant = false;
+const SettingsPage = async ({ searchParams }: SettingsPageProps) => {
+  return (
+    <Suspense fallback={<PageSpinner />}>
+      <SettingsContent searchParams={searchParams} />
+    </Suspense>
+  );
+};
+
 export const metadata: Metadata = {
   title: '계정 설정',
   robots: { index: false, follow: false },
