@@ -82,7 +82,7 @@ const EditableMemberCard = ({
           type="button"
           onClick={() => onMbtiSelect(id)}
           className={cn(
-            'cursor-pointer rounded-pill px-[9px] py-[3px] font-nunito text-label-sm font-black btn-press',
+            'cursor-pointer rounded-pill px-[9px] py-[6px] font-nunito text-label-sm font-black min-h-[36px] btn-press',
             styles.bg,
             styles.fg,
           )}
@@ -96,7 +96,7 @@ const EditableMemberCard = ({
             label={option.label}
             isActive={gender === option.value}
             onClick={() => onGenderChange(id, option.value)}
-            className="px-3 py-[3px] text-label-sm"
+            className="px-3 py-[6px] text-label-sm min-h-[36px]"
           />
         ))}
       </div>

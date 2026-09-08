@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { trackMembersComplete } from '@/shared/lib/analytics';
+import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 
@@ -21,7 +22,8 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
   const groupType = useTestFlowStore((s) => s.groupType);
   const groupTypeLabel = groupType ? (GROUP_TYPE_LABELS[groupType] ?? '그룹') : '그룹';
 
-  const nicknameErrors = convertMembersToNicknameErrors(members);
+  const debouncedMembers = useDebouncedValue(members, 300);
+  const nicknameErrors = convertMembersToNicknameErrors(debouncedMembers);
   const hasNicknameError = Object.values(nicknameErrors).some(Boolean);
   const isDisabled = members.length < 2 || hasNicknameError;
 

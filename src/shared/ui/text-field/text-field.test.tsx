@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
 
 import { TextField } from './text-field';
 
@@ -33,5 +34,65 @@ describe('TextField', () => {
       'password-hint',
       error.id,
     ]);
+  });
+
+  describe('IME composition 처리', () => {
+    it('조합 중에는 외부 onChange를 호출하지 않는다', () => {
+      const handleChange = vi.fn();
+      render(<TextField label="닉네임" value="" onChange={handleChange} />);
+      const input = screen.getByLabelText('닉네임');
+
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'ㅈ' } });
+      fireEvent.change(input, { target: { value: '주' } });
+      fireEvent.change(input, { target: { value: '준' } });
+
+      expect(handleChange).not.toHaveBeenCalled();
+    });
+
+    it('조합 완료 후 onChange를 호출한다', () => {
+      const handleChange = vi.fn();
+      render(<TextField label="닉네임" value="" onChange={handleChange} />);
+      const input = screen.getByLabelText('닉네임');
+
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'ㅈ' } });
+      fireEvent.change(input, { target: { value: '준' } });
+      fireEvent.compositionEnd(input, { target: input });
+
+      expect(handleChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('조합 중 입력값을 화면에 표시한다', () => {
+      render(<TextField label="닉네임" value="" onChange={vi.fn()} />);
+      const input = screen.getByLabelText<HTMLInputElement>('닉네임');
+
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'ㅈ' } });
+
+      expect(input.value).toBe('ㅈ');
+    });
+
+    it('비조합 입력(영문)은 onChange를 즉시 호출한다', async () => {
+      const handleChange = vi.fn();
+      render(<TextField label="닉네임" value="" onChange={handleChange} />);
+      const input = screen.getByLabelText('닉네임');
+
+      const user = userEvent.setup();
+      await user.type(input, 'a');
+
+      expect(handleChange).toHaveBeenCalled();
+    });
+
+    it('uncontrolled 모드에서는 조합 여부와 관계없이 onChange를 호출한다', () => {
+      const handleChange = vi.fn();
+      render(<TextField label="닉네임" onChange={handleChange} />);
+      const input = screen.getByLabelText('닉네임');
+
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'ㅈ' } });
+
+      expect(handleChange).toHaveBeenCalledTimes(1);
+    });
   });
 });
