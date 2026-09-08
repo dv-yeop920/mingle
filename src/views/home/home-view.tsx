@@ -1,16 +1,24 @@
+import { Suspense } from 'react';
+
 import { cn } from '@/shared/lib/utils';
 
 import { HeroCard, SeoIntro } from '@/features/home';
 
-import { HomeHeader } from './home-header';
+import { HomeHeaderContainer } from './home-header-container';
+import { HomeHeaderPending } from './home-header-pending';
 import { HomeResetEffect } from './home-reset-effect';
-import { RecentTestsSection } from './recent-tests-section';
-import type { HomeViewProps } from './types';
+import { RecentTestsContainer } from './recent-tests-container';
 
-const HomeView = ({ className, userId }: HomeViewProps) => {
+type HomeViewProps = {
+  className?: string;
+};
+
+const HomeView = ({ className }: HomeViewProps) => {
   return (
     <div className={cn('flex flex-col', className)}>
-      <HomeHeader userId={userId} />
+      <Suspense fallback={<HomeHeaderPending />}>
+        <HomeHeaderContainer />
+      </Suspense>
 
       <div className="px-5 pt-5">
         <HeroCard />
@@ -18,11 +26,13 @@ const HomeView = ({ className, userId }: HomeViewProps) => {
 
       <HomeResetEffect />
 
-      {userId && <RecentTestsSection userId={userId} />}
+      <Suspense fallback={null}>
+        <RecentTestsContainer />
+      </Suspense>
 
       <SeoIntro />
     </div>
   );
 };
 
-export { HomeView };
+export { HomeView, type HomeViewProps };

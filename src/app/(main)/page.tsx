@@ -5,7 +5,6 @@ import {
   SEO_TITLE,
   WEB_APPLICATION_JSON_LD,
 } from '@/shared/config/seo';
-import { getAuthenticatedClient } from '@/shared/lib/supabase/server';
 
 import { HomeView } from '@/views/home';
 
@@ -17,16 +16,14 @@ export const metadata: Metadata = {
   },
 };
 
-const HomePage = async () => {
-  const { user } = await getAuthenticatedClient();
-
+const HomePage = () => {
   return (
     <>
       <script type="application/ld+json">
         {JSON.stringify(WEB_APPLICATION_JSON_LD)}
       </script>
 
-      <HomeView userId={user?.id ?? null} />
+      <HomeView />
     </>
   );
 };

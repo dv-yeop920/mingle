@@ -32,7 +32,7 @@ const HeaderContent = ({
 
   return (
     <>
-      <div className="flex items-center justify-between px-[24px] pt-[8px]">
+      <div className="flex min-h-[52px] items-center justify-between px-[24px] pt-[8px]">
         <div className="flex gap-[5px]">
           <h1 className="text-title2 font-black">안녕하세요</h1>
           <h1 className="text-title2 font-black tracking-title text-foreground">
@@ -62,7 +62,7 @@ const MemberHomeHeader = ({ userId }: { userId: string }) => {
   const isInitialFetching = profile === undefined && isPending && isFetching;
 
   return (
-    <div aria-busy={isInitialFetching}>
+    <div aria-busy={isInitialFetching} className="min-h-[52px]">
       {isInitialFetching ? (
         <HeaderSkeleton />
       ) : isError && profile === undefined ? (

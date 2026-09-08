@@ -1,6 +1,10 @@
 # 홈 인증별 데이터 로딩 설계
 
-## 배경과 원인
+2026-09-08 · 사용자 실행 승인에 따라 홈 LCP 렌더링 경계 구현 완료. 리뷰·테스트·성능 검증 결과는 별도 기록하며 아직 성능 목표 달성을 주장하지 않는다.
+
+현재 변경은 동기 HomePage/HomeView의 공개 본문과 두 인증 컨테이너의 Suspense 분리, 헤더 높이 확보, 인증 오류 재시도다. 아래 인증 cache/key migration 설계 이력은 보존하며 이번 작업에서 해당 정책을 변경하지 않는다. 상세 범위와 측정 기준은 [홈 LCP 설계](../../../docs/performance/home-lcp/design-note.md)를 참조한다.
+
+## 배경과 원인 (기존 인증 cache 개선 당시)
 
 - 현재 홈은 `getAuthenticatedClient()`가 끝난 뒤 회원 분기 안에서 새 `Suspense` 경계를 만든다. 이 늦은 중첩 경계의 fallback은 인증 결과와 데이터 결과가 서로 다른 RSC 청크로 실제 페인트된다는 보장이 없다. 조회가 빠르거나 전송 청크가 합쳐지면 테스트에서 fallback element가 존재해도 브라우저는 스켈레톤을 보지 못할 수 있다.
 - Next.js 16.3.1 로컬 Streaming 가이드는 정적 shell에 포함된 `Suspense` fallback이 즉시 전송되고 sibling 경계가 독립적으로 스트리밍된다고 설명한다. 그러나 현재 필요한 fallback은 인증 결과를 알아야 선택할 수 있어 최초 정적 shell에 넣을 수 없다.
@@ -50,7 +54,7 @@ identity A → sign-out/sign-in B
 
 ```text
 HomeView (정적 shell)
-├─ Suspense(null)                         서버 인증 확인만 격리
+├─ Suspense(HomeHeaderPending)            서버 인증 확인만 격리, 최소 52px 빈 영역
 │  └─ HomeHeaderContainer
 │     ├─ guest → HomeHeader(userId=null)  query disabled, 즉시 guest UI
 │     └─ member → HomeHeader(userId)      client initial query → HeaderSkeleton
@@ -63,8 +67,8 @@ HomeView (정적 shell)
 └─ SeoIntro                               항상 정적 렌더
 ```
 
-1. `HomeView`의 두 바깥 `Suspense fallback={null}`은 서버 `getUser()` 확인만 감싼다. `HeroCard`와 `SeoIntro`는 인증과 무관하게 먼저 렌더링된다.
-2. `HomeHeaderContainer`와 `RecentTestsContainer`는 요청 단위로 cache된 `getAuthenticatedClient()`에서 `user.id`만 하위 client component에 전달한다.
+1. 동기 `HomePage`와 `HomeView`는 인증을 await하지 않는다. `HomeView`의 헤더 `Suspense`는 최소 52px 빈 `HomeHeaderPending`, 최근 기록 `Suspense`는 null을 fallback으로 사용하며 서버 인증 확인만 감싼다. `HeroCard`와 `SeoIntro`는 인증과 무관하게 먼저 렌더링된다. metadata/JSON-LD와 HomeResetEffect는 유지한다.
+2. `HomeHeaderContainer`와 `RecentTestsContainer`는 홈 전용 `getHomeAuth()`에서 정상 비로그인과 인증 실패를 구분한다. 요청 단위로 cache된 `getAuthenticatedClient()`를 공유하고 `user.id`만 하위 client component에 전달한다.
 3. 게스트 헤더는 query를 실행하지 않고 비로그인 UI를 렌더링한다. 최근 테스트 컨테이너는 `null`을 반환한다.
 4. 회원 헤더와 최근 테스트 영역은 `useQuery`를 사용한다. 사용자별 key가 비어 있고 query가 활성화된 첫 렌더에서 `isPending && isFetching`이므로 스켈레톤을 렌더링하고, 같은 커밋 이후 실제 브라우저 query가 시작된다.
 5. 응답 완료 시 각 영역이 독립적으로 success/empty UI로 바뀐다. 서버가 데이터를 미리 await하지 않으므로 RSC fallback 청크 병합 여부가 로딩 UI 표시를 결정하지 않는다.
@@ -104,7 +108,7 @@ queryKeys.analyses.detail(userId, analysisId)
 
 ### 오류와 동시성
 
-- 인증 확인 실패는 기존 helper 계약대로 guest 취급하지 말고, 향후 오류를 구분할 수 있도록 `getAuthenticatedClient()`의 error 관찰 가능성을 테스트한다. 이번 구현에서 helper 계약을 바꾸지 않는다면 서버 로그와 guest fallback이라는 현재 동작을 문서화한다.
+- `getAuthenticatedClient()`는 기존 user/client와 함께 auth error를 반환한다. 홈 전용 `getHomeAuth()`는 정상 비로그인·무효 세션과 인증 서비스 실패를 구분한다. 예상 가능한 인증 실패는 해당 영역의 `HomeAuthError`로 표시하고 `router.refresh()`로 재시도한다. 재시도 중 버튼은 비활성화한다. 프레임워크 제어 흐름과 알 수 없는 예외는 삼키지 않는다.
 - 로그아웃 중 query가 완료되어 이전 데이터를 다시 쓰지 않도록 `cancelQueries`를 먼저 수행한다. Supabase query에 AbortSignal 연결이 가능한지는 구현 단계에서 현재 라이브러리 API로 검증하고, 연결하지 못해도 사용자별 key 때문에 새 identity UI에는 노출되지 않는다.
 - 로그인/로그아웃 버튼의 기존 guarded action으로 중복 제출을 막는다.
 
@@ -113,7 +117,7 @@ queryKeys.analyses.detail(userId, analysisId)
 - `HeaderSkeleton`과 `RecentTestsSkeleton`은 해당 client component의 초기 query 상태 가까이 배치한다. 기존 크기·토큰·애니메이션을 유지한다.
 - 스켈레톤 wrapper는 `aria-hidden="true"`를 유지하고, 실제 section wrapper에 `aria-busy={isInitialFetching}`를 둔다. 스켈레톤 자체를 스크린리더가 반복 읽지 않게 한다.
 - 오류 상태에는 짧은 설명과 44×44px 이상 재시도 버튼을 제공한다. 한 query 오류가 다른 홈 콘텐츠나 다른 개인화 영역을 가리지 않는다.
-- 헤더 guest/member markup 높이와 최근 테스트 skeleton/결과 카드 높이를 맞춰 CLS를 최소화한다.
+- 헤더 인증 대기/guest/member/error 영역은 최소 52px를 확보한다. 최근 기록 인증 대기는 null이므로 회원 기록 삽입에 따른 소개 영역 이동과 CLS는 별도 측정한다. 기존 최근 테스트 skeleton/결과 카드 스타일은 유지한다.
 - 상태 보존이 필요 없는 loading/error 분기이므로 `Activity`는 사용하지 않는다.
 - 구현 단계에서 UI 역할 에이전트는 기존 스켈레톤의 이동, `aria-busy`, 오류/재시도 UI만 담당하고 시각 디자인 확장은 하지 않는다.
 
@@ -129,13 +133,14 @@ queryKeys.analyses.detail(userId, analysisId)
 
 ### 홈 로딩 경계
 
-- `src/views/home/home-view.tsx`: auth-only `Suspense(null)` 구조 유지, 변경된 container 조합 확인.
+- `src/app/(main)/page.tsx`: 인증 await를 제거한 동기 HomeView 렌더링.
+- `src/views/home/home-view.tsx`: 헤더 52px fallback과 기록 null fallback의 독립 auth-only Suspense 구성.
 - `src/views/home/home-header-container.tsx`: profile prefetch/hydration/null cache 제거, 인증된 `userId` 전달.
 - `src/views/home/home-header.tsx`: `userId` 기반 `useQuery`, guest/pending/success/error UI 분기와 header skeleton 소유.
 - `src/views/home/recent-tests-container.tsx`: analyses prefetch/hydration/late nested Suspense 제거, 회원에게 `userId` 전달.
 - `src/views/home/recent-tests-section.tsx`: `userId` 기반 `useQuery`, initial skeleton/success/empty/error 분기.
 
-### 인증 cache 경계와 key migration
+### 인증 cache 경계와 key migration (기존 설계 이력, 이번 변경에서 유지)
 
 - `src/shared/config/query-keys.ts`: auth root 및 사용자별 profile/groups/analyses key 정의.
 - `src/shared/lib/react-query/clear-auth-query-cache.ts` (신규): auth query cancel/remove 공통 helper.
@@ -207,4 +212,4 @@ queryKeys.analyses.detail(userId, analysisId)
 4. Test 역할 에이전트: 단위·통합·실제 streaming/auth transition 테스트 작성 및 실행.
 5. Review 역할 에이전트: FSD/import/security/cache leakage/접근성 회귀 점검 후 `/test`, 승인 시 `/ship`.
 
-이 문서는 계획 단계 산출물이다. 사용자 승인 전에는 애플리케이션 코드를 변경하지 않는다.
+위 순서는 기존 인증 cache 개선 당시의 구현 계획이다. 2026-09-08 홈 LCP 작업은 사용자 승인 후 렌더링 경계 구현을 완료했으며, 기존 인증 cache 설계는 유지한다. 실제 초기 visible shell, HomeResetEffect/빠른 CTA 회귀 및 동일 조건 프로덕션 성능 측정은 별도 검증 결과로 남긴다. proxy 세션 갱신 지연은 이 변경으로 제거되지 않는다.

@@ -1,2 +1,1 @@
-export { HomeView } from './home-view';
-export type { HomeViewProps } from './types';
+export { HomeView, type HomeViewProps } from './home-view';
