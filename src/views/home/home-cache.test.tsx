@@ -5,6 +5,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { HomeHeader } from './home-header';
 import { RecentTestsSection } from './recent-tests-section';
 
+vi.mock('@/shared/lib/supabase/use-auth-user-id', () => ({
+  useAuthUserId: () => ({ userId: 'member-a', isPending: false }),
+}));
+
 const { fetchProfile, fetchAnalyses } = vi.hoisted(() => ({
   fetchProfile: vi.fn(),
   fetchAnalyses: vi.fn(),
@@ -47,7 +51,7 @@ describe('홈 회원 캐시', () => {
     try {
       const { container } = render(
         <QueryClientProvider client={client}>
-          <HomeHeader userId="member-a" />
+          <HomeHeader />
           <RecentTestsSection userId="member-a" />
         </QueryClientProvider>,
       );

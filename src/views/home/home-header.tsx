@@ -3,6 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 
+import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
+
 import { profileQueryOptions } from '@/entities/user';
 
 import { HeaderError, HeaderSkeleton } from './home-header-fallbacks';
@@ -14,10 +16,6 @@ const MbtiSetupPromptSheet = dynamic(
     ),
   { ssr: false },
 );
-
-type HomeHeaderProps = {
-  userId: string | null;
-};
 
 type HeaderContentProps = {
   nickname: string | null;
@@ -77,10 +75,11 @@ const MemberHomeHeader = ({ userId }: { userId: string }) => {
   );
 };
 
-const HomeHeader = ({ userId }: HomeHeaderProps) => {
-  if (!userId) {
-    return <HeaderContent nickname={null} />;
-  }
+const HomeHeader = () => {
+  const { userId, isPending } = useAuthUserId();
+
+  if (isPending) return <HeaderSkeleton />;
+  if (!userId) return <HeaderContent nickname={null} />;
 
   return <MemberHomeHeader userId={userId} />;
 };
