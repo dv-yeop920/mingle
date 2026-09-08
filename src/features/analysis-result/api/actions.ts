@@ -18,6 +18,7 @@ type SaveAnalysisParams = {
   memberRoles: Json;
   pairChemistry: Json;
   summary: string;
+  situation: Json | null;
 };
 
 const saveAnalysis = async (params: SaveAnalysisParams) => {
@@ -51,6 +52,7 @@ const saveAnalysis = async (params: SaveAnalysisParams) => {
       member_roles: params.memberRoles,
       pair_chemistry: params.pairChemistry,
       summary: params.summary,
+      situation: params.situation,
     })
     .select('id')
     .single();
@@ -104,6 +106,7 @@ type SaveGuestAnalysisParams = {
   memberRoles: Json;
   pairChemistry: Json;
   summary: string;
+  situation: Json | null;
 };
 
 const logSaveError = (error: { code?: string; message?: string }) => {
@@ -157,6 +160,7 @@ const saveGuestAnalysis = async (params: SaveGuestAnalysisParams) => {
     p_pair_chemistry: params.pairChemistry,
     p_summary: params.summary,
     p_save_operation_id: operationIdResult.data,
+    p_situation: params.situation,
   });
 
   if (error || !data) {

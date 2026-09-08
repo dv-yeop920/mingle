@@ -163,6 +163,7 @@ const useResultSave = ({ isGuest, userId }: UseResultSaveParams) => {
         memberRoles: storeResult.memberRoles,
         pairChemistry: storeResult.pairChemistry,
         summary: storeResult.summary,
+        situation: storeResult.situation ?? null,
       });
 
       if ('error' in result) {

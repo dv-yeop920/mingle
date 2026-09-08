@@ -36,6 +36,7 @@ vi.mock('next/navigation', () => ({
     back: mockBack,
     push: mockPush,
     replace: mockReplace,
+    prefetch: vi.fn(),
   }),
 }));
 
@@ -346,6 +347,7 @@ describe('ResultView save flow', () => {
           },
         ],
         pair_chemistry: [],
+        situation: null,
         groups: {
           type: 'friends',
           members: [

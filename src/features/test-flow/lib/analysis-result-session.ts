@@ -1,7 +1,7 @@
 import { analysisResultSessionSchema } from '../model/schemas';
 import type { PersistedAnalysisResult } from '../model/schemas';
 
-const ANALYSIS_RESULT_STORAGE_KEY = 'mingle:analysis-result:v1';
+const ANALYSIS_RESULT_STORAGE_KEY = 'mingle:analysis-result:v2';
 
 const deleteAnalysisResult = (storage: Storage): void => {
   try {
@@ -38,7 +38,7 @@ const putAnalysisResult = (
   try {
     storage.setItem(
       ANALYSIS_RESULT_STORAGE_KEY,
-      JSON.stringify({ schemaVersion: 1, result }),
+      JSON.stringify({ schemaVersion: 2, result }),
     );
     return true;
   } catch {

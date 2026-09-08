@@ -55,6 +55,7 @@ const PendingAnalysisSaver = () => {
         memberRoles: analysisResult.memberRoles,
         pairChemistry: analysisResult.pairChemistry,
         summary: analysisResult.summary,
+        situation: analysisResult.situation ?? null,
       });
 
       if ('data' in result && result.data) {

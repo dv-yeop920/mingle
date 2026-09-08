@@ -138,10 +138,11 @@ describe('useTestFlowStore', () => {
   it('세션에 저장된 멤버 초안을 복원한다', () => {
     act(() => {
       useTestFlowStore.getState().restoreMemberDraft({
-        schemaVersion: 1,
+        schemaVersion: 2,
         groupType: 'family',
         memberCount: 2,
         members: [MOCK_MEMBER, MOCK_MEMBER_2],
+        situation: null,
       });
     });
 

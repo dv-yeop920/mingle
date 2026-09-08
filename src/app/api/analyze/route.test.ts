@@ -15,7 +15,7 @@ vi.mock('openai', () => ({
 import { POST } from './route';
 
 const VALID_BODY = {
-  schemaVersion: '2026-08-24',
+  schemaVersion: '2026-09-07',
   group: {
     type: 'friends',
     customName: null,
@@ -38,6 +38,7 @@ const VALID_BODY = {
       order: 1,
     },
   ],
+  situation: null,
   options: {
     locale: 'ko-KR',
     tone: 'friendly',
@@ -187,7 +188,7 @@ describe('POST /api/analyze', () => {
       expect.objectContaining({
         model: 'gpt-5.6-luna',
         store: false,
-        prompt_cache_key: 'mingle-analysis-v2',
+        prompt_cache_key: 'mingle-analysis-v3',
         text: expect.objectContaining({ verbosity: 'high' }),
       }),
     );

@@ -41,6 +41,16 @@ const trackResultSave = (groupType: string) => {
   sendGAEvent('event', 'result_save', { group_type: groupType });
 };
 
+const trackSituationComplete = (
+  groupType: string,
+  situationType: 'preset' | 'freeText' | 'skip',
+) => {
+  sendGAEvent('event', 'situation_complete', {
+    group_type: groupType,
+    situation_type: situationType,
+  });
+};
+
 const trackResultRetest = () => {
   sendGAEvent('event', 'result_retest');
 };
@@ -64,6 +74,7 @@ export {
   trackResultSave,
   trackResultShare,
   trackSignup,
+  trackSituationComplete,
   trackTestStart,
   type ResultDetailType,
 };

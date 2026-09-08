@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { analysisResultSchema } from '@/entities/analysis/model/schemas';
+import { analysisResultSchema, situationSchema } from '@/entities/analysis/model/schemas';
 
 const NICKNAME_REGEX = /^[가-힣a-zA-Zㄱ-ㅎㅏ-ㅣ]*$/;
 const MBTI_TYPES = [
@@ -22,66 +22,107 @@ const MBTI_TYPES = [
   'ESFP',
 ] as const;
 
-const memberDraftSchema = z
-  .object({
-    schemaVersion: z.literal(1),
-    groupType: z.enum(['friends', 'company', 'family']),
-    memberCount: z.number().int().min(2).max(15),
-    members: z
-      .array(
-        z.object({
-          id: z.string().min(1),
-          nickname: z.string().max(8).regex(NICKNAME_REGEX),
-          mbti: z.enum(MBTI_TYPES),
-          gender: z.enum(['male', 'female', 'other']),
-          isSelf: z.boolean(),
-        }),
-      )
-      .min(2)
-      .max(15),
+const memberDraftMembersSchema = z
+  .array(
+    z.object({
+      id: z.string().min(1),
+      nickname: z.string().max(8).regex(NICKNAME_REGEX),
+      mbti: z.enum(MBTI_TYPES),
+      gender: z.enum(['male', 'female', 'other']),
+      isSelf: z.boolean(),
+    }),
+  )
+  .min(2)
+  .max(15);
+
+const memberDraftBaseSchema = z.object({
+  groupType: z.enum(['friends', 'company', 'family']),
+  memberCount: z.number().int().min(2).max(15),
+  members: memberDraftMembersSchema,
+});
+
+const memberDraftRefinements = <T extends z.infer<typeof memberDraftBaseSchema>>(
+  draft: T,
+  context: z.RefinementCtx,
+) => {
+  if (draft.memberCount !== draft.members.length) {
+    context.addIssue({
+      code: 'custom',
+      message: '멤버 수와 멤버 목록이 일치하지 않습니다',
+      path: ['memberCount'],
+    });
+  }
+
+  const selfCount = draft.members.filter((member) => member.isSelf).length;
+  const ids = draft.members.map((member) => member.id);
+
+  if (selfCount !== 1) {
+    context.addIssue({
+      code: 'custom',
+      message: '본인은 정확히 1명이어야 합니다',
+      path: ['members'],
+    });
+  }
+
+  if (new Set(ids).size !== ids.length) {
+    context.addIssue({
+      code: 'custom',
+      message: '멤버 식별자가 중복되었습니다',
+      path: ['members'],
+    });
+  }
+};
+
+const memberDraftV1Schema = memberDraftBaseSchema
+  .extend({ schemaVersion: z.literal(1) })
+  .superRefine(memberDraftRefinements)
+  .transform((draft) => ({ ...draft, schemaVersion: 2 as const, situation: null }));
+
+const memberDraftV2Schema = memberDraftBaseSchema
+  .extend({
+    schemaVersion: z.literal(2),
+    situation: situationSchema.nullable(),
   })
-  .refine((draft) => draft.memberCount === draft.members.length, {
-    message: '멤버 수와 멤버 목록이 일치하지 않습니다',
-    path: ['memberCount'],
-  })
-  .superRefine((draft, context) => {
-    const selfCount = draft.members.filter((member) => member.isSelf).length;
-    const ids = draft.members.map((member) => member.id);
+  .superRefine(memberDraftRefinements);
 
-    if (selfCount !== 1) {
-      context.addIssue({
-        code: 'custom',
-        message: '본인은 정확히 1명이어야 합니다',
-        path: ['members'],
-      });
-    }
+const memberDraftSchema = z.union([memberDraftV2Schema, memberDraftV1Schema]);
 
-    if (new Set(ids).size !== ids.length) {
-      context.addIssue({
-        code: 'custom',
-        message: '멤버 식별자가 중복되었습니다',
-        path: ['members'],
-      });
-    }
-  });
+const analysisResultMembersSchema = z
+  .array(
+    z.object({
+      nickname: z.string().min(1).max(8),
+      mbti: z.enum(MBTI_TYPES),
+      gender: z.enum(['male', 'female', 'other']),
+      is_self: z.boolean(),
+    }),
+  )
+  .min(2)
+  .max(15);
 
-const analysisResultSessionSchema = z.object({
+const analysisResultSessionV1Schema = z.object({
   schemaVersion: z.literal(1),
   result: analysisResultSchema.extend({
-    members: z
-      .array(
-        z.object({
-          nickname: z.string().min(1).max(8),
-          mbti: z.enum(MBTI_TYPES),
-          gender: z.enum(['male', 'female', 'other']),
-          is_self: z.boolean(),
-        }),
-      )
-      .min(2)
-      .max(15),
+    members: analysisResultMembersSchema,
     groupType: z.enum(['friends', 'company', 'family']),
   }),
+}).transform((session) => ({
+  schemaVersion: 2 as const,
+  result: { ...session.result, situation: null },
+}));
+
+const analysisResultSessionV2Schema = z.object({
+  schemaVersion: z.literal(2),
+  result: analysisResultSchema.extend({
+    members: analysisResultMembersSchema,
+    groupType: z.enum(['friends', 'company', 'family']),
+    situation: situationSchema.nullable(),
+  }),
 });
+
+const analysisResultSessionSchema = z.union([
+  analysisResultSessionV2Schema,
+  analysisResultSessionV1Schema,
+]);
 
 const pendingAnalysisSaveSessionSchema = z.object({
   schemaVersion: z.literal(1),

@@ -1,7 +1,7 @@
 import { memberDraftSchema } from '../model/schemas';
 import type { MemberDraft } from '../model/schemas';
 
-const MEMBER_DRAFT_STORAGE_KEY = 'mingle:member-draft:v1';
+const MEMBER_DRAFT_STORAGE_KEY = 'mingle:member-draft:v2';
 
 const deleteMemberDraft = (storage: Storage): void => {
   try {

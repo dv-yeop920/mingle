@@ -10,6 +10,17 @@ const MBTI_TYPES = [
 const GENDER_TYPES = ['male', 'female', 'other'] as const;
 const NICKNAME_REGEX = /^[A-Za-z\u3131-\u314E\u314F-\u3163\uAC00-\uD7A3]+$/;
 
+const situationSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('preset'),
+    presetId: z.string().min(1),
+  }),
+  z.object({
+    type: z.literal('freeText'),
+    text: z.string().min(5).max(200),
+  }),
+]);
+
 const memberSchema = z.object({
   memberId: z.string().min(1),
   nickname: z.string().trim().min(1).max(8).regex(NICKNAME_REGEX),
@@ -20,12 +31,13 @@ const memberSchema = z.object({
 });
 
 const analyzeRequestSchema = z.object({
-  schemaVersion: z.literal('2026-08-24'),
+  schemaVersion: z.literal('2026-09-07'),
   group: z.object({
     type: z.enum(['friends', 'company', 'family']),
     customName: z.null(),
   }),
   members: z.array(memberSchema).min(2).max(15),
+  situation: situationSchema.nullable(),
   options: z.object({
     locale: z.literal('ko-KR'),
     tone: z.literal('friendly'),
@@ -150,5 +162,5 @@ type AnalyzeRequest = z.infer<typeof analyzeRequestSchema>;
 type AnalysisResult = z.infer<typeof analysisResultSchema>;
 type MbtiType = (typeof MBTI_TYPES)[number];
 
-export { analysisResultSchema, analyzeRequestSchema, MBTI_TYPES };
+export { analysisResultSchema, analyzeRequestSchema, MBTI_TYPES, situationSchema };
 export type { AnalysisResult, AnalyzeRequest, MbtiType };

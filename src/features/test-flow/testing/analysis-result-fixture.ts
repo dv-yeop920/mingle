@@ -81,6 +81,7 @@ const createAnalysisResultFixture = (): PersistedAnalysisResult => ({
     },
   ],
   groupType: 'friends',
+  situation: null,
 });
 
 export { createAnalysisResultFixture };

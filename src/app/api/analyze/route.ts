@@ -119,7 +119,7 @@ export const POST = async (request: Request) => {
       reasoning: {
         effort: 'low',
       },
-      prompt_cache_key: 'mingle-analysis-v2',
+      prompt_cache_key: 'mingle-analysis-v3',
       store: false,
     });
 
@@ -208,6 +208,7 @@ export const POST = async (request: Request) => {
                 gender: member.gender,
                 is_self: member.isSelf,
               })),
+              situation: parsed.data.situation ?? null,
             };
 
             controller.enqueue(

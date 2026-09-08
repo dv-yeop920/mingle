@@ -60,6 +60,7 @@ const mockAnalysisParams = {
   memberRoles: [{ role: '리더' }],
   pairChemistry: [{ score: 80 }],
   summary: '좋은 그룹입니다',
+  situation: null,
 };
 
 const mockGuestAnalysisParams = {
@@ -93,6 +94,7 @@ const mockGuestAnalysisParams = {
   memberRoles: [{ nickname: '민지', role: '아이디어 메이커' }],
   pairChemistry: [{ memberA: '민지', memberB: '하니', score: 82 }],
   summary: '서로의 장점을 자연스럽게 살려주는 조합이에요.',
+  situation: null,
 };
 
 describe('saveAnalysis', () => {
@@ -120,6 +122,7 @@ describe('saveAnalysis', () => {
       member_roles: [{ role: '리더' }],
       pair_chemistry: [{ score: 80 }],
       summary: '좋은 그룹입니다',
+      situation: null,
     });
     expect(revalidatePath).toHaveBeenCalledWith('/history');
   });
@@ -215,6 +218,7 @@ describe('saveGuestAnalysis', () => {
       p_pair_chemistry: mockGuestAnalysisParams.pairChemistry,
       p_summary: mockGuestAnalysisParams.summary,
       p_save_operation_id: '7dbefb4f-8c4a-4dde-975d-4756047a4706',
+      p_situation: null,
     });
     expect(revalidatePath).toHaveBeenCalledWith('/history');
   });

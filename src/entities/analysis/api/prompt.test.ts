@@ -27,12 +27,13 @@ describe('analysis prompt builders', () => {
   ];
 
   const createRequest = (groupType: 'friends' | 'company' | 'family') => ({
-    schemaVersion: '2026-08-24' as const,
+    schemaVersion: '2026-09-07' as const,
     group: {
       type: groupType,
       customName: null,
     },
     members: baseMembers,
+    situation: null,
     options: {
       locale: 'ko-KR' as const,
       tone: 'friendly' as const,

@@ -1,10 +1,12 @@
 import type { GroupType } from '@/entities/group';
+import type { SituationInput } from '@/entities/situation';
 
 import type { TestMember } from '../model/store';
 
 type RequestAnalysisInput = {
   groupType: GroupType;
   members: TestMember[];
+  situation: SituationInput | null;
   onProgress?: (progress: number) => void;
 };
 
@@ -59,7 +61,7 @@ const parseSSEStream = async (
 
 const requestAnalysis = async (input: RequestAnalysisInput) => {
   const body = {
-    schemaVersion: '2026-08-24',
+    schemaVersion: '2026-09-07',
     group: {
       type: input.groupType,
       customName: null,
@@ -72,6 +74,7 @@ const requestAnalysis = async (input: RequestAnalysisInput) => {
       isSelf: member.isSelf,
       order,
     })),
+    situation: input.situation,
     options: {
       locale: 'ko-KR',
       tone: 'friendly',

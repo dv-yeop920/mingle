@@ -24,6 +24,7 @@ export type Database = {
           metrics: Json;
           pair_chemistry: Json;
           save_operation_id: string | null;
+          situation: Json | null;
           summary: string;
           tagline: string | null;
           title: string;
@@ -40,6 +41,7 @@ export type Database = {
           metrics: Json;
           pair_chemistry: Json;
           save_operation_id?: string | null;
+          situation?: Json | null;
           summary: string;
           tagline?: string | null;
           title: string;
@@ -56,6 +58,7 @@ export type Database = {
           metrics?: Json;
           pair_chemistry?: Json;
           save_operation_id?: string | null;
+          situation?: Json | null;
           summary?: string;
           tagline?: string | null;
           title?: string;
@@ -194,6 +197,7 @@ export type Database = {
           p_metrics: Json;
           p_pair_chemistry: Json;
           p_save_operation_id: string;
+          p_situation: Json | null;
           p_summary: string;
           p_tagline: string;
           p_title: string;

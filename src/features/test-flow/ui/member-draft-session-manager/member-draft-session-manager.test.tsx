@@ -14,7 +14,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 const SAVED_DRAFT = {
-  schemaVersion: 1 as const,
+  schemaVersion: 2 as const,
   groupType: 'friends' as const,
   memberCount: 2,
   members: [
@@ -33,6 +33,7 @@ const SAVED_DRAFT = {
       isSelf: false,
     },
   ],
+  situation: null,
 };
 
 describe('MemberDraftSessionManager', () => {

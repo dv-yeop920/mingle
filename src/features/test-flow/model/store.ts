@@ -4,6 +4,7 @@ import type { Gender } from '@/shared/types/gender';
 import type { MbtiType } from '@/shared/types/mbti';
 
 import type { GroupType } from '@/entities/group';
+import type { SituationInput } from '@/entities/situation';
 
 import type { MemberDraft, PersistedAnalysisResult } from './schemas';
 
@@ -23,6 +24,7 @@ type TestFlowState = {
   groupType: GroupType | null;
   memberCount: number;
   members: TestMember[];
+  situation: SituationInput | null;
   isAnalyzing: boolean;
   analysisId: string | null;
   analysisResult: AnalysisResult | null;
@@ -39,6 +41,7 @@ type TestFlowActions = {
   addMember: (member: TestMember) => void;
   updateMember: (id: string, updates: Partial<TestMember>) => void;
   removeMember: (id: string) => void;
+  setSituation: (situation: SituationInput | null) => void;
   setIsAnalyzing: (value: boolean) => void;
   setAnalysisId: (id: string | null) => void;
   setAnalysisResult: (result: AnalysisResult | null) => void;
@@ -51,6 +54,7 @@ const INITIAL_STATE: TestFlowState = {
   groupType: null,
   memberCount: 0,
   members: [],
+  situation: null,
   isAnalyzing: false,
   analysisId: null,
   analysisResult: null,
@@ -83,6 +87,7 @@ const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
     set((state) => ({
       members: state.members.filter((m) => m.id !== id),
     })),
+  setSituation: (situation) => set({ situation }),
   setIsAnalyzing: (value) => set({ isAnalyzing: value }),
   setAnalysisId: (id) => set({ analysisId: id }),
   setAnalysisResult: (result) =>
@@ -92,8 +97,8 @@ const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
     }),
   setIsAnalysisResultHydrated: (value) =>
     set({ isAnalysisResultHydrated: value }),
-  restoreMemberDraft: ({ groupType, memberCount, members }) =>
-    set({ groupType, memberCount, members }),
+  restoreMemberDraft: ({ groupType, memberCount, members, situation }) =>
+    set({ groupType, memberCount, members, situation: situation ?? null }),
   reset: () =>
     set((state) => ({
       ...INITIAL_STATE,

@@ -9,7 +9,7 @@ import {
 } from './member-draft-session';
 
 const MOCK_DRAFT: MemberDraft = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   groupType: 'friends',
   memberCount: 2,
   members: [
@@ -28,6 +28,7 @@ const MOCK_DRAFT: MemberDraft = {
       isSelf: false,
     },
   ],
+  situation: null,
 };
 
 describe('member draft session', () => {

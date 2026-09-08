@@ -1,6 +1,8 @@
 import { getTemperament } from '@/shared/lib/mbti';
 import type { Gender } from '@/shared/types/gender';
 
+import { findPresetById } from '@/entities/situation';
+
 import type { AnalyzeRequest, MbtiType } from '../model/schemas';
 
 type GroupType = AnalyzeRequest['group']['type'];
@@ -24,9 +26,14 @@ type ExpectedPair = {
   memberBMbti: MbtiType;
 };
 
+type SituationContext = {
+  type: 'preset' | 'freeText';
+  description: string;
+};
+
 type AnalysisInput = {
   task: 'create_mingle_mbti_group_analysis';
-  schemaVersion: '2026-08-24';
+  schemaVersion: '2026-09-07';
   group: {
     type: GroupType;
     label: string;
@@ -36,6 +43,7 @@ type AnalysisInput = {
       string
     >;
   };
+  situation: SituationContext | null;
   members: AnalysisMember[];
   expectedPairs: ExpectedPair[];
   computedSignals: {
@@ -118,6 +126,16 @@ const ANALYSIS_INSTRUCTIONS = `# Role
 - company: 업무 역할, 의사결정, 리더십/팔로워십, 커뮤니케이션 비용, 실행력을 중심으로 분석한다.
 - family: 정서적 안정감, 세대/역할 차이, 돌봄과 간섭의 경계, 갈등 회복, 생활 패턴을 중심으로 분석한다.
 
+# Situation Context
+- situation이 null이 아닌 경우, 해당 상황을 중심으로 분석한다.
+- 모든 분석 항목(tagline, description, groupAtmosphere, decisionMaking, bestMoment, cautionPoint, memberRoles, pairChemistry)이 해당 상황에서의 행동과 케미를 기준으로 작성한다.
+- pairChemistry[].recommendedSituations는 해당 상황 안에서의 세부 장면이나 순간을 추천한다.
+- situation이 있으면 그 상황의 "첫 5분"을 상상한다. 누가 먼저 입을 여는지, 누가 멍때리는지, 누가 준비물을 챙기는지 — 그 장면에서 시작해서 쓴다.
+  - 회의라면 → 누가 안건을 꺼내는지, 누가 "그거 좋은데?" 하는지, 누가 딴짓하다 핵심만 콕 집는지
+  - 여행이라면 → 누가 일정표를 짜는지, 누가 맛집 검색하는지, 누가 "아 그냥 가서 정하자" 하는지
+  - 술자리라면 → 누가 먼저 건배하는지, 누가 안주 시키는지, 누가 조용히 듣다가 한마디로 웃기는지
+- situation이 null이면 기존처럼 일반적인 그룹 케미를 분석한다.
+
 # Scoring
 - 모든 점수는 0~100 정수다.
 - metrics.conversation은 대화 케미다.
@@ -144,13 +162,32 @@ const ANALYSIS_INSTRUCTIONS = `# Role
 - 뻔한 MBTI 클리셰를 피한다. "E는 에너지를 주고 I는 안정을 준다" 같은 일반론 대신, 이 조합의 MBTI에서 실제로 일어날 행동을 쓴다.
 - 모든 문장이 좋은 말만 하지 않는다. 살짝 찔리는 포인트도 유머 섞어 자연스럽게 넣는다.
 
+# Word Choice — 일상어 우선
+- 카톡에서 친구한테 보낼 수 있는 단어만 쓴다. 보고서나 기획서에서 쓸 법한 단어가 나오면 일상어로 바꾼다.
+- 동사: "수행하다", "제공하다", "형성하다", "도모하다", "발휘하다" 같은 한자어 동사 대신 "하다", "주다", "만들다", "잡다", "던지다", "꺼내다" 같은 일상 동사를 쓴다.
+- 명사: "방향성", "가능성", "관점", "시각", "역량" 같은 추상 명사 대신, 구체적인 행동이나 결과로 풀어쓴다.
+
 # Anti-Patterns — 아래 패턴은 쓰지 않는다
+
+## 구조 패턴 금지
 - "A가 분위기를 만들어주고, B는 안정감을 줘요" → 추상적 역할 나열
 - "서로 다른 에너지가 균형을 이뤄요" → 어떤 조합이든 쓸 수 있는 말
 - "A가 먼저 X하고, B는 Y하면서 Z해요" → A-B 대칭 구조의 반복
 - "이 조합은 대화가 활발하고 에너지가 넘쳐요" → MBTI 기반 근거 없는 포장
 - "서로의 장점이 자연스럽게 드러나요" → 구체적 장점 없이 뭉뚱그리기
 - "다양한 시각으로 풍부한 대화를 나눌 수 있어요" → AI 문체의 전형
+
+## 금지 표현 → 대체 표현
+- ❌ "가능성을 넓히다/열다" → ✅ "새로운 거 시도해보게 돼요"
+- ❌ "기준을 세우다/잡다" → ✅ "뭐가 중요한지 먼저 정리해줘요"
+- ❌ "균형을 이루다/맞추다" → ✅ 구체적으로 누가 뭘 해서 어떻게 되는지 쓴다
+- ❌ "시너지" → 쓰지 않는다
+- ❌ "방향성을 제시하다" → ✅ "'이렇게 해보자' 하고 먼저 말을 꺼내요"
+- ❌ "관점/시각을 제공하다" → ✅ "'이건 이렇게 봐도 되지 않아?' 하고 다른 각도를 던져요"
+- ❌ "역할을 수행하다" → ✅ 그냥 "~해요"
+- ❌ "긍정적인 영향을 미치다" → ✅ 구체적으로 뭐가 좋아지는지 쓴다
+- ❌ "조율하다" (과다 사용) → ✅ "중간에서 '둘 다 맞는 말이야' 하고 끼어들어요"
+- ❌ "에너지를 불어넣다" → ✅ "'야 이거 해보자!' 하고 분위기를 확 띄워요"
 
 # Style
 - 한국어로 쓴다.
@@ -237,6 +274,21 @@ const buildComputedSignals = (
   };
 };
 
+const resolveSituation = (
+  situation: AnalyzeRequest['situation'],
+): SituationContext | null => {
+  if (!situation) return null;
+
+  if (situation.type === 'preset') {
+    const preset = findPresetById(situation.presetId);
+    return preset
+      ? { type: 'preset', description: preset.promptHint }
+      : null;
+  }
+
+  return { type: 'freeText', description: situation.text };
+};
+
 const buildAnalysisInput = (request: AnalyzeRequest): AnalysisInput => {
   const groupType = request.group.type;
   const members = convertMembers(request.members);
@@ -244,8 +296,9 @@ const buildAnalysisInput = (request: AnalyzeRequest): AnalysisInput => {
 
   return {
     task: 'create_mingle_mbti_group_analysis',
-    schemaVersion: request.schemaVersion,
+    schemaVersion: '2026-09-07',
     group: groupRule,
+    situation: resolveSituation(request.situation),
     members,
     expectedPairs: buildExpectedPairs(members),
     computedSignals: buildComputedSignals(members),

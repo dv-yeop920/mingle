@@ -39,10 +39,11 @@ describe('requestAnalysis', () => {
       { id: '1', nickname: '민지', mbti: 'ENFP' as const, gender: 'female' as const, isSelf: true },
       { id: '2', nickname: '하니', mbti: 'ISTJ' as const, gender: 'female' as const, isSelf: false },
     ],
+    situation: null,
   };
 
   const expectedBody = {
-    schemaVersion: '2026-08-24',
+    schemaVersion: '2026-09-07',
     group: {
       type: 'friends',
       customName: null,
@@ -65,6 +66,7 @@ describe('requestAnalysis', () => {
         order: 1,
       },
     ],
+    situation: null,
     options: {
       locale: 'ko-KR',
       tone: 'friendly',

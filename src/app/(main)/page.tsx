@@ -9,6 +9,14 @@ import { getAuthenticatedClient } from '@/shared/lib/supabase/server';
 
 import { HomeView } from '@/views/home';
 
+export const metadata: Metadata = {
+  title: { absolute: SEO_TITLE },
+  description: SEO_DESCRIPTION,
+  alternates: {
+    canonical: '/',
+  },
+};
+
 const HomePage = async () => {
   const { user } = await getAuthenticatedClient();
 
@@ -21,14 +29,6 @@ const HomePage = async () => {
       <HomeView userId={user?.id ?? null} />
     </>
   );
-};
-
-export const metadata: Metadata = {
-  title: { absolute: SEO_TITLE },
-  description: SEO_DESCRIPTION,
-  alternates: {
-    canonical: '/',
-  },
 };
 
 export default HomePage;

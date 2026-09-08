@@ -24,6 +24,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
 
   const groupType = useTestFlowStore((s) => s.groupType);
   const members = useTestFlowStore((s) => s.members);
+  const situation = useTestFlowStore((s) => s.situation);
   const setAnalysisId = useTestFlowStore((s) => s.setAnalysisId);
   const setAnalysisResult = useTestFlowStore((s) => s.setAnalysisResult);
 
@@ -40,6 +41,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
       const result = await requestAnalysis({
         groupType,
         members,
+        situation,
         onProgress: setProgress,
       });
 

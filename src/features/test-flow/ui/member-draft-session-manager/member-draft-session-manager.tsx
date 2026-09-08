@@ -11,18 +11,19 @@ import {
 import type { MemberDraft } from '@/features/test-flow/model/schemas';
 import { useTestFlowStore } from '@/features/test-flow/model/store';
 
-const MEMBER_SETUP_PATH = '/members';
+const DRAFT_PATHS = new Set(['/members', '/situation']);
 
 const fetchCurrentMemberDraft = (): MemberDraft | null => {
-  const { groupType, members } = useTestFlowStore.getState();
+  const { groupType, members, situation } = useTestFlowStore.getState();
 
   if (!groupType || members.length < 2 || members.length > 15) return null;
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     groupType,
     memberCount: members.length,
     members,
+    situation,
   };
 };
 
@@ -31,16 +32,16 @@ const MemberDraftSessionManager = () => {
   const previousPathname = useRef<string | null>(null);
 
   useEffect(() => {
-    const isMemberSetup = pathname === MEMBER_SETUP_PATH;
+    const isDraftPath = DRAFT_PATHS.has(pathname);
 
     if (previousPathname.current === null) {
-      if (!isMemberSetup) deleteMemberDraft(window.sessionStorage);
+      if (!isDraftPath) deleteMemberDraft(window.sessionStorage);
 
       previousPathname.current = pathname;
       return;
     }
 
-    if (previousPathname.current === MEMBER_SETUP_PATH && !isMemberSetup) {
+    if (DRAFT_PATHS.has(previousPathname.current) && !isDraftPath) {
       deleteMemberDraft(window.sessionStorage);
     }
 
@@ -48,7 +49,7 @@ const MemberDraftSessionManager = () => {
   }, [pathname]);
 
   useEffect(() => {
-    if (pathname !== MEMBER_SETUP_PATH) return;
+    if (!DRAFT_PATHS.has(pathname)) return;
 
     const currentDraft = fetchCurrentMemberDraft();
 
@@ -64,12 +65,16 @@ const MemberDraftSessionManager = () => {
     let prev = {
       groupType: useTestFlowStore.getState().groupType,
       members: useTestFlowStore.getState().members,
+      situation: useTestFlowStore.getState().situation,
     };
 
     return useTestFlowStore.subscribe((state) => {
-      if (state.groupType === prev.groupType && state.members === prev.members)
-        return;
-      prev = { groupType: state.groupType, members: state.members };
+      if (
+        state.groupType === prev.groupType
+        && state.members === prev.members
+        && state.situation === prev.situation
+      ) return;
+      prev = { groupType: state.groupType, members: state.members, situation: state.situation };
 
       const nextDraft = fetchCurrentMemberDraft();
       if (nextDraft) putMemberDraft(nextDraft, window.sessionStorage);

@@ -56,10 +56,10 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
           disabled={isDisabled}
           onClick={() => {
             if (groupType) trackMembersComplete(groupType, members.length);
-            router.push('/analyzing');
+            router.push('/situation');
           }}
         >
-          분석 시작
+          다음
         </Button>
       </div>
     </div>

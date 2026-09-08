@@ -10,6 +10,7 @@ const PUBLIC_ROUTES = [
   '/signup',
   '/group-type',
   '/members',
+  '/situation',
   '/analyzing',
   '/api/analyze',
   ...SEO_METADATA_ROUTES,

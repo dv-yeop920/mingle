@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { analyzeRequestSchema } from './schemas';
 
 const createValidRequest = () => ({
-  schemaVersion: '2026-08-24',
+  schemaVersion: '2026-09-07',
   group: {
     type: 'friends',
     customName: null,
@@ -26,6 +26,7 @@ const createValidRequest = () => ({
       order: 1,
     },
   ],
+  situation: null,
   options: {
     locale: 'ko-KR',
     tone: 'friendly',
