@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { AuthQueryCacheSync } from '@/shared/lib/react-query/auth-query-cache-sync';
-import { ToastProvider } from '@/shared/ui';
+import { ToastProvider } from '@/shared/ui/toast/toast-provider';
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(
