@@ -7,6 +7,7 @@ import { trackSituationComplete } from '@/shared/lib/analytics';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { Chip } from '@/shared/ui/chip';
+import { IconButton } from '@/shared/ui/icon-button';
 
 import {
   SITUATION_FREE_TEXT_MAX_LENGTH,
@@ -80,13 +81,12 @@ const SituationView = () => {
     <div className="flex h-dvh flex-col">
       <div className="shrink-0 px-[22px] pt-[6px]">
         <div className="flex items-center gap-3">
-          <button
-            type="button"
+          <IconButton
             onClick={() => router.push('/members')}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface text-[16px] font-extrabold text-muted btn-press"
+            className="text-[16px] font-extrabold text-muted"
           >
             ‹
-          </button>
+          </IconButton>
           <span className="text-[16px] font-extrabold text-foreground">
             상황 선택
           </span>
@@ -130,13 +130,16 @@ const SituationView = () => {
               'w-full resize-none rounded-[14px] border border-border bg-surface px-4 py-3',
               'text-[14px] font-medium text-foreground placeholder:text-muted',
               'focus:border-primary focus:outline-none',
-              freeText.length > 0 && selectedPresetId === null && 'border-primary',
+              freeText.length > 0 &&
+                selectedPresetId === null &&
+                'border-primary',
             )}
           />
           <span
             className={cn(
               'absolute bottom-3 right-4 text-[11px] font-bold',
-              freeText.length > 0 && freeText.length < SITUATION_FREE_TEXT_MIN_LENGTH
+              freeText.length > 0 &&
+                freeText.length < SITUATION_FREE_TEXT_MIN_LENGTH
                 ? 'text-caution-foreground'
                 : 'text-muted',
             )}
@@ -147,20 +150,12 @@ const SituationView = () => {
       </div>
 
       <div className="shrink-0 px-6 pb-[44px] pt-3">
-        <Button
-          variant="primary"
-          disabled={!isValid}
-          onClick={handleSubmit}
-        >
+        <Button variant="primary" disabled={!isValid} onClick={handleSubmit}>
           분석 시작
         </Button>
-        <button
-          type="button"
-          onClick={handleSkip}
-          className="mt-3 w-full cursor-pointer py-2 text-center text-[13px] font-bold text-muted"
-        >
+        <Button variant="secondary" onClick={handleSkip}>
           건너뛰기
-        </button>
+        </Button>
       </div>
     </div>
   );

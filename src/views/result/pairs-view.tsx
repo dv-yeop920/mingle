@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { trackResultDetailView } from '@/shared/lib/analytics';
 import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { cn } from '@/shared/lib/utils';
+import { IconButton } from '@/shared/ui/icon-button';
 
 import { PairCard, useAnalysis } from '@/entities/analysis';
 
@@ -78,11 +79,10 @@ const PairsView = ({ analysisId, className }: PairsViewProps) => {
         className,
       )}
     >
-      <button
-        type="button"
+      <IconButton
+        size="md"
         aria-label="결과로 돌아가기"
         onClick={() => router.back()}
-        className="flex h-[44px] w-[44px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface btn-press"
       >
         <svg
           width="14"
@@ -97,7 +97,7 @@ const PairsView = ({ analysisId, className }: PairsViewProps) => {
         >
           <path d="M9 2L4 7L9 12" />
         </svg>
-      </button>
+      </IconButton>
 
       <header className="flex flex-col gap-2">
         <h1 className="text-title2 font-black tracking-title text-foreground">

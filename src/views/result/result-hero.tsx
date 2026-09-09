@@ -1,4 +1,5 @@
 import type { MbtiType } from '@/shared/types/mbti';
+import { IconButton } from '@/shared/ui/icon-button';
 
 import { ScoreGauge } from '@/entities/analysis';
 
@@ -25,24 +26,24 @@ const ResultHero = ({
 }: ResultHeroProps) => (
   <div className="relative rounded-b-[34px] bg-green-100 pb-[30px] before:absolute before:inset-x-0 before:bottom-full before:h-[max(12px,env(safe-area-inset-top))] before:bg-green-100 before:content-['']">
     <div className="flex items-center justify-between px-[22px] pb-0 pt-[6px]">
-      <button
-        type="button"
+      <IconButton
+        variant="ghost"
         aria-label="이전 화면으로"
         onClick={onBack}
-        className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[16px] font-extrabold text-accent btn-press"
+        className="text-[16px] font-extrabold text-accent"
       >
         ‹
-      </button>
+      </IconButton>
       <span className="text-[15px] font-black text-accent-foreground">
         {situationLabel ? `${groupName} · ${situationLabel}` : groupName}
       </span>
-      <button
-        type="button"
+      <IconButton
+        variant="ghost"
         onClick={onShare}
-        className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] bg-white/60 text-[15px] text-accent btn-press"
+        className="text-[15px] text-accent"
       >
         ↗
-      </button>
+      </IconButton>
     </div>
 
     <div className="flex flex-col items-center gap-4 px-[30px] pt-[22px]">

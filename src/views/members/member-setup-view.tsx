@@ -7,6 +7,7 @@ import { trackMembersComplete } from '@/shared/lib/analytics';
 import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
+import { IconButton } from '@/shared/ui/icon-button';
 
 import {
   MemberSetupForm,
@@ -31,13 +32,12 @@ const MemberSetupView = ({ className }: MemberSetupViewProps) => {
     <div className={cn('flex h-dvh flex-col', className)}>
       <div className="shrink-0 px-[22px] pt-[6px]">
         <div className="flex items-center gap-3">
-          <button
-            type="button"
+          <IconButton
             onClick={() => router.push('/group-type')}
-            className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface text-[16px] font-extrabold text-muted btn-press"
+            className="text-[16px] font-extrabold text-muted"
           >
             ‹
-          </button>
+          </IconButton>
           <span className="text-[16px] font-extrabold text-foreground">
             {groupTypeLabel} · 멤버 추가
           </span>

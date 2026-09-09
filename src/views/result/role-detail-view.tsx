@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { trackResultDetailView } from '@/shared/lib/analytics';
 import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { cn } from '@/shared/lib/utils';
+import { IconButton } from '@/shared/ui/icon-button';
 
 import { useAnalysis } from '@/entities/analysis';
 
@@ -72,11 +73,9 @@ const RoleDetailView = ({
         className,
       )}
     >
-      <button
-        type="button"
+      <IconButton
         aria-label="결과로 돌아가기"
         onClick={() => router.back()}
-        className="flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-[14px] border border-border bg-surface btn-press"
       >
         <svg
           width="14"
@@ -90,7 +89,7 @@ const RoleDetailView = ({
         >
           <path d="M9 2L4 7L9 12" />
         </svg>
-      </button>
+      </IconButton>
       <RoleDetail role={role} />
     </div>
   );
