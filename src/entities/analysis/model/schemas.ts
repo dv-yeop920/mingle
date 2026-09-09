@@ -17,7 +17,7 @@ const situationSchema = z.discriminatedUnion('type', [
   }),
   z.object({
     type: z.literal('freeText'),
-    text: z.string().min(5).max(200),
+    text: z.string().min(5).max(50),
   }),
 ]);
 

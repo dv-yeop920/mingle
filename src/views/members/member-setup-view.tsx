@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { trackMembersComplete } from '@/shared/lib/analytics';
@@ -8,10 +9,12 @@ import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { IconButton } from '@/shared/ui/icon-button';
+import { useToast } from '@/shared/ui/toast';
 
 import {
   MemberSetupForm,
   convertMembersToNicknameErrors,
+  fetchMemberDraft,
   useTestFlowStore,
 } from '@/features/test-flow';
 
@@ -19,14 +22,29 @@ import type { MemberSetupViewProps } from './types';
 
 const MemberSetupView = ({ className }: MemberSetupViewProps) => {
   const router = useRouter();
+  const { showToast } = useToast();
   const members = useTestFlowStore((s) => s.members);
   const groupType = useTestFlowStore((s) => s.groupType);
   const groupTypeLabel = groupType ? (GROUP_TYPE_LABELS[groupType] ?? '그룹') : '그룹';
+
+  useEffect(() => {
+    if (!groupType) {
+      const draft = fetchMemberDraft(window.sessionStorage);
+      if (draft) {
+        useTestFlowStore.getState().restoreMemberDraft(draft);
+        return;
+      }
+      showToast({ message: '유형부터 선택해 주세요', variant: 'info' });
+      router.replace('/group-type');
+    }
+  }, [groupType, router, showToast]);
 
   const debouncedMembers = useDebouncedValue(members, 300);
   const nicknameErrors = convertMembersToNicknameErrors(debouncedMembers);
   const hasNicknameError = Object.values(nicknameErrors).some(Boolean);
   const isDisabled = members.length < 2 || hasNicknameError;
+
+  if (!groupType) return null;
 
   return (
     <div className={cn('flex h-dvh flex-col', className)}>

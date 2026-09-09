@@ -37,7 +37,7 @@ describe('TextField', () => {
   });
 
   describe('IME composition 처리', () => {
-    it('조합 중에는 외부 onChange를 호출하지 않는다', () => {
+    it('조합 중에도 외부 onChange를 호출한다', () => {
       const handleChange = vi.fn();
       render(<TextField label="닉네임" value="" onChange={handleChange} />);
       const input = screen.getByLabelText('닉네임');
@@ -47,10 +47,10 @@ describe('TextField', () => {
       fireEvent.change(input, { target: { value: '주' } });
       fireEvent.change(input, { target: { value: '준' } });
 
-      expect(handleChange).not.toHaveBeenCalled();
+      expect(handleChange).toHaveBeenCalledTimes(3);
     });
 
-    it('조합 완료 후 onChange를 호출한다', () => {
+    it('조합 완료 후에도 onChange를 호출한다', () => {
       const handleChange = vi.fn();
       render(<TextField label="닉네임" value="" onChange={handleChange} />);
       const input = screen.getByLabelText('닉네임');
@@ -60,7 +60,7 @@ describe('TextField', () => {
       fireEvent.change(input, { target: { value: '준' } });
       fireEvent.compositionEnd(input, { target: input });
 
-      expect(handleChange).toHaveBeenCalledTimes(1);
+      expect(handleChange).toHaveBeenCalledTimes(3);
     });
 
     it('조합 중 입력값을 화면에 표시한다', () => {

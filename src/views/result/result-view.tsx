@@ -19,7 +19,7 @@ import {
   useAnalysis,
 } from '@/entities/analysis';
 import type { GroupType } from '@/entities/group';
-import { findPresetById, type SituationInput } from '@/entities/situation';
+import type { SituationInput } from '@/entities/situation';
 
 import { makeAnalysisPublic } from '@/features/analysis-result';
 import {
@@ -62,12 +62,6 @@ const METRIC_LABELS: Record<string, string> = {
   teamwork: '팀워크',
   atmosphere: '분위기',
   conflict: '갈등 회복력',
-};
-
-const resolveSituationLabel = (situation: SituationInput | null): string | null => {
-  if (!situation) return null;
-  if (situation.type === 'preset') return findPresetById(situation.presetId)?.label ?? null;
-  return situation.text;
 };
 
 const ResultView = ({
@@ -295,7 +289,6 @@ const ResultView = ({
 
       <ResultHero
         groupName={groupName}
-        situationLabel={resolveSituationLabel(normalized.situation)}
         tagline={normalized.tagline}
         chemistryScore={normalized.chemistryScore}
         summary={normalized.summary}

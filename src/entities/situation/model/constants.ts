@@ -25,7 +25,7 @@ const SITUATION_PRESETS: SituationPresetsMap = {
 } as const;
 
 const SITUATION_FREE_TEXT_MIN_LENGTH = 5;
-const SITUATION_FREE_TEXT_MAX_LENGTH = 200;
+const SITUATION_FREE_TEXT_MAX_LENGTH = 50;
 
 const findPresetById = (presetId: string) => {
   for (const presets of Object.values(SITUATION_PRESETS)) {

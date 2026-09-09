@@ -5,7 +5,6 @@ import { ScoreGauge } from '@/entities/analysis';
 
 type ResultHeroProps = {
   groupName: string;
-  situationLabel: string | null;
   tagline: string | null;
   chemistryScore: number;
   summary: string;
@@ -16,7 +15,6 @@ type ResultHeroProps = {
 
 const ResultHero = ({
   groupName,
-  situationLabel,
   tagline,
   chemistryScore,
   summary,
@@ -35,7 +33,7 @@ const ResultHero = ({
         ‹
       </IconButton>
       <span className="text-[15px] font-black text-accent-foreground">
-        {situationLabel ? `${groupName} · ${situationLabel}` : groupName}
+        {groupName}
       </span>
       <IconButton
         variant="ghost"

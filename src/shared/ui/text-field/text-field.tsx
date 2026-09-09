@@ -33,7 +33,6 @@ const TextField = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isControlled && composingRef.current) {
       setComposingValue(e.target.value);
-      return;
     }
     onChange?.(e);
   };

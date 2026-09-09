@@ -8,6 +8,7 @@ import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { Chip } from '@/shared/ui/chip';
 import { IconButton } from '@/shared/ui/icon-button';
+import { useToast } from '@/shared/ui/toast';
 
 import {
   SITUATION_FREE_TEXT_MAX_LENGTH,
@@ -16,10 +17,11 @@ import {
   type SituationInput,
 } from '@/entities/situation';
 
-import { useTestFlowStore } from '@/features/test-flow';
+import { fetchMemberDraft, useTestFlowStore } from '@/features/test-flow';
 
 const SituationView = () => {
   const router = useRouter();
+  const { showToast } = useToast();
   const groupType = useTestFlowStore((s) => s.groupType);
   const storedSituation = useTestFlowStore((s) => s.situation);
   const setSituation = useTestFlowStore((s) => s.setSituation);
@@ -33,9 +35,15 @@ const SituationView = () => {
 
   useEffect(() => {
     if (!groupType) {
+      const draft = fetchMemberDraft(window.sessionStorage);
+      if (draft) {
+        useTestFlowStore.getState().restoreMemberDraft(draft);
+        return;
+      }
+      showToast({ message: '유형부터 선택해 주세요', variant: 'info' });
       router.replace('/group-type');
     }
-  }, [groupType, router]);
+  }, [groupType, router, showToast]);
 
   if (!groupType) return null;
 
@@ -123,7 +131,7 @@ const SituationView = () => {
           <textarea
             value={freeText}
             onChange={(e) => handleFreeTextChange(e.target.value)}
-            placeholder="예: 이번 주말 제주도 여행 가는데 숙소에서 보드게임 하려고"
+            placeholder="5글자 이상 입력해 주세요 (예: 제주도 여행 숙소에서 보드게임)"
             maxLength={SITUATION_FREE_TEXT_MAX_LENGTH}
             rows={3}
             className={cn(

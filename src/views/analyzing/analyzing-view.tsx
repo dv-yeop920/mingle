@@ -101,6 +101,13 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
         >
           다시 시도
         </Button>
+        <Button
+          variant="secondary"
+          className="w-auto px-6"
+          onClick={() => router.push('/')}
+        >
+          돌아가기
+        </Button>
       </div>
     );
   }
