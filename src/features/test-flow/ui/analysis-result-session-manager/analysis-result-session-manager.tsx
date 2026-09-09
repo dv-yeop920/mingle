@@ -37,16 +37,20 @@ const AnalysisResultSessionManager = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const search = searchParams.toString();
-  const initialLocation = useRef({ pathname, search });
+  const locationRef = useRef({ pathname, search });
   const currentFlowState = useRef<ResultFlowState>(
     convertResultFlowState(pathname, search),
   );
   const previousFlowState = useRef<ResultFlowState | null>(null);
 
   useEffect(() => {
+    locationRef.current = { pathname, search };
+  });
+
+  useEffect(() => {
     const initialFlowState = convertResultFlowState(
-      initialLocation.current.pathname,
-      initialLocation.current.search,
+      locationRef.current.pathname,
+      locationRef.current.search,
     );
     const currentResult = useTestFlowStore.getState().analysisResult;
 

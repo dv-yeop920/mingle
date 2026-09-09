@@ -14,12 +14,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 모든 작업은 아래 4단계를 순서대로 따른다. 직접 코딩 금지 — 반드시 에이전트를 통해 작업한다.
 
-| 단계 | 목적 | 에이전트/도구 | 산출물 |
-|---|---|---|---|
-| **1. Research** | 코드베이스 탐색, 영향 범위 파악 | Explore (grep, find, Read) | 변경 대상 파일 목록, 의존 관계 |
-| **2. Plan** | 설계 + 구현 계획 수립 | Frontend §0 5단계 설계 | 설계 문서 (design-note.md) |
-| **3. Implement** | 코드 작성 | Frontend / Backend / UI / Test | 구현 코드 + 테스트 |
-| **4. Review & Ship** | 품질 점검 + 배포 | `/review` → `/test` → `/ship` | 커밋 + 푸시 |
+| 단계                 | 목적                            | 에이전트/도구                  | 산출물                         |
+| -------------------- | ------------------------------- | ------------------------------ | ------------------------------ |
+| **1. Research**      | 코드베이스 탐색, 영향 범위 파악 | Explore (grep, find, Read)     | 변경 대상 파일 목록, 의존 관계 |
+| **2. Plan**          | 설계 + 구현 계획 수립           | Frontend §0 5단계 설계         | 설계 문서 (design-note.md)     |
+| **3. Implement**     | 코드 작성                       | Frontend / Backend / UI / Test | 구현 코드 + 테스트             |
+| **4. Review & Ship** | 품질 점검 + 배포                | `/review` → `/test` → `/ship`  | 커밋 + 푸시                    |
 
 ### 규칙
 
@@ -29,13 +29,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ### 에이전트 선택 기준
 
-| 작업 내용 | 에이전트 |
-|---|---|
-| 마크업, 스타일링, 컴포넌트 퍼블리싱 | **UI** |
+| 작업 내용                                        | 에이전트     |
+| ------------------------------------------------ | ------------ |
+| 마크업, 스타일링, 컴포넌트 퍼블리싱              | **UI**       |
 | 상태 관리, React Query, Zod, 폼, 클라이언트 로직 | **Frontend** |
-| Server Action, Supabase, Route Handler | **Backend** |
-| 테스트 작성 + 실행 | **Test** |
-| 코드 품질 점검 | **Review** |
+| Server Action, Supabase, Route Handler           | **Backend**  |
+| 테스트 작성 + 실행                               | **Test**     |
+| 코드 품질 점검                                   | **Review**   |
 
 ---
 
@@ -55,14 +55,14 @@ shared → entities → features → widgets → views → app
 - 의존 방향: 하위 → 상위만 허용
 - **같은 레이어 내 cross-import 금지** (`features/auth` → `features/test-flow` 불가)
 
-| 레이어 | 책임 |
-|---|---|
-| `shared/` | 도메인 무관 공통 (UI, lib, config, styles, types) |
-| `entities/` | 도메인 데이터 모델 + 읽기(queries, hooks) + 단위 UI |
-| `features/` | 유스케이스 (Server Actions, Zustand store, 폼, mutation) |
-| `widgets/` | 여러 페이지 공유 레이아웃 블록 (BottomNav, StepHeader) |
-| `views/` | 페이지 뷰 조합 (하위 레이어 조합) |
-| `app/` | 라우팅 전용 (page에서 views import, layout에서 Provider 배치) |
+| 레이어      | 책임                                                          |
+| ----------- | ------------------------------------------------------------- |
+| `shared/`   | 도메인 무관 공통 (UI, lib, config, styles, types)             |
+| `entities/` | 도메인 데이터 모델 + 읽기(queries, hooks) + 단위 UI           |
+| `features/` | 유스케이스 (Server Actions, Zustand store, 폼, mutation)      |
+| `widgets/`  | 여러 페이지 공유 레이아웃 블록 (BottomNav, StepHeader)        |
+| `views/`    | 페이지 뷰 조합 (하위 레이어 조합)                             |
+| `app/`      | 라우팅 전용 (page에서 views import, layout에서 Provider 배치) |
 
 ---
 
@@ -107,16 +107,16 @@ shared → entities → features → widgets → views → app
 
 ### 코드
 
-| 대상 | 규칙 | 예시 |
-|---|---|---|
-| 컴포넌트 | `PascalCase` | `MemberCard` |
-| 타입/인터페이스 | `PascalCase`, `I` 접두사 금지 | `Profile`, `GroupType` |
-| 상수 | `UPPER_SNAKE_CASE` | `PUBLIC_ROUTES` |
-| 불리언 | `is` 접두사 | `isSelf`, `isLoading` |
-| 훅 | `use` 접두사 | `useProfile` |
-| 값 변환 함수 | `convert` 접두사 | `convertMbtiToColor` |
-| API 호출 함수 | HTTP 메서드 접두사 | `fetchProfile`, `postAnalysis`, `putNickname`, `deleteGroup` |
-| Server Action | 동사형 | `login`, `signup`, `saveAnalysis` |
+| 대상            | 규칙                          | 예시                                                         |
+| --------------- | ----------------------------- | ------------------------------------------------------------ |
+| 컴포넌트        | `PascalCase`                  | `MemberCard`                                                 |
+| 타입/인터페이스 | `PascalCase`, `I` 접두사 금지 | `Profile`, `GroupType`                                       |
+| 상수            | `UPPER_SNAKE_CASE`            | `PUBLIC_ROUTES`                                              |
+| 불리언          | `is` 접두사                   | `isSelf`, `isLoading`                                        |
+| 훅              | `use` 접두사                  | `useProfile`                                                 |
+| 값 변환 함수    | `convert` 접두사              | `convertMbtiToColor`                                         |
+| API 호출 함수   | HTTP 메서드 접두사            | `fetchProfile`, `postAnalysis`, `putNickname`, `deleteGroup` |
+| Server Action   | 동사형                        | `login`, `signup`, `saveAnalysis`                            |
 
 ---
 
@@ -146,11 +146,11 @@ shared → entities → features → widgets → views → app
 
 ## 5. 상태 관리 규칙
 
-| 상태 종류 | 도구 | 위치 |
-|---|---|---|
-| 서버 상태 | React Query | `entities/*/api/hooks.ts`, key는 `shared/config/query-keys.ts` |
-| 클라이언트 전용 | Zustand | `features/*/model/store.ts` |
-| 폼 상태 | React Hook Form + Zod resolver | 스키마는 `*/model/schemas.ts` |
+| 상태 종류       | 도구                           | 위치                                                           |
+| --------------- | ------------------------------ | -------------------------------------------------------------- |
+| 서버 상태       | React Query                    | `entities/*/api/hooks.ts`, key는 `shared/config/query-keys.ts` |
+| 클라이언트 전용 | Zustand                        | `features/*/model/store.ts`                                    |
+| 폼 상태         | React Hook Form + Zod resolver | 스키마는 `*/model/schemas.ts`                                  |
 
 ---
 
@@ -166,15 +166,15 @@ shared → entities → features → widgets → views → app
 
 ## 7. 에러 핸들링 규칙
 
-| 상황 | 패턴 |
-|---|---|
+| 상황               | 패턴                                                          |
+| ------------------ | ------------------------------------------------------------- |
 | Server Action 에러 | `{ error: string } \| { data: T }` 반환, throw 대신 결과 객체 |
-| React Query 에러 | `error` 상태 활용 UI 표시, 전역 핸들러는 QueryClient에 설정 |
-| 폼 유효성 에러 | React Hook Form + Zod resolver, 필드별 에러 메시지 |
-| 라우트 에러 | `error.tsx` (라우트별) + `global-error.tsx` (루트) |
-| 로딩 상태 | `loading.tsx` (라우트별) + Suspense (컴포넌트별) |
-| Not Found | `not-found.tsx` + `notFound()` 호출 |
-| API Route 에러 | try-catch + `NextResponse.json({ error }, { status })` |
+| React Query 에러   | `error` 상태 활용 UI 표시, 전역 핸들러는 QueryClient에 설정   |
+| 폼 유효성 에러     | React Hook Form + Zod resolver, 필드별 에러 메시지            |
+| 라우트 에러        | `error.tsx` (라우트별) + `global-error.tsx` (루트)            |
+| 로딩 상태          | `loading.tsx` (라우트별) + Suspense (컴포넌트별)              |
+| Not Found          | `not-found.tsx` + `notFound()` 호출                           |
+| API Route 에러     | try-catch + `NextResponse.json({ error }, { status })`        |
 
 ---
 
@@ -190,7 +190,6 @@ shared → entities → features → widgets → views → app
 
 ## 9. 참조 문서
 
-- 구현 계획: `docs/design/plan.md`
 - Supabase 작업 가이드: `docs/guides/supabase.md`
 - 디자인 요구사항: `docs/design/requirements.md`
 - 개발 워크플로우: `docs/guides/workflow.md`
@@ -198,12 +197,12 @@ shared → entities → features → widgets → views → app
 
 ## 9-1. 스킬 자동 참조
 
-| 트리거 | 스킬 파일 |
-|---|---|
-| Supabase 관련 작업 (DB, Auth, RLS, Edge Functions, 마이그레이션 등) | `.agents/skills/supabase/SKILL.md` |
-| Postgres 스키마/마이그레이션/쿼리 최적화 작업 | `.agents/skills/supabase-postgres-best-practices/SKILL.md` |
-| SEO 감사/진단/개선 요청 | `.agents/skills/seo-audit/SKILL.md` |
-| 계획/설계 검증 요청 ("이거 괜찮아?", "허점 없어?" 등) | `.agents/skills/grill-me/SKILL.md` |
+| 트리거                                                              | 스킬 파일                                                  |
+| ------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Supabase 관련 작업 (DB, Auth, RLS, Edge Functions, 마이그레이션 등) | `.agents/skills/supabase/SKILL.md`                         |
+| Postgres 스키마/마이그레이션/쿼리 최적화 작업                       | `.agents/skills/supabase-postgres-best-practices/SKILL.md` |
+| SEO 감사/진단/개선 요청                                             | `.agents/skills/seo-audit/SKILL.md`                        |
+| 계획/설계 검증 요청 ("이거 괜찮아?", "허점 없어?" 등)               | `.agents/skills/grill-me/SKILL.md`                         |
 
 해당 작업 시작 전에 스킬 파일을 먼저 읽고 가이드를 따를 것.
 
@@ -214,13 +213,13 @@ shared → entities → features → widgets → views → app
 Claude agent 지침을 source of truth로 둔다.
 Codex는 역할별 작업을 시작할 때 아래 파일을 먼저 읽고 해당 역할 기준으로 작업한다.
 
-| 역할 | Agent 지침 |
-|---|---|
-| Backend | `.claude/agents/backend.md` |
+| 역할     | Agent 지침                   |
+| -------- | ---------------------------- |
+| Backend  | `.claude/agents/backend.md`  |
 | Frontend | `.claude/agents/frontend.md` |
-| Review | `.claude/agents/review.md` |
-| Test | `.claude/agents/test.md` |
-| UI | `.claude/agents/ui.md` |
+| Review   | `.claude/agents/review.md`   |
+| Test     | `.claude/agents/test.md`     |
+| UI       | `.claude/agents/ui.md`       |
 
 ---
 
@@ -229,8 +228,8 @@ Codex는 역할별 작업을 시작할 때 아래 파일을 먼저 읽고 해당
 Claude command 지침을 source of truth로 둔다.
 사용자가 command 이름을 입력하면 Codex는 아래 파일을 먼저 읽고 그대로 실행한다.
 
-| Command | 지침 |
-|---|---|
-| `/ship` | `.claude/commands/ship.md` |
+| Command   | 지침                         |
+| --------- | ---------------------------- |
+| `/ship`   | `.claude/commands/ship.md`   |
 | `/review` | `.claude/commands/review.md` |
-| `/test` | `.claude/commands/test.md` |
+| `/test`   | `.claude/commands/test.md`   |
