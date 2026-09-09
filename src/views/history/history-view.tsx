@@ -12,7 +12,7 @@ import type { HistoryViewProps } from './types';
 
 const HistoryView = ({ userId, className }: HistoryViewProps) => {
   const [activeFilter, setActiveFilter] = useState('all');
-  const { data: analyses } = useAnalyses(userId);
+  const { data: analyses, isPending } = useAnalyses(userId);
   const totalCount = analyses?.length ?? 0;
 
   return (
@@ -21,9 +21,11 @@ const HistoryView = ({ userId, className }: HistoryViewProps) => {
         <h1 className="text-[23px] font-black tracking-title text-foreground">
           테스트 기록
         </h1>
-        <span className="font-nunito text-[13px] font-extrabold text-hint">
-          {totalCount}
-        </span>
+        {!isPending && (
+          <span className="font-nunito text-[13px] font-extrabold text-hint">
+            {totalCount}
+          </span>
+        )}
       </div>
       <div className="px-[24px] pt-[16px]">
         <HistoryFilter

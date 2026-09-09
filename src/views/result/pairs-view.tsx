@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { trackResultDetailView } from '@/shared/lib/analytics';
+import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { cn } from '@/shared/lib/utils';
 
 import { PairCard, useAnalysis } from '@/entities/analysis';
@@ -13,8 +14,9 @@ import { useTestFlowStore } from '@/features/test-flow';
 import { normalizePairChemistry } from './lib/normalize-analysis';
 import type { PairsViewProps } from './types';
 
-const PairsView = ({ userId, analysisId, className }: PairsViewProps) => {
+const PairsView = ({ analysisId, className }: PairsViewProps) => {
   const router = useRouter();
+  const { userId } = useAuthUserId();
 
   useEffect(() => {
     trackResultDetailView('pairs');

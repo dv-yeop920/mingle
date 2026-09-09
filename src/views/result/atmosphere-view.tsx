@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { trackResultDetailView } from '@/shared/lib/analytics';
+import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { cn } from '@/shared/lib/utils';
 
 import { useAnalysis } from '@/entities/analysis';
@@ -15,11 +16,11 @@ import { normalizeAtmosphereSections } from './lib/normalize-analysis';
 import type { AtmosphereViewProps } from './types';
 
 const AtmosphereView = ({
-  userId,
   analysisId,
   className,
 }: AtmosphereViewProps) => {
   const router = useRouter();
+  const { userId } = useAuthUserId();
 
   useEffect(() => {
     trackResultDetailView('atmosphere');

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { cn } from '@/shared/lib/utils';
 
 import { isProfileComplete, useProfile } from '@/entities/user';
@@ -14,10 +15,13 @@ import {
 
 import { StepHeader } from '@/widgets/step-header';
 
-import type { GroupTypeViewProps } from './types';
+type GroupTypeViewProps = {
+  className?: string;
+};
 
-const GroupTypeView = ({ userId, className }: GroupTypeViewProps) => {
+const GroupTypeView = ({ className }: GroupTypeViewProps) => {
   const router = useRouter();
+  const { userId } = useAuthUserId();
   const { data: profile } = useProfile(userId);
 
   useEffect(() => {

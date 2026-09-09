@@ -6,6 +6,7 @@ import { useEffect, useMemo } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
 import { trackResultRetest, trackResultShare } from '@/shared/lib/analytics';
+import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import type { Gender } from '@/shared/types/gender';
@@ -70,11 +71,11 @@ const resolveSituationLabel = (situation: SituationInput | null): string | null 
 };
 
 const ResultView = ({
-  userId,
   analysisId: propAnalysisId,
   className,
 }: ResultViewProps) => {
   const router = useRouter();
+  const { userId } = useAuthUserId();
   const storeAnalysisId = useTestFlowStore((s) => s.analysisId);
   const storeResult = useTestFlowStore((s) => s.analysisResult);
   const isAnalysisResultHydrated = useTestFlowStore(

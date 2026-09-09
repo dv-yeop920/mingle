@@ -1,3 +1,3 @@
-export { MyPageContainerView } from './my-page-view';
+export { MyPageView, type MyPageViewProps } from './my-page-view';
 export { SettingsView } from './settings-view';
-export type { MyPageContainerViewProps, SettingsViewProps } from './types';
+export type { SettingsViewProps } from './types';

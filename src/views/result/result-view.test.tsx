@@ -46,6 +46,10 @@ vi.mock('@/shared/lib/supabase/client', () => ({
   }),
 }));
 
+vi.mock('@/shared/lib/supabase/use-auth-user-id', () => ({
+  useAuthUserId: () => ({ userId: 'user-id', isPending: false }),
+}));
+
 vi.mock('@/features/analysis-result/api/actions', () => ({
   saveGuestAnalysis: mockSaveGuestAnalysis,
 }));
@@ -64,7 +68,7 @@ const renderResultView = (analysisId?: string) => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <ResultView userId="user-id" analysisId={analysisId} />
+      <ResultView analysisId={analysisId} />
     </QueryClientProvider>,
   );
 };
