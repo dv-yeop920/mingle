@@ -2,8 +2,10 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { clearAuthQueryCache } from '@/shared/lib/react-query/clear-auth-query-cache';
+import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
 import { useToast } from '@/shared/ui/toast';
@@ -55,10 +57,11 @@ const MyPageSkeleton = () => {
   );
 };
 
-const MyPageContent = ({ userId }: { userId: string }) => {
+const MyPageContent = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { userId, isPending: isAuthPending } = useAuthUserId();
   const {
     data: profile,
     isPending: isProfilePending,
@@ -81,9 +84,17 @@ const MyPageContent = ({ userId }: { userId: string }) => {
     router.replace('/login');
   });
 
-  if (isProfilePending || isStatsPending) {
+  useEffect(() => {
+    if (!isAuthPending && !userId) {
+      router.replace('/login');
+    }
+  }, [isAuthPending, userId, router]);
+
+  if (isAuthPending || isProfilePending || isStatsPending) {
     return <MyPageSkeleton />;
   }
+
+  if (!userId) return null;
 
   if (isProfileError) {
     return (

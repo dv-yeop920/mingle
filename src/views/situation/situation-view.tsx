@@ -73,15 +73,8 @@ const SituationView = () => {
   const isValid = situationInput !== null;
 
   const handleSubmit = () => {
-    const situationType = situationInput?.type ?? 'skip';
-    trackSituationComplete(groupType, situationType);
+    trackSituationComplete(groupType, situationInput!.type);
     setSituation(situationInput);
-    router.push('/analyzing');
-  };
-
-  const handleSkip = () => {
-    trackSituationComplete(groupType, 'skip');
-    setSituation(null);
     router.push('/analyzing');
   };
 
@@ -136,7 +129,7 @@ const SituationView = () => {
             rows={3}
             className={cn(
               'w-full resize-none rounded-[14px] border border-border bg-surface px-4 py-3',
-              'text-[14px] font-medium text-foreground placeholder:text-muted',
+              'text-[16px] font-medium text-foreground placeholder:text-muted',
               'focus:border-primary focus:outline-none',
               freeText.length > 0 &&
                 selectedPresetId === null &&
@@ -160,9 +153,6 @@ const SituationView = () => {
       <div className="shrink-0 px-6 pb-[44px] pt-3">
         <Button variant="primary" disabled={!isValid} onClick={handleSubmit}>
           분석 시작
-        </Button>
-        <Button variant="secondary" onClick={handleSkip}>
-          건너뛰기
         </Button>
       </div>
     </div>

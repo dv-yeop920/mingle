@@ -1,23 +1,16 @@
-import { cn } from '@/shared/lib/utils';
-
 import { MyPageContent } from './my-page-content';
 
-type MyPageViewProps = {
-  userId: string;
-  className?: string;
-};
-
-const MyPageView = ({ userId, className }: MyPageViewProps) => {
+const MyPageView = () => {
   return (
-    <div className={cn('flex flex-col', className)}>
+    <div className="flex flex-col">
       <div className="px-6 pt-[10px] pb-[20px]">
         <h1 className="text-[23px] font-black tracking-title text-foreground">
           My
         </h1>
       </div>
-      <MyPageContent userId={userId} />
+      <MyPageContent />
     </div>
   );
 };
 
-export { MyPageView, type MyPageViewProps };
+export { MyPageView };
