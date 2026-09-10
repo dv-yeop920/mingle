@@ -19,7 +19,7 @@ const fetchCurrentMemberDraft = (): MemberDraft | null => {
   if (!groupType || members.length < 2 || members.length > 15) return null;
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     groupType,
     memberCount: members.length,
     members,

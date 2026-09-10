@@ -28,6 +28,7 @@ const memberSchema = z.object({
   gender: z.enum(GENDER_TYPES),
   isSelf: z.boolean(),
   order: z.number().int().min(0),
+  role: z.string().max(10).nullable().optional().default(null),
 });
 
 const analyzeRequestSchema = z.object({

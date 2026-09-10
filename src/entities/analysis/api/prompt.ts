@@ -14,6 +14,7 @@ type AnalysisMember = {
   gender: Gender;
   isSelf: boolean;
   order: number;
+  role: string | null;
 };
 
 type ExpectedPair = {
@@ -136,6 +137,14 @@ const ANALYSIS_INSTRUCTIONS = `# Role
   - 술자리라면 → 누가 먼저 건배하는지, 누가 안주 시키는지, 누가 조용히 듣다가 한마디로 웃기는지
 - situation이 null이면 기존처럼 일반적인 그룹 케미를 분석한다.
 
+# Member Role / Relationship Context
+- members[].role은 사용자가 직접 입력한 그 사람의 직급이나 가족 관계다.
+- role이 null이 아닌 멤버가 있으면 해당 정보를 분석에 적극 반영한다.
+  - company: "부장"과 "사원" → 상하 관계 역학, 리더십/팔로워십, 보고 커뮤니케이션
+  - family: "아빠"와 "딸" → 세대 차이, 돌봄-간섭 경계, 정서적 안정감
+- pairChemistry에서도 두 멤버의 role 관계를 고려한다.
+- role이 null인 멤버는 기존처럼 MBTI만으로 분석한다.
+
 # Scoring
 - 모든 점수는 0~100 정수다.
 - metrics.conversation은 대화 케미다.
@@ -239,6 +248,7 @@ const convertMembers = (members: AnalyzeRequest['members']): AnalysisMember[] =>
       gender: member.gender,
       isSelf: member.isSelf,
       order: member.order,
+      role: member.role,
     }))
     .toSorted((a, b) => a.order - b.order);
 

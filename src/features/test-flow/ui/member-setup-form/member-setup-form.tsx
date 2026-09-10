@@ -7,6 +7,7 @@ import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
 import type { MbtiType } from '@/shared/types/mbti';
 import { Button } from '@/shared/ui/button';
 
+import { GROUP_TYPE_ROLE_PLACEHOLDERS } from '@/entities/group';
 import type { Gender } from '@/entities/member';
 
 const MbtiPicker = dynamic(
@@ -26,9 +27,11 @@ import type { MemberSetupFormProps } from './types';
 
 const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
   const members = useTestFlowStore((s) => s.members);
+  const groupType = useTestFlowStore((s) => s.groupType);
   const addMember = useTestFlowStore((s) => s.addMember);
   const updateMember = useTestFlowStore((s) => s.updateMember);
   const removeMember = useTestFlowStore((s) => s.removeMember);
+  const rolePlaceholder = groupType ? GROUP_TYPE_ROLE_PLACEHOLDERS[groupType] : undefined;
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
   const [hasEverOpenedMbtiPicker, setHasEverOpenedMbtiPicker] = useState(false);
   const debouncedMembers = useDebouncedValue(members, 300);
@@ -41,7 +44,13 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
       mbti: 'ISTJ',
       gender: 'other',
       isSelf: false,
+      role: null,
     });
+  };
+
+  const handleRoleChange = (id: string, value: string) => {
+    const filtered = value.slice(0, 10);
+    updateMember(id, { role: filtered || null });
   };
 
   const handleNicknameChange = (id: string, value: string) => {
@@ -87,11 +96,14 @@ const MemberSetupForm = ({ className }: MemberSetupFormProps) => {
             mbti={member.mbti}
             gender={member.gender}
             isSelf={member.isSelf}
+            role={member.role}
             onNicknameChange={handleNicknameChange}
+            onRoleChange={handleRoleChange}
             onMbtiSelect={handleMbtiSelect}
             onGenderChange={handleGenderChange}
             onDelete={handleDelete}
             nicknameError={nicknameErrors[member.id]}
+            rolePlaceholder={rolePlaceholder}
           />
         ))}
       </div>

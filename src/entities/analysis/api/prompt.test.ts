@@ -15,6 +15,7 @@ describe('analysis prompt builders', () => {
       gender: 'female' as const,
       isSelf: true,
       order: 0,
+      role: null,
     },
     {
       memberId: 'member-2',
@@ -23,6 +24,7 @@ describe('analysis prompt builders', () => {
       gender: 'male' as const,
       isSelf: false,
       order: 1,
+      role: null,
     },
   ];
 
@@ -77,6 +79,7 @@ describe('analysis prompt builders', () => {
         gender: 'male',
         isSelf: true,
         order: 0,
+        role: null,
       },
       {
         memberId: 'b',
@@ -85,6 +88,7 @@ describe('analysis prompt builders', () => {
         gender: 'female',
         isSelf: false,
         order: 1,
+        role: null,
       },
       {
         memberId: 'c',
@@ -93,6 +97,7 @@ describe('analysis prompt builders', () => {
         gender: 'male',
         isSelf: false,
         order: 2,
+        role: null,
       },
     ]);
 

@@ -199,10 +199,11 @@ const ResultView = ({
             mbti: m.mbti as MbtiType,
             gender: 'gender' in m && m.gender ? (m.gender as Gender) : 'other',
             isSelf: m.is_self,
+            role: 'role' in m && m.role ? (m.role as string) : null,
           }));
 
           store.restoreMemberDraft({
-            schemaVersion: 2 as const,
+            schemaVersion: 3 as const,
             groupType: normalized.groupType as GroupType,
             memberCount: testMembers.length,
             members: testMembers,

@@ -19,11 +19,14 @@ const EditableMemberCard = ({
   mbti,
   gender,
   isSelf,
+  role,
   onNicknameChange,
+  onRoleChange,
   onMbtiSelect,
   onGenderChange,
   onDelete,
   nicknameError,
+  rolePlaceholder,
   className,
 }: EditableMemberCardProps) => {
   const temperament = MBTI_TEMPERAMENTS[mbti];
@@ -64,6 +67,15 @@ const EditableMemberCard = ({
               </span>
             )}
           </div>
+          {rolePlaceholder && (
+            <TextField
+              value={role ?? ''}
+              onChange={(e) => onRoleChange(id, e.target.value)}
+              placeholder={rolePlaceholder}
+              maxLength={10}
+              className="[&_input]:h-[36px] [&_input]:text-[14px]"
+            />
+          )}
         </div>
 
         {!isSelf && (

@@ -9,6 +9,7 @@ type Member = {
   mbti: MbtiType;
   isSelf: boolean;
   order: number;
+  role: string | null;
 };
 
 export type { Gender, Member };

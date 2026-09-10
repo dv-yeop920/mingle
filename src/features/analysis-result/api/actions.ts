@@ -98,6 +98,7 @@ type SaveGuestAnalysisParams = {
     mbti: string;
     gender: Gender;
     is_self: boolean;
+    role: string | null;
   }[];
   chemistryScore: number;
   tagline: string;

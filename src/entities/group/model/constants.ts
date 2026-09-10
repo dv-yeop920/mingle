@@ -15,4 +15,9 @@ const GROUP_TYPE_OPTIONS: GroupTypeOption[] = [
   { type: 'family', icon: '🏠', title: '가족', description: '성향 차이, 대화 방식, 관계를\n분석해요', iconBg: 'bg-explorer-bg' },
 ];
 
-export { GROUP_TYPE_OPTIONS, type GroupTypeOption };
+const GROUP_TYPE_ROLE_PLACEHOLDERS: Partial<Record<GroupType, string>> = {
+  company: '직급 (선택)',
+  family: '관계 (선택)',
+};
+
+export { GROUP_TYPE_OPTIONS, GROUP_TYPE_ROLE_PLACEHOLDERS, type GroupTypeOption };

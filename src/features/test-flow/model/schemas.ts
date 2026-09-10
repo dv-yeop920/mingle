@@ -22,7 +22,7 @@ const MBTI_TYPES = [
   'ESFP',
 ] as const;
 
-const memberDraftMembersSchema = z
+const memberDraftMembersV2Schema = z
   .array(
     z.object({
       id: z.string().min(1),
@@ -35,13 +35,34 @@ const memberDraftMembersSchema = z
   .min(2)
   .max(15);
 
+const memberDraftMembersSchema = z
+  .array(
+    z.object({
+      id: z.string().min(1),
+      nickname: z.string().max(8).regex(NICKNAME_REGEX),
+      mbti: z.enum(MBTI_TYPES),
+      gender: z.enum(['male', 'female', 'other']),
+      isSelf: z.boolean(),
+      role: z.string().max(10).nullable(),
+    }),
+  )
+  .min(2)
+  .max(15);
+
 const memberDraftBaseSchema = z.object({
   groupType: z.enum(['friends', 'company', 'family']),
   memberCount: z.number().int().min(2).max(15),
+});
+
+const memberDraftV2BaseSchema = memberDraftBaseSchema.extend({
+  members: memberDraftMembersV2Schema,
+});
+
+const memberDraftV3BaseSchema = memberDraftBaseSchema.extend({
   members: memberDraftMembersSchema,
 });
 
-const memberDraftRefinements = <T extends z.infer<typeof memberDraftBaseSchema>>(
+const memberDraftRefinements = <T extends z.infer<typeof memberDraftBaseSchema> & { members: { id: string; isSelf: boolean }[] }>(
   draft: T,
   context: z.RefinementCtx,
 ) => {
@@ -73,19 +94,36 @@ const memberDraftRefinements = <T extends z.infer<typeof memberDraftBaseSchema>>
   }
 };
 
-const memberDraftV1Schema = memberDraftBaseSchema
+const memberDraftV1Schema = memberDraftV2BaseSchema
   .extend({ schemaVersion: z.literal(1) })
   .superRefine(memberDraftRefinements)
-  .transform((draft) => ({ ...draft, schemaVersion: 2 as const, situation: null }));
+  .transform((draft) => ({
+    ...draft,
+    schemaVersion: 3 as const,
+    situation: null,
+    members: draft.members.map((m) => ({ ...m, role: null })),
+  }));
 
-const memberDraftV2Schema = memberDraftBaseSchema
+const memberDraftV2Schema = memberDraftV2BaseSchema
   .extend({
     schemaVersion: z.literal(2),
     situation: situationSchema.nullable(),
   })
+  .superRefine(memberDraftRefinements)
+  .transform((draft) => ({
+    ...draft,
+    schemaVersion: 3 as const,
+    members: draft.members.map((m) => ({ ...m, role: null })),
+  }));
+
+const memberDraftV3Schema = memberDraftV3BaseSchema
+  .extend({
+    schemaVersion: z.literal(3),
+    situation: situationSchema.nullable(),
+  })
   .superRefine(memberDraftRefinements);
 
-const memberDraftSchema = z.union([memberDraftV2Schema, memberDraftV1Schema]);
+const memberDraftSchema = z.union([memberDraftV3Schema, memberDraftV2Schema, memberDraftV1Schema]);
 
 const analysisResultMembersSchema = z
   .array(
@@ -94,6 +132,7 @@ const analysisResultMembersSchema = z
       mbti: z.enum(MBTI_TYPES),
       gender: z.enum(['male', 'female', 'other']),
       is_self: z.boolean(),
+      role: z.string().max(10).nullable().optional().default(null),
     }),
   )
   .min(2)

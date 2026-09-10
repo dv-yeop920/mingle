@@ -8,11 +8,14 @@ type EditableMemberCardProps = {
   mbti: MbtiType;
   gender: Gender;
   isSelf: boolean;
+  role: string | null;
   onNicknameChange: (id: string, value: string) => void;
+  onRoleChange: (id: string, value: string) => void;
   onMbtiSelect: (id: string) => void;
   onGenderChange: (id: string, gender: Gender) => void;
   onDelete: (id: string) => void;
   nicknameError?: string;
+  rolePlaceholder?: string;
   className?: string;
 };
 

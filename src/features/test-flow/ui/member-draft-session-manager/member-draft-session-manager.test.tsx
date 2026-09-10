@@ -14,7 +14,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 const SAVED_DRAFT = {
-  schemaVersion: 2 as const,
+  schemaVersion: 3 as const,
   groupType: 'friends' as const,
   memberCount: 2,
   members: [
@@ -24,6 +24,7 @@ const SAVED_DRAFT = {
       mbti: 'ENFP' as const,
       gender: 'female' as const,
       isSelf: true,
+      role: null,
     },
     {
       id: 'member-2',
@@ -31,6 +32,7 @@ const SAVED_DRAFT = {
       mbti: 'ISTJ' as const,
       gender: 'female' as const,
       isSelf: false,
+      role: null,
     },
   ],
   situation: null,
@@ -65,6 +67,7 @@ describe('MemberDraftSessionManager', () => {
         mbti: 'INFP',
         gender: 'other',
         isSelf: false,
+        role: null,
       });
     });
 

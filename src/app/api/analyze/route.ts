@@ -207,6 +207,7 @@ export const POST = async (request: Request) => {
                 mbti: member.mbti,
                 gender: member.gender,
                 is_self: member.isSelf,
+                role: member.role,
               })),
               situation: parsed.data.situation ?? null,
             };

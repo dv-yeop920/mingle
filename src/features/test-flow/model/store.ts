@@ -14,6 +14,7 @@ type TestMember = {
   mbti: MbtiType;
   gender: Gender;
   isSelf: boolean;
+  role: string | null;
 };
 
 type SelfMemberSeed = Pick<TestMember, 'gender' | 'mbti' | 'nickname'>;
@@ -72,6 +73,7 @@ const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
       mbti: i === 0 ? (selfMember?.mbti ?? 'ENFP') : 'ISTJ',
       gender: i === 0 ? (selfMember?.gender ?? 'other') : 'other',
       isSelf: i === 0,
+      role: null,
     }));
     set({ members });
   },

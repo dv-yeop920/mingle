@@ -36,8 +36,8 @@ describe('requestAnalysis', () => {
   const validInput = {
     groupType: 'friends' as const,
     members: [
-      { id: '1', nickname: '민지', mbti: 'ENFP' as const, gender: 'female' as const, isSelf: true },
-      { id: '2', nickname: '하니', mbti: 'ISTJ' as const, gender: 'female' as const, isSelf: false },
+      { id: '1', nickname: '민지', mbti: 'ENFP' as const, gender: 'female' as const, isSelf: true, role: null },
+      { id: '2', nickname: '하니', mbti: 'ISTJ' as const, gender: 'female' as const, isSelf: false, role: null },
     ],
     situation: null,
   };
@@ -56,6 +56,7 @@ describe('requestAnalysis', () => {
         gender: 'female',
         isSelf: true,
         order: 0,
+        role: null,
       },
       {
         memberId: '2',
@@ -64,6 +65,7 @@ describe('requestAnalysis', () => {
         gender: 'female',
         isSelf: false,
         order: 1,
+        role: null,
       },
     ],
     situation: null,

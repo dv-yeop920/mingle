@@ -9,7 +9,7 @@ import {
 } from './member-draft-session';
 
 const MOCK_DRAFT: MemberDraft = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   groupType: 'friends',
   memberCount: 2,
   members: [
@@ -19,6 +19,7 @@ const MOCK_DRAFT: MemberDraft = {
       mbti: 'ENFP',
       gender: 'female',
       isSelf: true,
+      role: null,
     },
     {
       id: 'member-2',
@@ -26,6 +27,7 @@ const MOCK_DRAFT: MemberDraft = {
       mbti: 'ISTJ',
       gender: 'female',
       isSelf: false,
+      role: null,
     },
   ],
   situation: null,

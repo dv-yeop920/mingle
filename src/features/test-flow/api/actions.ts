@@ -73,6 +73,7 @@ const requestAnalysis = async (input: RequestAnalysisInput) => {
       gender: member.gender,
       isSelf: member.isSelf,
       order,
+      role: member.role,
     })),
     situation: input.situation,
     options: {

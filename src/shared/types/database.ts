@@ -122,6 +122,7 @@ export type Database = {
           mbti: string;
           nickname: string;
           order: number;
+          role: string | null;
         };
         Insert: {
           gender: string;
@@ -131,6 +132,7 @@ export type Database = {
           mbti: string;
           nickname: string;
           order: number;
+          role?: string | null;
         };
         Update: {
           gender?: string;
@@ -140,6 +142,7 @@ export type Database = {
           mbti?: string;
           nickname?: string;
           order?: number;
+          role?: string | null;
         };
         Relationships: [
           {
