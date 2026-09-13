@@ -1193,3 +1193,99 @@ atmosphere와 pairs가 가장 빈번한 네비게이션 대상이므로 이 두 
 | `src/views/members/member-setup-container.tsx` | 삭제 |
 | `src/views/members/index.ts` | `MemberSetupContainer` export 제거 |
 | `src/features/test-flow/ui/member-draft-session-manager/member-draft-session-manager.tsx` | 선택적 구독으로 변경 |
+
+---
+
+## 17. 홈 페이지 CLS 개선 — 인증 로딩 스켈레톤 (2026-09-14)
+
+### 측정 환경
+
+- Playwright MCP, 모바일 뷰포트(390×844), localhost dev 서버
+- Performance Observer API로 LCP, FCP, CLS, TTFB 수집
+
+### 문제
+
+홈 페이지 CLS가 **0.278** (Poor, 기준 0.1 초과). 두 번의 layout shift가 복합 발생:
+
+| 순서 | CLS 값 | 시점 | 이동 요소 | 이동 방향 |
+| --- | --- | --- | --- | --- |
+| 1차 | 0.2036 | 548ms | `SECTION.px-5.pt-8.pb-3` (SeoIntro) | y:388 → y:706 (+318px) |
+| 2차 | 0.0746 | 714ms | 동일 | y:706 → y:534 (-172px) |
+
+### 원인 분석
+
+`HomeRecentTests` 컴포넌트의 조건부 렌더링이 원인:
+
+```
+시점 1: isPending=true, userId=null → return null (SeoIntro가 카드 바로 아래)
+시점 2: isPending=false, userId=X  → <RecentTestsSection> 스켈레톤 렌더 (SeoIntro 318px 밀림)
+시점 3: 데이터 로드 완료           → 스켈레톤→실제 데이터 (높이 차이로 SeoIntro 172px 복귀)
+```
+
+`useAuthUserId()`가 React Query로 인증 세션을 비동기 확인하는 동안 `isPending` 상태에서 `userId`가 `null`이므로, `HomeRecentTests`가 `null`을 반환. 인증 완료 후 갑자기 스켈레톤이 나타나면서 하단 `SeoIntro` 섹션이 크게 밀림.
+
+### 해결
+
+인증 로딩(`isPending`) 중에도 스켈레톤을 즉시 표시하여 레이아웃을 예약:
+
+```diff
+# src/views/home/home-recent-tests.tsx
+
++ import { RecentTestsSkeleton, RecentTestsSection } from './recent-tests-section';
+
+  const HomeRecentTests = () => {
+    const { userId, isPending } = useAuthUserId();
+
++   if (isPending) {
++     return (
++       <section aria-busy>
++         <RecentTestsSkeleton />
++       </section>
++     );
++   }
+
+    if (!userId) return null;
+
+    return <RecentTestsSection userId={userId} />;
+  };
+```
+
+```diff
+# src/views/home/recent-tests-section.tsx
+
+- export { RecentTestsSection };
++ export { RecentTestsSection, RecentTestsSkeleton };
+```
+
+### 결과
+
+| 지표 | Before | After | 상태 |
+| --- | --- | --- | --- |
+| **Home CLS** | **0.278** ❌ | **0.075** ✅ | Good (< 0.1) |
+
+1차 shift(0.2036) 완전 제거. 남은 0.075는 스켈레톤(3아이템 ~318px) → 실제 데이터(빈 상태 ~136px) 높이 차이에서 발생하며, Good 기준 이내.
+
+### 전체 페이지 Core Web Vitals (수정 후)
+
+| 페이지 | TTFB | FCP | LCP | CLS | DOM Nodes |
+| --- | --- | --- | --- | --- | --- |
+| Home | 113ms | 188ms | 188ms ✅ | 0.075 ✅ | 176 |
+| Analysis | 87ms | 152ms | 152ms ✅ | 0 ✅ | 169 |
+| MBTI Profile | 121ms | 196ms | 1696ms ✅ | 0 ✅ | 176 |
+| Character Match | 102ms | 148ms | 484ms ✅ | 0 ✅ | 147 |
+| Compatibility | 147ms | 228ms | 228ms ✅ | 0.028 ✅ | 186 |
+
+전 페이지 LCP Good(≤2.5s), CLS Good(≤0.1).
+
+### 번들 사이즈
+
+- 전체 chunks: 1.8MB (gzip 전)
+- 최대 청크: 236KB (9826), 202KB (9321), 196KB (4bd1), 185KB (framework)
+- DOM 노드: 전 페이지 147~186개 (경량)
+
+### 변경 파일
+
+| 파일 | 변경 |
+| --- | --- |
+| `src/views/home/home-recent-tests.tsx` | `isPending` 시 스켈레톤 렌더링 추가 |
+| `src/views/home/recent-tests-section.tsx` | `RecentTestsSkeleton` export 추가 |

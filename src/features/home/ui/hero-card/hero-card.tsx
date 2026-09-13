@@ -16,7 +16,7 @@ const HeroCard = ({ className }: HeroCardProps) => {
     >
       <div
         aria-hidden="true"
-        className="absolute right-[-18px] top-[22px] h-[98px] w-[78px] rotate-12 rounded-field bg-surface/55"
+        className="absolute right-[-10px] top-[22px] h-[98px] w-[78px] rotate-12 rounded-field bg-surface/55"
       />
       <div
         aria-hidden="true"

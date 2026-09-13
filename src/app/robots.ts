@@ -6,7 +6,7 @@ const robots = (): MetadataRoute.Robots => ({
   rules: {
     userAgent: '*',
     allow: '/',
-    disallow: ['/api/', '/history', '/mypage'],
+    disallow: ['/api/', '/history', '/analysis', '/mypage'],
   },
   sitemap: new URL('/sitemap.xml', SITE_URL).toString(),
   host: SITE_URL.origin,

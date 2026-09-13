@@ -25,7 +25,7 @@ describe('SEO metadata routes', () => {
     expect(rule).toMatchObject({
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/history', '/mypage'],
+      disallow: ['/api/', '/history', '/analysis', '/mypage'],
     });
     expect(metadata.sitemap).toMatch(/\/sitemap\.xml$/);
   });

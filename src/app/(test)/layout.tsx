@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { CompatibilityResultSessionManager } from '@/features/compatibility';
 import {
   AnalysisResultSessionManager,
   MemberDraftSessionManager,
@@ -20,6 +21,7 @@ const TestLayout = ({ children }: { children: React.ReactNode }) => {
     <MobileFrame>
       <Suspense fallback={null}>
         <AnalysisResultSessionManager />
+        <CompatibilityResultSessionManager />
       </Suspense>
       <MemberDraftSessionManager />
       {children}

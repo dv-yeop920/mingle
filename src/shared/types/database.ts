@@ -7,8 +7,10 @@ export type Json =
   | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.15';
+    PostgrestVersion: '14.5';
   };
   public: {
     Tables: {
@@ -81,6 +83,91 @@ export type Database = {
           },
         ];
       };
+      character_matches: {
+        Row: {
+          created_at: string;
+          full_result: Json;
+          id: string;
+          mbti: string;
+          user_id: string;
+          work_id: string;
+          work_name: string;
+        };
+        Insert: {
+          created_at?: string;
+          full_result: Json;
+          id?: string;
+          mbti: string;
+          user_id: string;
+          work_id: string;
+          work_name: string;
+        };
+        Update: {
+          created_at?: string;
+          full_result?: Json;
+          id?: string;
+          mbti?: string;
+          user_id?: string;
+          work_id?: string;
+          work_name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'character_matches_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      compatibility_analyses: {
+        Row: {
+          chemistry_score: number;
+          created_at: string;
+          id: string;
+          is_public: boolean;
+          mbti_a: string;
+          mbti_b: string;
+          nickname_a: string | null;
+          nickname_b: string | null;
+          result: Json;
+          user_id: string | null;
+        };
+        Insert: {
+          chemistry_score: number;
+          created_at?: string;
+          id?: string;
+          is_public?: boolean;
+          mbti_a: string;
+          mbti_b: string;
+          nickname_a?: string | null;
+          nickname_b?: string | null;
+          result: Json;
+          user_id?: string | null;
+        };
+        Update: {
+          chemistry_score?: number;
+          created_at?: string;
+          id?: string;
+          is_public?: boolean;
+          mbti_a?: string;
+          mbti_b?: string;
+          nickname_a?: string | null;
+          nickname_b?: string | null;
+          result?: Json;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'compatibility_analyses_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       groups: {
         Row: {
           created_at: string;
@@ -106,6 +193,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'groups_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      mbti_profiles: {
+        Row: {
+          created_at: string;
+          full_analysis: Json;
+          id: string;
+          mbti: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          full_analysis: Json;
+          id?: string;
+          mbti: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          full_analysis?: Json;
+          id?: string;
+          mbti?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'mbti_profiles_user_id_fkey';
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
@@ -157,8 +279,8 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string;
-          id: string;
           gender: string | null;
+          id: string;
           mbti: string | null;
           nickname: string;
           updated_at: string;
@@ -192,7 +314,7 @@ export type Database = {
       save_guest_analysis: {
         Args: {
           p_chemistry_score: number;
-          p_custom_name: string | null;
+          p_custom_name?: string;
           p_group_atmosphere: Json;
           p_group_type: string;
           p_member_roles: Json;
@@ -200,7 +322,7 @@ export type Database = {
           p_metrics: Json;
           p_pair_chemistry: Json;
           p_save_operation_id: string;
-          p_situation: Json | null;
+          p_situation?: Json;
           p_summary: string;
           p_tagline: string;
           p_title: string;
@@ -226,12 +348,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -255,11 +377,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -280,11 +402,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -305,11 +427,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema['Enums']
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -322,11 +444,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }

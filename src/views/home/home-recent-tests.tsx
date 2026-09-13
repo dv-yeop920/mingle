@@ -2,10 +2,18 @@
 
 import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 
-import { RecentTestsSection } from './recent-tests-section';
+import { RecentTestsSkeleton, RecentTestsSection } from './recent-tests-section';
 
 const HomeRecentTests = () => {
-  const { userId } = useAuthUserId();
+  const { userId, isPending } = useAuthUserId();
+
+  if (isPending) {
+    return (
+      <section aria-busy>
+        <RecentTestsSkeleton />
+      </section>
+    );
+  }
 
   if (!userId) return null;
 

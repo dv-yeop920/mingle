@@ -67,4 +67,4 @@ const RecentTestsSection = ({ userId }: RecentTestsSectionProps) => {
   );
 };
 
-export { RecentTestsSection };
+export { RecentTestsSection, RecentTestsSkeleton };

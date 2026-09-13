@@ -13,10 +13,12 @@ const PUBLIC_ROUTES = [
   '/situation',
   '/analyzing',
   '/api/analyze',
+  '/api/analyze-compatibility',
+  '/analysis',
   ...SEO_METADATA_ROUTES,
 ];
 
-const PUBLIC_PREFIXES = ['/result'];
+const PUBLIC_PREFIXES = ['/result', '/compatibility'];
 
 const isPublicRoute = (pathname: string) =>
   PUBLIC_ROUTES.includes(pathname) ||
@@ -79,6 +81,6 @@ export const proxy = async (request: NextRequest) => {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|fonts/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2)$).*)',
+    '/((?!api/auto-recovery/drain$|_next/static|_next/image|fonts/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2)$).*)',
   ],
 };

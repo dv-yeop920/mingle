@@ -65,8 +65,22 @@ const trackResultDetailView = (detailType: ResultDetailType) => {
   sendGAEvent('event', 'result_detail_view', { detail_type: detailType });
 };
 
+const trackCompatibilityStart = (mbtiA: string, mbtiB: string) => {
+  sendGAEvent('event', 'compatibility_start', { mbti_a: mbtiA, mbti_b: mbtiB });
+};
+
+const trackCompatibilityComplete = (mbtiA: string, mbtiB: string, chemistryScore: number) => {
+  sendGAEvent('event', 'compatibility_complete', {
+    mbti_a: mbtiA,
+    mbti_b: mbtiB,
+    chemistry_score: chemistryScore,
+  });
+};
+
 export {
   trackAnalysisComplete,
+  trackCompatibilityComplete,
+  trackCompatibilityStart,
   trackLogin,
   trackMembersComplete,
   trackResultDetailView,

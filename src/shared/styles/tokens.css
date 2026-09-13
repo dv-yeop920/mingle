@@ -76,6 +76,19 @@
   --color-info-fg: #4A7E9E;
   --color-info-text: #27455C;
 
+  /* ── Compatibility (Pink) ────────────────── */
+
+  --color-compat-50: #FFF0F3;
+  --color-compat-100: #FFD6E0;
+  --color-compat-200: #D4A0AD;
+  --color-compat-300: #B88A94;
+  --color-compat-400: #E8457E;
+  --color-compat-accent: #6C5CE7;
+  --color-compat-teal: #4ECDC4;
+  --color-compat-coral: #FF6B6B;
+  --color-compat-insight: #F0F9FF;
+  --color-compat-caution: #FFF8F0;
+
   /* ── Shadow ────────────────────────────── */
 
   --shadow-sm: 0 5px 14px rgba(76, 120, 90, 0.06);

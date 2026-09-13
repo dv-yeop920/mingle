@@ -57,6 +57,18 @@
   --info-surface: var(--color-info-bg);
   --info-foreground: var(--color-info-text);
 
+  /* Compatibility */
+  --compat: var(--color-compat-400);
+  --compat-bg: var(--color-compat-50);
+  --compat-surface: var(--color-compat-100);
+  --compat-muted: var(--color-compat-300);
+  --compat-hint: var(--color-compat-200);
+  --compat-accent: var(--color-compat-accent);
+  --compat-conversation: var(--color-compat-teal);
+  --compat-conflict: var(--color-compat-coral);
+  --compat-insight-surface: var(--color-compat-insight);
+  --compat-caution-surface: var(--color-compat-caution);
+
   /* Font Family */
   --font-family-gothic: var(--font-gothic-a1), system-ui, sans-serif;
   --font-family-nunito: var(--font-nunito), system-ui, sans-serif;
@@ -145,6 +157,17 @@
 
   /* Letter Spacing */
   --tracking-title: -0.02em;
+
+  /* Color — Compatibility */
+  --color-compat: var(--compat);
+  --color-compat-bg: var(--compat-bg);
+  --color-compat-surface: var(--compat-surface);
+  --color-compat-muted: var(--compat-muted);
+  --color-compat-hint: var(--compat-hint);
+  --color-compat-conversation: var(--compat-conversation);
+  --color-compat-conflict: var(--compat-conflict);
+  --color-compat-insight-surface: var(--compat-insight-surface);
+  --color-compat-caution-surface: var(--compat-caution-surface);
 
   /* Animation */
   --animate-mx-float: mx-float 5s ease-in-out infinite;

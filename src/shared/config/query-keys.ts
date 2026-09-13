@@ -32,4 +32,27 @@ export const queryKeys = {
     detail: (userId: string | null, id: string) =>
       [...queryKeys.analyses.all(userId), 'detail', id] as const,
   },
+  mbtiProfile: {
+    all: (userId: string | null) =>
+      [...queryKeys.auth.user(userId), 'mbti-profile'] as const,
+    detail: (userId: string | null, mbti: string) =>
+      [...queryKeys.mbtiProfile.all(userId), 'detail', mbti] as const,
+  },
+  characterMatch: {
+    all: (userId: string | null) =>
+      [...queryKeys.auth.user(userId), 'character-match'] as const,
+    detail: (userId: string | null, mbti: string, workId: string) =>
+      [
+        ...queryKeys.characterMatch.all(userId),
+        'detail',
+        mbti,
+        workId,
+      ] as const,
+  },
+  compatibility: {
+    all: (userId: string | null) =>
+      [...queryKeys.auth.user(userId), 'compatibility'] as const,
+    detail: (userId: string | null, id: string) =>
+      [...queryKeys.compatibility.all(userId), 'detail', id] as const,
+  },
 } as const;

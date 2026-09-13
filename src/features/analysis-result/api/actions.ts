@@ -151,7 +151,7 @@ const saveGuestAnalysis = async (params: SaveGuestAnalysisParams) => {
   const { data, error } = await supabase.rpc('save_guest_analysis', {
     p_title: titleResult.data.title,
     p_group_type: convertGroupTypeForStorage(params.groupType),
-    p_custom_name: params.customName,
+    p_custom_name: params.customName ?? undefined,
     p_members: params.members,
     p_chemistry_score: params.chemistryScore,
     p_tagline: params.tagline,
