@@ -14,11 +14,12 @@ const PUBLIC_ROUTES = [
   '/analyzing',
   '/api/analyze',
   '/api/analyze-compatibility',
-  '/analysis',
+  '/api/analyze-profile',
+  '/api/character-match',
   ...SEO_METADATA_ROUTES,
 ];
 
-const PUBLIC_PREFIXES = ['/result', '/compatibility'];
+const PUBLIC_PREFIXES = ['/result', '/compatibility', '/analysis'];
 
 const isPublicRoute = (pathname: string) =>
   PUBLIC_ROUTES.includes(pathname) ||
