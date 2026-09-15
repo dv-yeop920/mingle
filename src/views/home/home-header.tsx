@@ -31,13 +31,13 @@ const HeaderContent = ({
   return (
     <>
       <div className="flex min-h-[52px] items-center justify-between px-[24px] pt-[8px]">
-        <div className="flex gap-[5px]">
-          <h1 className="text-title2 font-black">안녕하세요</h1>
-          <h1 className="text-title2 font-black tracking-title text-foreground">
+        <p className="flex gap-[5px] text-title2 font-black tracking-title text-foreground">
+          <span>안녕하세요</span>
+          <span>
             {nickname && <>{nickname}님</>}
             👋
-          </h1>
-        </div>
+          </span>
+        </p>
         <div className="flex h-[44px] w-[44px] items-center justify-center rounded-[16px] bg-primary-tonal">
           <span className="font-nunito text-[15px] font-black text-primary-deep">
             {initials}

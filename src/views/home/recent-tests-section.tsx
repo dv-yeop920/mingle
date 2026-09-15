@@ -28,7 +28,7 @@ const RecentTestsSkeleton = () => (
 
 const RecentTestsError = ({ onRetry }: { onRetry: () => void }) => (
   <div className="flex flex-col px-5 pt-[26px]">
-    <h3 className="text-[16px] font-black text-foreground">최근 테스트</h3>
+    <h2 className="text-[16px] font-black text-foreground">최근 테스트</h2>
     <div className="flex min-h-[80px] items-center justify-between gap-3">
       <p role="alert" className="text-body text-muted">
         테스트 기록을 불러오지 못했어요.

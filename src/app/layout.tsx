@@ -4,9 +4,11 @@ import type { Metadata, Viewport } from 'next';
 
 import {
   BRAND_THEME_COLOR,
-  SEO_DESCRIPTION,
+  HOME_OPEN_GRAPH_IMAGE_ALT,
+  HOME_OPEN_GRAPH_IMAGE_PATH,
+  HOME_SEO_DESCRIPTION,
+  HOME_SEO_TITLE,
   SEO_KEYWORDS,
-  SEO_TITLE,
   SITE_NAME,
   SITE_URL,
 } from '@/shared/config/seo';
@@ -24,10 +26,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: SITE_URL,
   title: {
-    default: SEO_TITLE,
+    default: HOME_SEO_TITLE,
     template: `%s | ${SITE_NAME}`,
   },
-  description: SEO_DESCRIPTION,
+  description: HOME_SEO_DESCRIPTION,
   applicationName: SITE_NAME,
   keywords: SEO_KEYWORDS,
   creator: SITE_NAME,
@@ -43,13 +45,27 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
     url: '/',
     siteName: SITE_NAME,
-    title: SEO_TITLE,
-    description: SEO_DESCRIPTION,
+    title: HOME_SEO_TITLE,
+    description: HOME_SEO_DESCRIPTION,
+    images: [
+      {
+        url: HOME_OPEN_GRAPH_IMAGE_PATH,
+        width: 1200,
+        height: 630,
+        alt: HOME_OPEN_GRAPH_IMAGE_ALT,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: SEO_TITLE,
-    description: SEO_DESCRIPTION,
+    title: HOME_SEO_TITLE,
+    description: HOME_SEO_DESCRIPTION,
+    images: [
+      {
+        url: HOME_OPEN_GRAPH_IMAGE_PATH,
+        alt: HOME_OPEN_GRAPH_IMAGE_ALT,
+      },
+    ],
   },
   robots: {
     index: true,

@@ -55,9 +55,10 @@ describe('홈 회원 캐시', () => {
           <RecentTestsSection userId="member-a" />
         </QueryClientProvider>,
       );
+      expect(screen.getByText(/기존닉네임님/)).toBeInTheDocument();
       expect(
-        screen.getByRole('heading', { name: /기존닉네임님/ }),
-      ).toBeInTheDocument();
+        screen.queryByRole('heading', { name: /기존닉네임님/ }),
+      ).not.toBeInTheDocument();
       expect(screen.getByText('기존기록')).toBeInTheDocument();
       expect(container.querySelector('[aria-busy="true"]')).toBeNull();
       await waitFor(() => {
@@ -68,9 +69,10 @@ describe('홈 회원 캐시', () => {
           'error',
         );
       });
+      expect(screen.getByText(/기존닉네임님/)).toBeInTheDocument();
       expect(
-        screen.getByRole('heading', { name: /기존닉네임님/ }),
-      ).toBeInTheDocument();
+        screen.queryByRole('heading', { name: /기존닉네임님/ }),
+      ).not.toBeInTheDocument();
       expect(screen.getByText('기존기록')).toBeInTheDocument();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     } finally {

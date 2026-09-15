@@ -7,8 +7,8 @@ vi.mock('./home-reset-effect', () => ({
   HomeResetEffect: () => null,
 }));
 
-vi.mock('./home-header', () => ({
-  HomeHeader: () => <div>헤더 영역</div>,
+vi.mock('@/shared/lib/supabase/use-auth-user-id', () => ({
+  useAuthUserId: () => ({ userId: null, isPending: false }),
 }));
 
 vi.mock('./home-recent-tests', () => ({
@@ -26,11 +26,21 @@ describe('HomeView', () => {
     ).toHaveAttribute('href', '/group-type');
   });
 
-  it('독립적인 헤더와 기록 영역을 조합한다', () => {
+  it('인사말은 제목으로 만들지 않고 Hero 제목 하나만 제공한다', () => {
     render(<HomeView />);
 
-    expect(screen.getByText('헤더 영역')).toBeInTheDocument();
+    expect(screen.getByText(/안녕하세요/)).toBeInTheDocument();
     expect(screen.getByText('최근 테스트 영역')).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: /MBTI로 알아보는 우리 그룹 케미/,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: /안녕하세요/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('SEO 안내를 항상 렌더링한다', () => {
@@ -42,5 +52,8 @@ describe('HomeView', () => {
         name: 'MBTI 그룹 궁합, 무엇을 알려주나요?',
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /더 많은 MBTI 분석 보기/ }),
+    ).toHaveAttribute('href', '/analysis');
   });
 });

@@ -17,9 +17,9 @@ const RecentTests = ({ analyses, className }: RecentTestsProps) => {
     return (
       <div className={cn('flex flex-col', className)}>
         <div className="px-[24px] pt-[26px] pb-[10px]">
-          <h3 className="text-[16px] font-black text-foreground">
+          <h2 className="text-[16px] font-black text-foreground">
             최근 테스트
-          </h3>
+          </h2>
         </div>
         <div className="flex items-center justify-center px-5 py-8">
           <p className="text-body text-muted">아직 테스트 기록이 없습니다</p>
@@ -31,7 +31,7 @@ const RecentTests = ({ analyses, className }: RecentTestsProps) => {
   return (
     <div className={cn('flex flex-col', className)}>
       <div className="flex items-center justify-between px-[24px] pt-[26px] pb-[10px]">
-        <h3 className="text-[16px] font-black text-foreground">최근 테스트</h3>
+        <h2 className="text-[16px] font-black text-foreground">최근 테스트</h2>
         <span className="cursor-pointer text-[13px] font-extrabold text-primary">
           전체보기
         </span>
