@@ -82,6 +82,6 @@ export const proxy = async (request: NextRequest) => {
 
 export const config = {
   matcher: [
-    '/((?!api/auto-recovery/drain$|_next/static|_next/image|fonts/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2)$).*)',
+    '/((?!api/auto-recovery/|_next/static|_next/image|fonts/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2)$).*)',
   ],
 };

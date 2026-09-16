@@ -1,0 +1,128 @@
+name: Auto Recovery Verify
+
+on:
+  push:
+    branches:
+      - 'fix/agent-*'
+
+concurrency:
+  group: auto-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: CI Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: lint
+        run: npm run lint
+
+      - name: typecheck
+        run: npx tsc --noEmit
+
+      - name: test
+        run: npm run test
+
+      - name: build
+        run: npm run build
+
+  reproduction:
+    name: Reproduction Proof
+    runs-on: ubuntu-latest
+    needs: ci
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Read meta file
+        id: meta
+        run: |
+          if [ ! -f .auto-recovery-meta.json ]; then
+            echo "No meta file found"
+            exit 1
+          fi
+          echo "baseSha=$(jq -r '.baseSha' .auto-recovery-meta.json)" >> "$GITHUB_OUTPUT"
+          echo "fingerprint=$(jq -r '.fingerprint' .auto-recovery-meta.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Identify changed test files
+        id: tests
+        run: |
+          TEST_FILES=$(git diff --name-only ${{ steps.meta.outputs.baseSha }}..HEAD -- '*.test.ts' '*.test.tsx' | tr '\n' ' ')
+          echo "files=$TEST_FILES" >> "$GITHUB_OUTPUT"
+          if [ -z "$TEST_FILES" ]; then
+            echo "No test files changed"
+            echo "hasTests=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "hasTests=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run tests at base (expect failure)
+        id: before
+        if: steps.tests.outputs.hasTests == 'true'
+        continue-on-error: true
+        run: |
+          CANDIDATE_SHA=$(git rev-parse HEAD)
+          git checkout ${{ steps.meta.outputs.baseSha }}
+          npm ci
+          npx vitest run ${{ steps.tests.outputs.files }} && echo "exitCode=0" >> "$GITHUB_OUTPUT" || echo "exitCode=1" >> "$GITHUB_OUTPUT"
+          git checkout $CANDIDATE_SHA
+
+      - name: Run tests at candidate (expect success)
+        id: after
+        if: steps.tests.outputs.hasTests == 'true'
+        run: |
+          npm ci
+          npx vitest run ${{ steps.tests.outputs.files }}
+          echo "exitCode=0" >> "$GITHUB_OUTPUT"
+
+      - name: Generate reproduction result
+        if: always()
+        run: |
+          CANDIDATE_SHA=$(git rev-parse HEAD)
+          BASE_SHA=${{ steps.meta.outputs.baseSha }}
+          HAS_TESTS=${{ steps.tests.outputs.hasTests }}
+
+          if [ "$HAS_TESTS" = "true" ]; then
+            BEFORE_EXIT=${{ steps.before.outputs.exitCode || '0' }}
+            AFTER_EXIT=${{ steps.after.outputs.exitCode || '1' }}
+            IS_FAILED_BEFORE=$( [ "$BEFORE_EXIT" != "0" ] && echo "true" || echo "false" )
+            IS_PASSED_AFTER=$( [ "$AFTER_EXIT" = "0" ] && echo "true" || echo "false" )
+            IS_SAME_TEST="true"
+          else
+            IS_FAILED_BEFORE="false"
+            IS_PASSED_AFTER="false"
+            IS_SAME_TEST="false"
+          fi
+
+          cat > reproduction-result.json <<REPRO_EOF
+          {
+            "beforeSha": "$BASE_SHA",
+            "afterSha": "$CANDIDATE_SHA",
+            "isFailedBefore": $IS_FAILED_BEFORE,
+            "isPassedAfter": $IS_PASSED_AFTER,
+            "isSameTest": $IS_SAME_TEST
+          }
+          REPRO_EOF
+
+      - name: Upload reproduction result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproduction-result
+          path: reproduction-result.json
+          retention-days: 7

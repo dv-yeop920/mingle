@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/auto-recovery/orchestrate",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/auto-recovery/verify",
+      "schedule": "*/3 * * * *"
+    },
+    {
+      "path": "/api/auto-recovery/monitor",
+      "schedule": "*/1 * * * *"
+    }
+  ]
+}
