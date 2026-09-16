@@ -52,8 +52,8 @@ describe('analysis prompt builders', () => {
     expect(ANALYSIS_INSTRUCTIONS).toContain('Detailed Description Contract');
     expect(ANALYSIS_INSTRUCTIONS).toContain('100~260자');
     expect(ANALYSIS_INSTRUCTIONS).toContain('실제 nickname 또는 MBTI');
-    expect(ANALYSIS_INSTRUCTIONS).toContain('다정하고 편안한 해요체');
-    expect(ANALYSIS_INSTRUCTIONS).toContain('~이에요/~예요');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('친근하고 따뜻한 반말체');
+    expect(ANALYSIS_INSTRUCTIONS).toContain('존대말은 쓰지 않는다');
     expect(ANALYSIS_INSTRUCTIONS).toContain('~입니다');
     expect(ANALYSIS_INSTRUCTIONS).toContain('Anti-Patterns');
     expect(ANALYSIS_INSTRUCTIONS).toContain('Voice');
