@@ -1,0 +1,10 @@
+src/entities/analysis/ui/result-summary-card/result-summary-card.tsx
+src/features/home/ui/hero-card/hero-card.tsx
+src/features/home/ui/recent-tests/recent-tests.tsx
+src/features/home/ui/seo-intro/seo-intro.tsx
+src/shared/config/group-types.ts
+src/views/home/home-header-fallbacks.tsx
+src/views/home/home-header.tsx
+src/views/home/home-view.tsx
+src/views/home/recent-tests-section.tsx
+src/widgets/bottom-nav/constants.ts

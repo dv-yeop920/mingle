@@ -33,9 +33,9 @@ const HomeView = ({ className }: HomeViewProps) => {
 
       <HomeResetEffect />
 
-      <HomeRecentTests />
-
       <SeoIntro />
+
+      <HomeRecentTests />
     </div>
   );
 };
