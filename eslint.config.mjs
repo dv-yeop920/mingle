@@ -6,7 +6,7 @@ import importPlugin from 'eslint-plugin-import-x';
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts', '.claude/helpers/**']),
   {
     plugins: { 'import-x': importPlugin },
     rules: {
