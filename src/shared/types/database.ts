@@ -509,7 +509,7 @@ export type Database = {
       save_guest_analysis: {
         Args: {
           p_chemistry_score: number
-          p_custom_name: string
+          p_custom_name?: string | null
           p_group_atmosphere: Json
           p_group_type: string
           p_member_roles: Json
