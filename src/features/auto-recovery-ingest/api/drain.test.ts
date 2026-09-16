@@ -102,20 +102,19 @@ describe('서명된 Drain 수집', () => {
     ).toBe(400);
     expect(enqueue).not.toHaveBeenCalled();
   });
-  it('다른 프로젝트가 섞인 배치를 일부 수락하지 않는다', async () => {
-    const enqueue = vi.fn();
-    expect(
-      (
-        await handleDrainRequest(
-          createRequest(
-            JSON.stringify([EVENT, { ...EVENT, projectId: 'prj_other' }]),
-          ),
-          CONFIG,
-          enqueue,
-        )
-      ).status,
-    ).toBe(403);
-    expect(enqueue).not.toHaveBeenCalled();
+  it('다른 프로젝트 이벤트를 필터링하고 허용된 것만 수락한다', async () => {
+    const enqueue = vi.fn().mockResolvedValue(undefined);
+    const res = await handleDrainRequest(
+      createRequest(
+        JSON.stringify([EVENT, { ...EVENT, projectId: 'prj_other' }]),
+      ),
+      CONFIG,
+      enqueue,
+    );
+    expect(res.status).toBe(202);
+    expect(enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({ events: [expect.objectContaining({ projectId: EVENT.projectId })] }),
+    );
   });
   it('선언 없이 전송된 큰 본문도 거절한다', async () => {
     const enqueue = vi.fn();

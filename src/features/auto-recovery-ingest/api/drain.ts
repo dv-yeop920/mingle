@@ -142,12 +142,14 @@ const handleDrainRequest = async (
     const validated = parsed.map(parseEvent);
     if (validated.some((event) => event === null))
       return fail(400, 'Invalid event');
-    events = validated as DrainEvent[];
-    if (events.some((event) => !config.projectIds.includes(event.projectId)))
-      return fail(403, 'Project not allowed');
+    events = (validated as DrainEvent[]).filter((event) =>
+      config.projectIds.includes(event.projectId),
+    );
   } catch {
     return fail(400, 'Invalid payload');
   }
+  if (!events.length)
+    return NextResponse.json({ accepted: 0 }, { status: 200 });
   try {
     await enqueue({
       batchId: createHash('sha256').update(raw).digest('hex'),
