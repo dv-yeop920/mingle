@@ -200,46 +200,96 @@ J1은 이번 표본에서 LCP를 10.2% 개선했으나 5회 모두 2.5초를 넘
 
 F1은 실제 throttling LCP, CLS/TBT, guest font network, dynamic residual parity를 개선했지만 Lighthouse `simulate` 2.5초 기준은 아직 실패다. 따라서 Phase 2 전체 acceptance는 **미통과**이며 `/ship` 대상이 아니다. 다음 단계는 이미 기각된 preload 제거나 800→700 변경을 섞지 말고, `SeoIntro` LCP render delay와 477KB 초기 JS/Google Tag 비용을 별도 설계로 분리 측정해야 한다.
 
-# 2026-09-16 Phase 3 I1 최종 검증
+# 2026-09-17 Phase 3 A0/I1 재현 검증
 
 ## 격리·측정 조건
 
-- **기준 SHA**: `64772f25952aad4ec15ebdec5708192b6aec6f82`
-- **격리 방식**: 새 `/private/tmp` 디렉터리에 `git archive HEAD`를 풀고 승인된 B1/F1 파일 및 `experimental.inlineCss: true`만 복사했다. 자동 복구/분석 관련 사용자 dirty 변경과 `.env.local` 내용은 artifact에 포함하지 않았다.
-- **빌드 ID**: `12IXUfGUm43zF9jJQ2wJ4`; Next.js 16.3.1 production webpack build 통과, 홈은 static route(`○ /`).
+- **기준 SHA**: `febbb2df77271343f8064cca5bf569cf415412fb`
+- **격리 방식**: 같은 `git archive HEAD`를 두 새 `/private/tmp` 디렉터리에 풀고 A0는 `experimental.inlineCss: false`, I1은 `true`만 유지했다. 두 variant 모두 같은 `node_modules`를 사용했고 `.env.local`은 build 동안 symlink로만 읽은 뒤 제거했다.
+- **빌드 ID**: A0 `Wi_qukPr2GbHj0gHjn551`, I1 `RUnmjW-SI8Zn5nDLFbi4W`; 두 production webpack build 모두 통과했고 홈은 static route(`○ /`)였다.
 - **도구**: Lighthouse 13.4.1, Headless Chrome 152.0.7977.83, 412×823, DPR 1.75, 150ms RTT, 1,638.4Kbps, CPU 4×, guest cold navigation 5회씩.
-- **원본 checksum과 소형 결과**: `lighthouse/phase-3/i1-final/summary.json`. 원본 LHR은 `/private/tmp`에서 생성했고 각 SHA-256을 summary에 보존했다.
+- **간섭 통제**: variant와 mode를 순차 실행했고 Lighthouse 측정 중 다른 브라우저 세션은 0개였다.
+- **재현 명령·원본 checksum**: `lighthouse/phase-3/a0/summary.json`, `lighthouse/phase-3/i1-final/summary.json`. raw LHR 20개는 localhost를 `local.test`로 치환하고 binary screenshot만 제거해 총 4.2MB로 보존했다.
 
-실제 회원 계정, 인증 cookie/storage-state 또는 고정 recent fixture가 저장소와 환경에 없어 member 5회는 실행하지 못했다. 따라서 아래 guest acceptance 통과를 전체 guest+member ship acceptance 통과로 확대 해석하지 않는다.
+실제 회원 계정, 인증 cookie/storage-state 또는 고정 recent fixture가 저장소와 환경에 없어 member 5회는 실행하지 않았다. 회원 데이터를 제작하거나 인증을 우회하지 않았다.
 
-## I1 guest 최종 결과
+## Paired guest cold 결과
 
-| Mode | LCP 5회 (ms) | LCP 중앙값 (min–max) | FCP 중앙값 | CLS 중앙값 | TBT 중앙값 | Total / font / JS / CSS 중앙값 |
-|---|---|---:|---:|---:|---:|---:|
-| simulate | 1848, 1686, 2832, 2300, 1678 | **1848 (1678–2832)** | 932ms | 0 | 88ms | 622,987 / 72,396 / 500,434 / 0B |
-| devtools | 890, 857, 854, 860, 858 | **858 (854–890)** | 858ms | 0 | 82ms | 622,996 / 72,396 / 500,434 / 0B |
+| Variant / mode | TTFB 중앙값 | FCP 중앙값 | LCP 5회 (ms) | LCP 중앙값 (min–max) | CLS | TBT 중앙값 | Total / font / JS / CSS 중앙값 |
+|---|---:|---:|---|---:|---:|---:|---:|
+| A0 simulate | 10ms | 1072ms | 3109, 3108, 2801, 3099, 3099 | **3099 (2801–3109)** | 0 | 51ms | 589,780 / 72,396 / 477,479 / 11,792B |
+| I1 simulate | 7ms | 914ms | 3151, 2966, 2976, 3258, 3257 | **3151 (2966–3258)** | 0 | 83ms | 622,997 / 72,396 / 500,443 / 0B |
+| A0 devtools | 9ms | 1607ms | 1636, 1617, 1605, 1603, 1607 | **1607 (1603–1636)** | 0 | 63ms | 589,789 / 72,396 / 477,479 / 11,792B |
+| I1 devtools | 7ms | 846ms | 865, 840, 846, 841, 846 | **846 (840–865)** | 0 | 61ms | 623,261 / 72,396 / 500,698 / 0B |
 
-두 mode의 LCP node는 10회 모두 `SeoIntro` 설명 문단(`div.flex > section.px-5 > div.rounded-card-lg > p.mt-2`)이었다. Guest 기준 `simulate`와 `devtools` 중앙값은 모두 2.5초 이하이고, CLS 0 및 TBT 200ms 이하를 충족했다.
+I1은 외부 CSS 요청을 1건/11,792B에서 0으로 제거했고 devtools LCP를 761ms(47%) 단축했다. 반면 paired clean `simulate`에서는 FCP만 158ms 개선됐고 LCP는 52ms 느려져 두 variant 모두 2.5초를 넘었다. LCP node는 전 회차 `SeoIntro` 설명 문단이었다. 따라서 이전 1.848초 summary는 이번 재현 표본으로 확인되지 않았으며 guest synthetic 전체 acceptance는 미통과다.
 
-라우트 스모크용 agent-browser 세션을 함께 실행한 첫 `simulate` series는 LCP 6049, 3533, 3263, 2666, 2658ms(중앙값 3263ms)로 크게 흔들렸다. 해당 표본을 삭제하거나 최종값과 혼합하지 않고 summary에 간섭 진단으로 보존했다. 브라우저 세션을 닫은 뒤 독립적으로 실행한 위 5회를 최종 clean series로 사용했다. 로컬 synthetic 결과의 환경 민감성을 고려해 preview/production 재측정과 Speed Insights 관찰이 필요하다.
+## Warm reload·return 회귀
 
-## CSS·폰트·브라우저 회귀
+같은 Chromium context와 cache를 유지해 warm reload 3회 후 `/ → /group-type → back`을 3회 반복했다.
 
-- cold 홈 10회 모두 외부 stylesheet 요청 0건, Lighthouse stylesheet transfer 0B였다. document는 31,527B, home prefetch RSC 합계는 12,514B였고 요청 수는 47건이었다.
-- guest 홈의 Gothic A1 요청은 v2 critical 700/800/900뿐이었다. v1 Gothic A1, font non-200, 외부 Google font는 각각 0건이었다. Nunito 900을 포함한 font transfer는 72,396B였다.
-- inventory 밖 동적 글리프 `힣`을 700 weight로 요청하면 `Gothic A1` residual face가 선택되고 `/fonts/v1/gothic-a1-700.woff2`만 1회 200으로 로드됐다. 측정 CLS는 0이었다.
-- 390×844와 412×823에서 홈 H1/CTA/분석 링크/SEO 안내/BottomNav가 표시됐고 horizontal overflow, overlay, console/page error는 없었다.
-- `/ → /group-type → back → / → /analysis → back`에서 기능과 스타일이 유지됐고 홈 복귀 시 external stylesheet는 0건이었다. 비회원 `/history`, `/mypage`, `/mypage/settings`는 `/login`으로 이동했다.
-- build manifest의 주요 user-facing route 21개를 direct load했다. 세션이 필요한 `/analyzing`, `/compatibility/analyzing`, `/members`, `/situation`은 선행 단계로 이동했고 결과 상세 route는 기존 empty 상태를 표시했다. 스타일 누락·hydration 오류는 관찰되지 않았다.
+| Variant | Warm TTFB / FCP / LCP 중앙값 | Warm CLS | Warm transfer 중앙값 | 스타일 계약 | Return 3회 CSS 요청 | Overflow |
+|---|---:|---:|---:|---|---:|---:|
+| A0 | 3.8 / 24 / 24ms | 0 | 21,061B | `<style>` 0, stylesheet link 1 | 0 | 없음 |
+| I1 | 4.4 / 36 / 36ms | 0 | 41,755B | `<style>` 1, stylesheet link 0 | 0 | 없음 |
+
+두 variant 모두 console error와 hydration error는 0이었다. 다만 initial load와 warm reload 3회 각각에서 `/login` prefetch HTML(`text/html`)이 Script로 분류되어 `Unexpected token '<'` page error가 1회씩 발생했다. A0/I1에 동일해 `inlineCss` 회귀는 아니지만 별도 기존 이슈로 남는다.
 
 ## 자동 검증
 
-- 관련 Vitest: 2 files, 10 tests 통과. `fonts.test.ts`에 `inlineCss: true` production 계약을 추가했다.
-- 전체 Vitest: 61 files, 405 tests 통과.
-- 전체 ESLint: 통과.
-- pinned fonttools 4.59.2 + brotli 1.1.0에서 223 codepoint 결정적 재생성/checksum 검증 통과. 네 output은 18,316–18,792B이며 manifest와 일치했다.
-- isolated production build: 통과. Node 20 deprecation 및 JSON module experimental warning만 있었고 오류는 없었다.
+- A0/I1 isolated production build: 둘 다 통과.
+- raw 20개 및 browser series 2개를 summary SHA-256과 대조했다.
+- artifact 외 제품 소스와 설정은 변경하지 않았다.
 
 ## 판정
 
-I1은 **guest synthetic acceptance를 통과**했다. 외부 CSS 1→0의 의도된 동작, B1의 CLS 0, F1의 critical/residual font 계약과 전 route guest 회귀를 함께 확인했다. 다만 회원 fixture 부재로 설계의 guest+member 전체 acceptance는 아직 미완료이며, 실제 배포 전/후에는 member cold 5회와 production mobile field data를 별도로 확인해야 한다.
+I1은 외부 CSS 제거와 devtools LCP 개선은 재현했지만 **clean `simulate` LCP 2.5초 기준을 재현하지 못했다**. Guest acceptance는 실패이며 member acceptance는 fixture 부재로 미실행이다. 현재 근거만으로 `/ship`하지 않는다.
+
+## S1 격리 진단 — critical `font-display: swap`
+
+I1에서 `Gothic A1 Critical` 400/700/800/900만 `optional`에서 `swap`으로 바꾸고 residual v1과 나머지 소스는 유지했다. 격리 build는 통과했으며 제품 worktree에는 적용하지 않았다.
+
+| Variant / mode | LCP 5회 (ms) | LCP 중앙값 | 표준편차 | CLS | TBT 중앙값 | 판정 |
+|---|---|---:|---:|---:|---:|---|
+| I1 optional simulate | 3151, 2966, 2976, 3258, 3257 | 3151ms | 129ms | 0 | 83ms | 기준 실패 |
+| S1 swap simulate | 2613, 2809, 2824, 3269, 2965 | 2824ms | 218ms | 0 | 68ms | 중앙값 -327ms, 전 회차 2.5초 초과 |
+| I1 optional devtools | 865, 840, 846, 841, 846 | 846ms | 9ms | 0 | 61ms | 기준 |
+| S1 swap devtools | 858, 881, 838, 830, 834 | 838ms | 19ms | 0.017263 | 60ms | LCP 차이 미미, 분산·CLS 악화 |
+
+- 두 mode 10회 모두 critical 700/800/900과 Nunito 900이 200으로 완료됐다. critical 400은 guest viewport에서 요청되지 않았다.
+- LCP node는 모두 같은 `SeoIntro` 문단이었다.
+- simulate 최종 geometry는 optional/swap 모두 308×67px이었다. 실제 throttling에서는 optional 308×45px, swap 308×67px였고 swap 때 CLS 0.017263이 매회 발생했다.
+- swap simulate 표준편차가 129ms에서 218ms로 커졌고 5회 모두 목표를 넘었다. 따라서 2.5초 이하로 robust해지지 않았으며 S1은 미채택이다.
+- LCP 문단 자체가 700 weight라 700/900-only swap도 같은 문단 font swap과 geometry shift를 피하지 못한다. 추가 variant는 실행하지 않았다.
+
+# 2026-09-17 Phase 3 I1 회원 검증
+
+## 조건
+
+- **기준 SHA / build ID**: `693eafee62563386bea6745dc7c26892997cde59` / `-l1fY2_cisVMqYxq88fZ`.
+- HEAD를 새 격리 디렉터리에 archive해 `experimental.inlineCss: true` production build를 생성했다. 인증은 정상 로그인 UI로 한 번 수행했다.
+- 전용 mode 700 Chrome profile에서 인증 cookie/storage를 유지하고 매 회차 HTTP cache만 삭제했다. Lighthouse 13.4.1, Chrome 152.0.7977.83, 412×823, DPR 1.75 조건으로 `simulate`와 `devtools`를 각각 5회 순차 실행했다.
+- fixture는 최근 분석 0건이고 MBTI가 비어 있어 프로필 설정 안내가 표시됐다. fixture 데이터는 변경하지 않았다. 자격증명·token·사용자 식별자·원격 host는 문서와 추적 artifact에 저장하지 않았다.
+- 비식별 상세 결과는 `phase-3-member-summary.json`, raw LHR과 전용 browser profile은 gitignore된 mode 700 `logs/performance/home-lcp/phase-3/member/`에 보존했다.
+
+## 회원 cold 결과
+
+| Mode | TTFB 중앙값 | FCP 중앙값 | LCP 5회 (ms) | LCP 중앙값 (min–max) | CLS 중앙값 | TBT 중앙값 | Total / font / JS / CSS 중앙값 |
+|---|---:|---:|---|---:|---:|---:|---:|
+| simulate | 14ms | 913ms | 3167, 2715, 2863, 2711, 2715 | **2715 (2711–3167)** | 0 | 64ms | 1,427,479 / 843,170 / 497,566 / 0B |
+| devtools | 18ms | 877ms | 906, 877, 965, 865, 864 | **877 (864–965)** | 0.019334 | 88ms | 1,428,696 / 843,170 / 498,768 / 0B |
+
+LCP node는 10회 모두 `SeoIntro` 설명 문단이었다. 외부 stylesheet 요청은 0건으로 I1 계약을 유지했다. 회원 동적 글리프로 v1 Gothic A1 700/800/900과 기존 Nunito 900이 요청됐고, v2 critical 4건을 합쳐 font 8건/843,170B가 전송됐다. `simulate` 중앙값은 목표를 215ms 초과했으며 5회 모두 2.5초를 넘었다. `devtools`, CLS, TBT 기준은 통과했다.
+
+로컬 production server에서는 Speed Insights script endpoint가 HTML을 반환해 parse error가 반복됐다. 배포 전용 endpoint가 없는 로컬 환경의 기존 오류이며 회원 기능 실패로 이어지지는 않았지만, production/preview 재측정에서는 실제 script 응답과 LCP 영향을 별도로 확인해야 한다.
+
+## 회원 흐름
+
+- 개인화 헤더, 최근 기록 0건 빈 상태, 마이페이지 프로필과 0건 통계를 확인했다.
+- 마이페이지에서 홈으로 client navigation한 뒤 인증 UI와 빈 상태가 유지됐고 busy UI, profile/analysis 재요청은 없었다.
+- 로그아웃 후 guest 홈에서 최근 기록 영역이 사라졌고, 동일 fixture 재로그인 후 회원 상태가 복원됐다.
+- 최종 로그아웃 후 인증 cookie는 0개였다. fixture가 하나뿐이라 A→B 계정 전환은 실행하지 않았다.
+
+## 판정
+
+회원 기능·CSS·실제 throttling 회귀는 통과했지만 핵심 `simulate` LCP 중앙값 2.715초로 **회원 acceptance는 실패**다. guest 재현 결과와 마찬가지로 I1을 2.5초 목표 달성으로 판정하거나 `/ship`할 수 없다.

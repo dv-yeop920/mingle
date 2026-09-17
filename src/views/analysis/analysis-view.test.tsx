@@ -20,7 +20,7 @@ describe('AnalysisView', () => {
         .map((heading) => heading.textContent),
     ).toEqual([
       'MBTI 그룹 궁합 테스트',
-      '1:1 MBTI 궁합 분석',
+      '1:1 MBTI 연애 궁합',
       '나의 MBTI 성격 분석',
       'MBTI 캐릭터 매칭',
     ]);
@@ -37,7 +37,7 @@ describe('AnalysisView', () => {
 
   it.each([
     ['MBTI 그룹 궁합 테스트 시작', '/group-type'],
-    ['1:1 MBTI 궁합 분석 시작', '/compatibility'],
+    ['1:1 MBTI 연애 궁합 시작', '/compatibility'],
     ['나의 MBTI 성격 분석 시작', '/analysis/mbti-profile'],
     ['MBTI 캐릭터 매칭 시작', '/analysis/character-match'],
     ['MBTI 그룹 궁합 테스트 자세히 보기', '/'],

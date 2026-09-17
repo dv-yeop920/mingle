@@ -12,9 +12,9 @@ const AnalysisContent = () => {
       />
       <AnalysisCard
         href="/compatibility"
-        ariaLabel="1:1 MBTI 궁합 분석 시작"
-        title="1:1 MBTI 궁합 분석"
-        description="두 사람이 잘 맞는 점과 대화 방식, 조심하면 좋은 갈등 포인트를 알아봐요."
+        ariaLabel="1:1 MBTI 연애 궁합 시작"
+        title="1:1 MBTI 연애 궁합"
+        description="두 사람이 사귀면 어떨까? 연애 케미와 대화 스타일, 조심할 포인트까지 알아봐요."
         variant="compatibility"
       />
       <AnalysisCard

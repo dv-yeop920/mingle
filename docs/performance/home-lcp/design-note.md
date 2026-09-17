@@ -522,3 +522,153 @@ UI, Backend, Supabase 구현 파일은 변경하지 않는다. UI 역할은 전 
 ## Phase 3 승인 판정
 
 **구현 진행 승인 권고**. 격리 guest A/B에서 유일한 독립 변수로 핵심 `simulate`와 `devtools` 목표를 모두 통과했고, trace의 외부 CSS 완료 시점 및 요청 1→0이 동작 원리와 일치한다. 다만 전역 experimental 옵션과 약 32.4KB 중복 전송 비용 때문에, 승인 범위는 `next.config.ts` 단일 변경과 위 회귀 검증까지다. member 또는 full-route/return/cache 기준이 하나라도 실패하면 채택·ship하지 않고 즉시 단일 옵션을 rollback한다.
+
+---
+
+# Phase 4 — 회원 고정 프롬프트 글리프 + 보호 라우트 selective prefetch
+
+2026-09-17 · Phase 3 I1은 회원 `devtools` LCP 877ms와 CLS 0.019334를 통과했지만 `simulate` 중앙값이 2715ms로 2.5초 목표를 215ms 초과했다. 추가 격리 실험에서 회원 고정 UI의 font residual 요청과 viewport의 보호 라우트 prefetch를 함께 줄였을 때만 중앙값 2423ms를 달성했다. 아래 계획은 I1을 유지하고 두 가지만 추가하는 정확한 Phase 4 후보다.
+
+## Research 결론과 판정 근거
+
+| 회원 cold variant | `simulate` LCP 5회 (ms) | 중앙값 | `devtools` 중앙값 | CLS | font transfer | 판정 |
+|---|---|---:|---:|---:|---:|---|
+| I1 baseline | 3167, 2715, 2863, 2711, 2715 | 2715ms | 877ms | simulate 0 / devtools 0.019334 | 843,170B | 목표 실패 |
+| 프롬프트 source inventory만 확장 | 2669, 2666, 2677, 2672, 2814 | 2672ms | 846ms | 0 | 91,396B | 폰트는 해소, LCP 실패 |
+| BottomNav 모든 링크 `prefetch={false}` + inventory | 1849, 3266, 3256, 2808, 1231 | 2808ms | 839ms | 0 | 91,396B | 분산과 핵심 내비게이션 비용으로 기각 |
+| 보호 링크만 prefetch off + inventory | 1702, 2270, 2429, 2814, 2423 | **2423ms** | **861ms** | **0** | **91,396B** | 중앙값 목표 통과, Phase 4 후보 |
+
+- MBTI가 없는 회원에게 표시되는 `MbtiSetupPromptSheet` 문구는 현재 critical source allowlist 밖이다. 그 결과 고정 문구임에도 v1 Gothic A1 residual 400/700/800/900이 모두 요청되며 Nunito와 critical face를 합쳐 8개/843,170B가 전송됐다.
+- 프롬프트 source를 기존 정적 allowlist에 포함해 결정적으로 재생성하면 동일 회원 화면의 폰트가 5개/91,396B로 줄고 v1 Gothic A1 residual 요청이 0개가 됐다. 닉네임처럼 진짜 동적인 문자는 여전히 v1 exact-weight fallback을 사용한다.
+- `BottomNav`의 `/history`와 `/mypage`는 인증·개인 데이터 라우트이며, 홈 cold load 시 viewport에 상시 들어온 링크다. Next.js 16.3.1은 production에서 viewport에 들어온 `<Link>`를 기본 prefetch하고, App Router의 `prefetch={false}`는 viewport와 hover prefetch를 모두 끄는 것으로 설치 문서가 명시한다.
+- 모든 BottomNav 링크를 끄는 variant는 중앙값 2808ms와 큰 분산으로 기각한다. `/analysis`와 Hero의 `/group-type`은 핵심 테스트 시작 경로이므로 Next 기본 prefetch를 유지한다. `/`도 별도 제어하지 않는다.
+- 2423ms는 전체 5회 중 중앙값 통과이며 2814ms outlier가 있다. 따라서 구현은 추천하지만, guest/member 재측정과 navigation 회귀가 통과하기 전에 ship 승인으로 해석하지 않는다.
+
+## 1단계: 요구사항과 사용자 상태
+
+### 정확한 두 가지 변경
+
+1. `scripts/fonts/home-critical-sources.txt`에 `src/features/profile/ui/mbti-setup-prompt-sheet/mbti-setup-prompt-sheet.tsx`만 source로 추가한다. pinned generator로 codepoint manifest, 4-weight critical subset, checksum manifest, CSS critical/residual range를 다시 만든다.
+2. `BottomNav`에서 `/history`, `/mypage`만 `prefetch={false}`로 설정한다. `/`, `/analysis`, Hero의 `/group-type`을 포함한 나머지 `Link`는 prop을 지정하지 않은 Next 기본값을 유지한다.
+
+### 사용자 행동과 상태
+
+```text
+home cold load
+├─ guest
+│  ├─ public critical font만 사용
+│  ├─ group/analysis 기본 prefetch
+│  └─ history/mypage 클릭 시 인증 흐름으로 즉시 navigation
+└─ member
+   ├─ MBTI 있음 → 프롬프트 없음
+   └─ MBTI 없음 → 고정 프롬프트가 critical font로 표시
+      └─ MBTI 설정 CTA → /mypage/settings
+```
+
+- guest, MBTI 설정 회원, MBTI 미설정 회원, 프로필 로딩/오류, 로그아웃, A→B 계정 전환을 모두 유지한다.
+- 프롬프트의 닫힘 불가, MBTI 설정 CTA, 긴 닉네임, 이모지·inventory 밖 글리프, 폰트 실패와 느린 4G를 포함한다.
+- 보호 링크는 prefetch cache가 없어도 클릭 후 중복 navigation이 발생하지 않고, 적절한 loading UI 또는 즉시 shell을 보여야 한다.
+- 부정적 요구사항: auth/query/cache를 삭제하거나, 프롬프트를 숨기거나, 모든 Link의 prefetch를 끄거나, 동적 글리프 시스템·런타임 subset·Google Fonts 297-face sharding을 도입하지 않는다.
+
+## 2단계: 아키텍처와 런타임 흐름
+
+```text
+build time
+  fixed source allowlist + pinned fonttools/brotli
+    → canonical codepoints/checksum
+    → four immutable critical faces
+    → one shared unicode-range + exact-weight v1 residual ranges
+
+production home runtime
+  document → inline CSS + critical 700/800/900 preload
+  member prompt mount → critical 400/700/800/900 reuse, v1 residual 0
+  BottomNav enters viewport
+    ├─ /history, /mypage → no viewport/hover prefetch
+    └─ /, /analysis → Next default prefetch
+  Hero /group-type → Next default prefetch
+```
+
+- 폰트는 build-time static inventory만 확장한다. UI source를 런타임에 scan하거나 nickname으로 font를 동적 생성하지 않는다. 기존 `Critical → Gothic A1 residual → metric fallback` stack과 `optional`/`swap` 계약을 유지한다.
+- 현재 `/fonts/v2` asset은 `immutable`로 이미 commit됐으므로 실험처럼 v2 바이트를 덮어쓰지 않는다. 실제 구현은 generator의 output version을 `/fonts/v3` 또는 Review시 확정한 다음 버전으로 올리고 CSS/preload/cache rule/manifest를 한 commit에서 전환한다. v2 physical files는 기존 배포 cache를 위해 삭제하지 않는다.
+- BottomNav에 포괄 wrapper, hover state, `router.prefetch()`, route-segment `prefetch` export를 추가하지 않는다. 상수 href로 보호 여부만 계산하여 Link prop을 설정한다.
+- `/history`/`/mypage` 클릭 후의 서버 auth, RSC, React Query hydration/cache 흐름은 변경하지 않는다. 뒤로가기에서 Next router cache나 bfcache가 있으면 재사용하고, 없으면 홈을 정상 재렌더한다.
+
+## 3단계: 데이터·캐시·오류 계약
+
+- Supabase, auth session, RLS, API, Server Action, query key, `staleTime`, Zustand와 DB를 변경하지 않는다.
+- prefetch off는 미리 RSC/resource를 받지 않는 것이지 history/profile 데이터 cache를 삭제하는 것이 아니다. 기존 user-scoped React Query cache는 클릭 후 hydration에서 그대로 재사용한다.
+- 홈 → history/mypage → back → home, 홈 → analysis/group-type → back → home, logout → guest, guest 보호 링크 클릭 → login/guard 흐름을 각각 검증한다. 홈 복귀 후 recent/profile이 중복 fetch되거나 이전 계정의 cache가 보이면 실패다.
+- 오프라인·느린 네트워크에서 보호 라우트 클릭이 지연되면 기존 route `loading.tsx`/내비게이션 feedback이 표시돼야 한다. 이번 Phase에서 새 loading state나 retry cache를 추가하지 않는다.
+- 새로 들어온 고정 프롬프트 문자는 critical cmap에 있어야 하고, dynamic nickname probe는 residual cmap에 남아야 한다. 두 range가 겹치거나 합집합이 canonical v1 cmap을 복원하지 못하면 build/test를 실패시킨다.
+
+## 4단계: UI·접근성·내비게이션
+
+- `MbtiSetupPromptSheet`의 문구, font weight, BottomSheet geometry, focus, 닫힘 제한, 58px CTA와 `/mypage/settings` href를 변경하지 않는다. 새 UI나 조건부 렌더링은 없다.
+- BottomNav의 4개 항목, active 판정, 레이블, 탭 순서, 44px 이상 touch target, focus 표시와 client navigation을 유지한다. `prefetch` prop은 accessible name이나 DOM 순서를 바꾸지 않는다.
+- member MBTI prompt open/closed, guest, long nickname, font failure에서 screenshot과 computed font-family/weight, 텍스트 줄바꿈, BottomSheet/BottomNav overlap을 390×844와 412×823에서 비교한다.
+- 클릭 시점에 prefetch cache가 없는 `/history`/`/mypage`는 user timing과 화면 녹화로 반응을 확인한다. 기존 기본 prefetch 대비 navigation start→첫 meaningful shell이 10% 초과 악화하거나 3초간 무반응 UI가 보이면 선택적 prefetch 변경을 기각한다.
+
+## 5단계: 성능·장애·운영
+
+### 구현 및 검증 순서
+
+1. Frontend가 프롬프트 source allowlist를 추가하고 immutable 버전을 올린 후 pinned generator를 두 번 실행해 동일 checksum을 확인한다. 별도의 dynamic font system이나 shard는 만들지 않는다.
+2. Frontend가 BottomNav의 두 protected href에만 `prefetch={false}`를 적용한다. 프롬프트 소스, auth/query 로직, 다른 Link는 수정하지 않는다.
+3. Test가 font contract와 BottomNav Link prop을 정적/unit test로 검증하고 production build로 guest/member browser 흐름을 실행한다.
+4. I1 baseline, font-only, combined protected-prefetch candidate를 동일 Chrome/Lighthouse/회원 fixture에서 각각 cold `simulate`/`devtools` 5회 재측정한다. 실패한 all-links-off는 재채택하지 않는다.
+5. `/review → /test → /ship` 순서를 유지하고, preview에서 동일 smoke/performance subset을 통과한 뒤에만 배포한다.
+
+### 폰트 결정성 및 통합 테스트
+
+- source allowlist는 정렬되고 중복이 없으며 프롬프트 source 경로를 정확히 한 번 포함해야 한다.
+- codepoint list는 ASCII + allowlist의 지원 문자와 정확히 일치하고 count/SHA-256/unicode-range가 manifest와 일치해야 한다.
+- pinned `fonttools==4.59.2`, `brotli==1.1.0`, canonical order, timestamp 재계산 금지 옵션을 유지하고 독립 두 회 생성 asset의 weight별 SHA-256가 같아야 한다.
+- 4개 critical cmap은 inventory와 정확히 같고, 요청하지 않은 CJK가 없으며, critical/residual은 서로 겹치지 않고 weight별 canonical cmap을 정확히 복원해야 한다.
+- CSS의 4개 critical URL/range, 4개 v1 residual range, preload 700/800/900, manifest output path/checksum/bytes, 새 immutable cache rule이 동일 asset version을 가리켜야 한다.
+- production member prompt에서 Gothic A1 residual 요청 0, critical 400/700/800/900 + Nunito 900 합계 font transfer는 격리 증거인 91,396B를 재현하고, dynamic nickname residual probe는 필요한 exact-weight v1 face 하나만 요청해야 한다.
+
+### 합격 기준
+
+- production mobile cold Lighthouse `simulate`와 `devtools`에서 guest/member 각각 5회 중앙값 LCP ≤ 2.5초, CLS ≤ 0.1, TBT ≤ 200ms다. `simulate`와 `devtools`, guest와 member는 섞지 않는다.
+- 회원 재현 목표는 combined candidate의 `simulate` 2423ms, `devtools` 861ms, CLS 0이다. 하지만 이 참고값보다 위의 절대 기준과 5회 전체 분포를 우선한다.
+- LCP node는 최초 static `SeoIntro` 문단이며 prompt/font/prefetch 완료에 새 LCP candidate가 생기지 않아야 한다. FCP/TTFB는 I1 baseline 중앙값 대비 10% 초과 악화하지 않아야 한다.
+- 회원 폰트는 843,170B → 약 91KB로 줄고 v1 Gothic A1 residual이 0개여야 한다. font 404, 중복 URL, `?dpl=`, unexpected `/_next/static/media/*.woff2`는 0개다.
+- initial home에서 `/history`/`/mypage` prefetch RSC/JS는 0개, `/analysis`와 `/group-type`은 Next 기본 prefetch 계약을 유지해야 한다. 개발 모드는 자동 prefetch가 없으므로 이 판정은 production build에서만 한다.
+- member/guest의 클릭, back/forward, 홈 복귀, warm cache, logout/login, 계정 전환에서 style/heading/BottomSheet/BottomNav 회귀, auth cache 혼입, 중복 query, hydration/console error가 0개여야 한다.
+- `MbtiSetupPromptSheet` component test, 새 BottomNav prefetch prop test, font contract test, 관련 Vitest, 전체 `npm test`, `npm run lint`, `npm run build -- --webpack`을 통과해야 한다.
+
+### fixture·artifact 정리
+
+- 회원 fixture는 MBTI 미설정·최근 분석 0개로 고정하고 각 series에서 인증 상태만 재생성한다. 검증을 위해 프로필·분석을 변경한 경우 기록한 원본값으로 복구하고 임시 분석은 삭제한다. 원격 데이터를 변경하지 않으면 그 사실을 명시한다.
+- 마지막 series 후 로그아웃하고 전용 Chrome profile의 auth cookie/storage가 0개임을 확인한다. 자격증명, token, user id, remote host는 commit artifact에 저장하지 않는다.
+- raw LHR/trace/HAR는 gitignore된 `logs/performance/home-lcp/phase-4/`에 보존하고, 비식별 summary·checksum만 `docs/performance/home-lcp/measurements.md`와 영구 artifact에 남긴다. `/private/tmp` variant, 전용 browser profile, local credential file은 검증 종료 후 안전하게 제거하고 repository에 추가하지 않는다.
+
+### 장애와 rollback
+
+1. 폰트 생성/결정성/CSS 계약이 실패하면 새 asset version의 CSS/preload/cache rule/manifest만 이전 v2 참조로 돌린다. v2 바이트는 수정·삭제하지 않는다.
+2. protected navigation의 체감 성능, offline, back/cache가 회귀하면 BottomNav의 두 `prefetch={false}`만 제거해 Next 기본값을 복구한다. 폰트 변경은 유지한 채 독립 rollback한다.
+3. LCP 목표를 달성하지 못하면 all-links-off, 동적 subset, sharding으로 확장하지 않고 Phase 4를 미채택한다. 다음 원인은 다시 독립 Research/Plan으로 시작한다.
+4. rollback도 정확한 hunk/commit revert로만 수행하고 `git reset --hard`, 전체 checkout, 사용자의 기존 dirty 변경 삭제를 하지 않는다.
+
+## Phase 4 파일별 계획과 역할
+
+| 파일/산출물 | 계획 | 역할 |
+|---|---|---|
+| `scripts/fonts/home-critical-sources.txt` | MBTI setup prompt source 한 개 추가 | Frontend |
+| `scripts/generate-home-critical-fonts.py` | immutable output version을 v3로 올리고 기존 deterministic 생성/검증 계약 유지 | Frontend, Test 검토 |
+| `scripts/fonts/home-critical-codepoints.txt` | 확장된 canonical inventory 생성 | Frontend |
+| `scripts/fonts/home-critical-fonts.json` | inventory, v3 output, bytes, SHA-256, residual range 갱신 | Frontend, Test |
+| `public/fonts/v3/gothic-a1-critical-{400,700,800,900}.woff2` | 새 immutable subset 4개 추가; v2는 보존 | Frontend |
+| `src/shared/styles/fonts.css` | critical URL/range와 v1 residual range를 새 manifest에 맞게 전환 | Frontend, UI 검토 |
+| `src/app/layout.tsx` | critical 700/800/900 preload를 새 immutable version으로 전환 | Frontend |
+| `next.config.ts` | `/fonts/v3/:path*` immutable cache rule 추가; I1 `inlineCss` 유지 | Frontend |
+| `src/shared/styles/fonts.test.ts` | prompt coverage, cmap/range/version/checksum/preload/dynamic residual 결정성 계약 갱신 | Test |
+| `src/widgets/bottom-nav/bottom-nav.tsx` | history/mypage만 `prefetch={false}`, home/analysis는 기본값 | Frontend |
+| `src/widgets/bottom-nav/bottom-nav.test.tsx` | href별 prefetch prop과 active/accessibility/navigation 계약 검증 | Test |
+| `docs/performance/home-lcp/measurements.md` 및 Phase 4 artifact | guest/member font/network/Lighthouse/navigation/cache 결과와 채택 판정 | Test |
+
+Backend, Supabase, DB 변경은 없다. UI 역할은 typography·BottomSheet·BottomNav visual/accessibility parity 검수만 담당하고, Frontend가 폰트 integration과 Link prop을 구현하며, Test가 결정적 font·production navigation·Lighthouse를 검증한다.
+
+## Phase 4 승인 판정
+
+**구현 진행 승인 권고, ship은 보류**. 프롬프트는 고정 source임에도 critical inventory에서 누락되어 있었고 보완 후 font transfer가 843KB에서 91KB로 줄어드는 구체적 증거가 있다. 또한 보호 라우트 두 개만 prefetch를 끄는 combined variant가 회원 `simulate` 2423ms, `devtools` 861ms, CLS 0으로 목표를 통과했고 모든 링크를 끄는 대안은 2808ms로 기각됐다. 다만 outlier와 guest·navigation 회귀 미확정을 감안해, 위 두 변경의 구현과 Review/Test까지만 진행하고 모든 합격 기준을 통과한 뒤에만 `/ship`한다.

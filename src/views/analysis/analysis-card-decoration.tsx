@@ -22,7 +22,7 @@ const CardDecoration = ({ variant }: { variant: AnalysisCardVariant }) => {
             ENFP
           </span>
         </div>
-        <span className="text-[14px] font-black text-compat/60">×</span>
+        <span className="text-[14px] font-black text-compat">💗</span>
         <div className="flex h-[50px] w-[40px] items-center justify-center rounded-[12px] bg-surface/80 shadow-sm">
           <span className="font-nunito text-[11px] font-black text-compat-accent">
             INTJ

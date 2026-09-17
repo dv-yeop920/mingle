@@ -1,6 +1,6 @@
 # MIXTI 자동 오류 복구 아키텍처
 
-- 최종 갱신: 2026-09-16
+- 최종 갱신: 2026-09-17
 - 상태: Stage 1~5 완료
 - 요구사항: [requirements.md](./requirements.md)
 - Drain 서브시스템: [ingest-setup.md](./ingest-setup.md)
@@ -254,7 +254,77 @@ Production 병합 후 Vercel이 자동 배포한다. 모니터는 배포 완료�
 - Vercel 대시보드에서 환경변수 토글 → 다음 Cron 주기(≤1분) 내 정지
 - 즉시 정지가 필요하면: Vercel 대시보드에서 Cron Job 자체를 비활성화
 
-## 7. 구현 현황
+## 7. 보조 경로 — 빌드 에러 복구 (완료)
+
+### 7-1. 구조적 한계와 해결
+
+Drain 수신기는 Vercel 배포 내부에서 동작한다. `npm install` 또는 빌드 단계에서 실패하면 앱이 배포되지 않으므로 Drain이 빌드 에러 이벤트를 수신할 수 없다. 이 구조적 한계를 우회하기 위해 GitHub Actions `deployment_status` 이벤트를 외부 트리거로 사용한다.
+
+```text
+Vercel 빌드 실패
+      │
+      ▼
+GitHub deployment_status (state=failure/error)
+      │
+      ▼
+build-recovery.yml 트리거
+      │
+      ├─ 루프 방지 검사
+      ├─ Vercel API로 실패 배포 식별
+      ├─ 빌드 에러 로그 수집
+      ├─ Claude API로 분석 + 수정 생성
+      ├─ lockfile 재생성 (필요 시)
+      └─ fix/build-agent-<sha> 브랜치 푸시
+              │
+              ▼
+      auto-recovery-verify.yml (CI 검증)
+```
+
+### 7-2. 트리거 조건
+
+위치: `.github/workflows/build-recovery.yml`
+
+GitHub `deployment_status` 이벤트에서 다음 조건을 모두 만족할 때 실행:
+- `state == 'failure'` 또는 `state == 'error'`
+- `environment == 'Production'`
+
+### 7-3. 루프 방지
+
+두 가지 가드로 무한 루프를 차단한다:
+1. **커밋 메시지 검사**: `fix(auto-recovery)` 접두사가 포함된 커밋이면 스킵
+2. **브랜치 존재 검사**: `fix/build-agent-<sha>` 브랜치가 이미 존재하면 스킵
+
+### 7-4. 빌드 복구 스크립트
+
+위치: `scripts/build-recovery.mjs`
+
+의존성 없는 Node.js 스크립트 (내장 `fs` + `fetch`만 사용). `npm install` 자체가 실패 원인일 수 있으므로 외부 패키지에 의존하지 않는다.
+
+**실행 흐름**:
+1. `build-errors.txt`에서 빌드 에러 로그 읽기
+2. 에러 메시지에서 소스 파일 경로 추출 (`src/**/*.{ts,tsx,mjs}` 패턴)
+3. 프로젝트 설정 파일 수집 (`package.json`, `tsconfig.json`, `next.config.ts`)
+4. Claude API (`claude-sonnet-4-20250514`)로 분석 + 수정 생성
+5. 수정 파일 디스크에 쓰기, `.auto-recovery-meta.json` 생성
+6. `hasFix`와 `description`을 `GITHUB_OUTPUT`으로 출력
+
+**에러 분류**: dependency / typescript / build / lint / transient / infrastructure. transient(네트워크 장애)과 infrastructure(환경변수 누락) 유형은 `isFixable=false`로 판단하여 수정을 시도하지 않는다.
+
+### 7-5. CI 연동
+
+`fix/build-agent-*` 브랜치 푸시가 `auto-recovery-verify.yml`을 트리거한다. `AUTO_RECOVERY_GITHUB_TOKEN` (PAT)으로 푸시하여 기본 `GITHUB_TOKEN`의 워크플로우 트리거 제한을 우회한다.
+
+### 7-6. 필수 시크릿
+
+| 시크릿 | 용도 |
+| --- | --- |
+| `VERCEL_TOKEN` | Vercel API (빌드 로그 조회) |
+| `VERCEL_PROJECT_ID` | 실패 배포 식별 |
+| `ANTHROPIC_API_KEY` | Claude API (에러 분석) |
+| `AUTO_RECOVERY_GITHUB_TOKEN` | GitHub PAT (verify 워크플로우 트리거) |
+| `VERCEL_TEAM_ID` (선택) | 팀 스코프 프로젝트용 |
+
+## 8. 구현 현황
 
 | 단계 | 산출물 | 상태 |
 | --- | --- | --- |
@@ -263,8 +333,9 @@ Production 병합 후 Vercel이 자동 배포한다. 모니터는 배포 완료�
 | 3. 수정 실행기 | Orchestrator, 이벤트 분류기, Fix Executor, GitHub/Vercel API 클라이언트 | 완료 |
 | 4. 검증·병합 | Verifier 상태 머신, CI Actions, 독립 Review, Scope/Preview 검사, 병합 통제 | 완료 |
 | 5. 운영 복구 | Monitor 상태 머신, Synthetic Probe, Vercel Rollback, Git Revert, Kill Switch | 완료 |
+| 보조: 빌드 복구 | GitHub Actions 워크플로우, 의존성 없는 복구 스크립트, 시크릿 5개 | 완료 |
 
-## 8. 외부 연동 체크리스트
+## 9. 외부 연동 체크리스트
 
 - Vercel: 프로젝트 설정, Log Drain 구성, 배포 API 접근, Instant Rollback 권한
 - GitHub: App 또는 연동 계정, PR·병합 권한, 브랜치 보호·필수 검사
