@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'fix/agent-*'
+      - 'fix/build-agent-*'
 
 concurrency:
   group: auto-recovery-${{ github.ref }}

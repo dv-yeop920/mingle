@@ -1,0 +1,183 @@
+name: Build Recovery
+
+# Detects Vercel production build failures via GitHub deployment status
+# and uses AI to analyze + fix the build error automatically.
+#
+# Required secrets:
+#   VERCEL_TOKEN          — Vercel API token (build log access)
+#   VERCEL_PROJECT_ID     — Vercel project ID
+#   ANTHROPIC_API_KEY     — Claude API key
+#   AUTO_RECOVERY_GITHUB_TOKEN — GitHub PAT (triggers verify workflow on push)
+# Optional:
+#   VERCEL_TEAM_ID        — Vercel team ID (required for team-scoped projects)
+
+on:
+  deployment_status:
+
+jobs:
+  recover:
+    if: >
+      (github.event.deployment_status.state == 'failure'
+        || github.event.deployment_status.state == 'error') &&
+      github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate secrets
+        id: config
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_PROJECT_ID" ] || [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Build recovery secrets not configured"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.configured == 'true'
+
+      - name: Guard against loops
+        if: steps.config.outputs.configured == 'true'
+        id: guard
+        run: |
+          MSG=$(git log -1 --pretty=%B)
+          if echo "$MSG" | grep -q "fix(auto-recovery)"; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping: commit is already an auto-recovery fix"
+            exit 0
+          fi
+
+          SHA="${{ github.event.deployment.sha }}"
+          SHORT_SHA=$(echo "$SHA" | cut -c1-12)
+          if git ls-remote --heads origin "fix/build-agent-${SHORT_SHA}" 2>/dev/null | grep -q .; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping: fix branch already exists"
+            exit 0
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.config.outputs.configured == 'true' && steps.guard.outputs.skip == 'false'
+        with:
+          node-version: 24
+
+      - name: Find failed Vercel deployment
+        if: steps.config.outputs.configured == 'true' && steps.guard.outputs.skip == 'false'
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+        run: |
+          TEAM_PARAM=""
+          if [ -n "$VERCEL_TEAM_ID" ]; then
+            TEAM_PARAM="&teamId=$VERCEL_TEAM_ID"
+          fi
+
+          COMMIT_SHA="${{ github.event.deployment.sha }}"
+
+          DEPLOY_ID=$(curl -sf \
+            "https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&limit=10${TEAM_PARAM}" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" | \
+            node -e "
+              let d='';
+              process.stdin.on('data',c=>d+=c);
+              process.stdin.on('end',()=>{
+                try{
+                  const data=JSON.parse(d);
+                  const dep=data.deployments?.find(
+                    d=>d.meta?.githubCommitSha==='${COMMIT_SHA}'&&d.state==='ERROR'
+                  );
+                  if(dep)process.stdout.write(dep.uid);
+                }catch{}
+              })
+            ")
+
+          if [ -z "$DEPLOY_ID" ]; then
+            echo "No matching failed Vercel deployment found"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Found failed deployment: $DEPLOY_ID"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "id=$DEPLOY_ID" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch build error logs
+        if: steps.deploy.outputs.found == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+        run: |
+          TEAM_PARAM=""
+          if [ -n "$VERCEL_TEAM_ID" ]; then
+            TEAM_PARAM="?teamId=$VERCEL_TEAM_ID"
+          fi
+
+          curl -sf \
+            "https://api.vercel.com/v2/deployments/${{ steps.deploy.outputs.id }}/events${TEAM_PARAM}" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" | \
+            node -e "
+              let d='';
+              process.stdin.on('data',c=>d+=c);
+              process.stdin.on('end',()=>{
+                try{
+                  const events=JSON.parse(d);
+                  if(!Array.isArray(events))return;
+                  const lines=events
+                    .filter(e=>{
+                      const t=(e.type||'').toLowerCase();
+                      const text=(e.payload?.text||e.text||'').toLowerCase();
+                      return t==='stderr'||t==='error'||t==='exit'
+                        ||text.includes('error')||text.includes('fail');
+                    })
+                    .map(e=>e.payload?.text||e.text||'')
+                    .filter(Boolean);
+                  process.stdout.write(lines.join('\n'));
+                }catch{}
+              })
+            " > build-errors.txt
+
+          echo "=== Build Errors ==="
+          head -50 build-errors.txt
+
+      - name: Analyze and generate fix
+        if: steps.deploy.outputs.found == 'true'
+        id: fix
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          COMMIT_SHA: ${{ github.event.deployment.sha }}
+        run: node scripts/build-recovery.mjs
+
+      - name: Regenerate lockfile
+        if: steps.fix.outputs.hasFix == 'true'
+        run: |
+          if git diff --name-only | grep -q "package.json"; then
+            echo "Regenerating package-lock.json..."
+            npm install --package-lock-only 2>/dev/null || echo "::warning::Lockfile regen skipped"
+          fi
+
+      - name: Push fix branch
+        if: steps.fix.outputs.hasFix == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AUTO_RECOVERY_GITHUB_TOKEN || github.token }}
+        run: |
+          SHA="${{ github.event.deployment.sha }}"
+          SHORT_SHA=$(echo "$SHA" | cut -c1-12)
+          BRANCH="fix/build-agent-${SHORT_SHA}"
+
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "$(cat <<'EOF'
+          fix(auto-recovery): ${{ steps.fix.outputs.description }}
+          EOF
+          )"
+          git push origin "$BRANCH"
+          echo "::notice::Pushed fix branch: $BRANCH"
