@@ -188,7 +188,7 @@ const CompatibilityResultView = ({
       </div>
 
       <div className="flex flex-col gap-4 px-5 pb-8">
-        <h2 className="text-[17px] font-black text-foreground">상세 분석</h2>
+        <h2 className="text-[17px] font-black text-foreground">연애 상세 분석</h2>
 
         <CategoryCard
           title={result.conversationStyle.title}
@@ -231,7 +231,7 @@ const CompatibilityResultView = ({
 
         <div className="flex flex-col gap-3 rounded-[20px] bg-surface p-5 shadow-sm">
           <h3 className="text-[15px] font-black text-foreground">
-            추천 활동
+            추천 데이트
           </h3>
           <div className="flex flex-wrap gap-2">
             {result.recommendedActivities.map((activity) => (
@@ -253,7 +253,7 @@ const CompatibilityResultView = ({
 
         <div className="flex flex-col gap-3 pt-4">
           <Button variant="primary" onClick={handleRetest}>
-            다른 궁합 분석하기
+            다른 연애 궁합 보기
           </Button>
           <Button variant="secondary" onClick={() => router.push('/')}>
             홈으로 돌아가기

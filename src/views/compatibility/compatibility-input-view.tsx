@@ -97,10 +97,10 @@ const CompatibilityInputView = ({ className }: CompatibilityInputViewProps) => {
     <div className={cn('flex flex-col gap-6 px-5 pb-8 pt-5', className)}>
       <div className="flex flex-col gap-2">
         <h1 className="text-[22px] font-black text-foreground">
-          1:1 MBTI 궁합
+          1:1 연애 궁합
         </h1>
         <p className="text-[14px] font-bold text-muted">
-          두 사람의 MBTI를 선택하면 궁합을 분석해드려요
+          두 사람의 MBTI를 선택하면 연애 궁합을 분석해드려요
         </p>
       </div>
 
@@ -154,7 +154,7 @@ const CompatibilityInputView = ({ className }: CompatibilityInputViewProps) => {
         disabled={!isReady}
         onClick={handleStart}
       >
-        궁합 분석하기
+        연애 궁합 분석하기
       </Button>
 
       <MbtiPicker
