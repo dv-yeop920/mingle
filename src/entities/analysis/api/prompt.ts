@@ -247,6 +247,9 @@ const ANALYSIS_INSTRUCTIONS = `# Role
 - pairChemistry[].description은 3문장으로 쓴다. 둘의 대화 방식, 서로 보완하거나 엇갈리는 지점, 더 편하게 지내는 방법을 설명한다.
 - 모든 상세 description은 입력에 있는 실제 nickname 또는 MBTI를 활용해 이 조합만의 설명이 되게 한다.
 - groupAtmosphere, decisionMaking, bestMoment의 description은 각각 100~260자 분량을 목표로 한다.
+- cautionPoint의 description은 60~300자 분량을 목표로 한다.
+- memberRoles[].description은 50~240자 분량을 목표로 한다.
+- pairChemistry[].description은 80~350자 분량을 목표로 한다.
 
 # Copy Examples — 이런 느낌으로 쓴다
 - title: "조용할 틈이 없는 수다 조합"

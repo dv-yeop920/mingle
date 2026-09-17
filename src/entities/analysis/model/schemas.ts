@@ -116,19 +116,19 @@ const analysisResultSchema = z.object({
   }),
   groupAtmosphere: z.object({
     title: z.string().min(1).max(40),
-    description: z.string().min(80).max(320),
+    description: z.string().min(60).max(400),
   }),
   decisionMaking: z.object({
     title: z.string().min(1).max(40),
-    description: z.string().min(80).max(320),
+    description: z.string().min(60).max(400),
   }),
   cautionPoint: z.object({
     title: z.string().min(1).max(40),
-    description: z.string().min(60).max(280),
+    description: z.string().min(40).max(360),
   }),
   bestMoment: z.object({
     title: z.string().min(1).max(40),
-    description: z.string().min(80).max(320),
+    description: z.string().min(60).max(400),
   }),
   memberRoles: z.array(
     z.object({
@@ -136,7 +136,7 @@ const analysisResultSchema = z.object({
       nickname: z.string().min(1).max(8),
       mbti: z.enum(MBTI_TYPES),
       title: z.string().min(1).max(24),
-      description: z.string().min(40).max(220),
+      description: z.string().min(30).max(280),
     }),
   ),
   pairChemistry: z.array(
@@ -149,14 +149,14 @@ const analysisResultSchema = z.object({
       memberAMbti: z.enum(MBTI_TYPES),
       memberBMbti: z.enum(MBTI_TYPES),
       score: scoreSchema,
-      summary: z.string().min(1).max(40),
-      description: z.string().min(60).max(320),
+      summary: z.string().min(1).max(50),
+      description: z.string().min(40).max(400),
       conversationScore: scoreSchema,
       conflictScore: scoreSchema,
       recommendedSituations: z.array(z.string().min(1).max(32)).min(1).max(3),
     }),
   ),
-  summary: z.string().min(1).max(120),
+  summary: z.string().min(1).max(150),
 });
 
 type AnalyzeRequest = z.infer<typeof analyzeRequestSchema>;

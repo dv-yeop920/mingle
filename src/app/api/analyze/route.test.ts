@@ -140,6 +140,18 @@ const createMockStreamObject = (
   };
 };
 
+const createFailingMockStreamObject = (error: unknown) => {
+  const handlers = new Map<string, DeltaHandler>();
+
+  return {
+    on: (event: string, handler: DeltaHandler) => {
+      handlers.set(event, handler);
+    },
+    finalResponse: () => Promise.reject(error),
+    abort: vi.fn(),
+  };
+};
+
 const parseSSEResponse = async (response: Response) => {
   const text = await response.text();
   const events: { event: string; data: unknown }[] = [];
@@ -184,6 +196,7 @@ describe('POST /api/analyze', () => {
     expect((resultEvent!.data as { data: { chemistryScore: number } }).data.chemistryScore).toBe(82);
     expect((resultEvent!.data as { data: { groupType: string } }).data.groupType).toBe('friends');
 
+    expect(mockStream).toHaveBeenCalledTimes(1);
     expect(mockStream).toHaveBeenCalledWith(
       expect.objectContaining({
         model: 'gpt-5.6-luna',
@@ -201,8 +214,8 @@ describe('POST /api/analyze', () => {
     expect(mockStream).not.toHaveBeenCalled();
   });
 
-  it('멤버 또는 pair가 누락된 결과를 error 이벤트로 전송한다', async () => {
-    mockStream.mockReturnValue(
+  it('멤버 또는 pair가 누락되면 3회 시도 후 error 이벤트를 전송한다', async () => {
+    mockStream.mockImplementation(() =>
       createMockStreamObject({
         ...VALID_RESULT,
         pairChemistry: [],
@@ -215,13 +228,13 @@ describe('POST /api/analyze', () => {
     const errorEvent = events.find((e) => e.event === 'error');
     expect(errorEvent).toBeDefined();
     expect((errorEvent!.data as { error: string }).error).toContain('다시 시도해주세요');
+    expect(mockStream).toHaveBeenCalledTimes(3);
   });
 
-  it('OpenAI quota 오류를 error 이벤트로 전송한다', async () => {
-    const mockObj = createMockStreamObject(null);
-    mockObj.finalResponse = () =>
-      Promise.reject({ code: 'insufficient_quota', status: 429 });
-    mockStream.mockReturnValue(mockObj);
+  it('OpenAI quota 오류는 재시도 없이 즉시 error 이벤트를 전송한다', async () => {
+    mockStream.mockImplementation(() =>
+      createFailingMockStreamObject({ code: 'insufficient_quota', status: 429 }),
+    );
 
     const response = await POST(createRequest(VALID_BODY));
     const events = await parseSSEResponse(response);
@@ -231,13 +244,13 @@ describe('POST /api/analyze', () => {
     expect((errorEvent!.data as { error: string }).error).toBe(
       'AI 분석 사용량 한도를 초과했습니다',
     );
+    expect(mockStream).toHaveBeenCalledTimes(1);
   });
 
-  it('일시적인 rate limit 오류를 quota와 구분한다', async () => {
-    const mockObj = createMockStreamObject(null);
-    mockObj.finalResponse = () =>
-      Promise.reject({ code: 'rate_limit_exceeded', status: 429 });
-    mockStream.mockReturnValue(mockObj);
+  it('일시적인 rate limit 오류는 재시도 없이 즉시 실패한다', async () => {
+    mockStream.mockImplementation(() =>
+      createFailingMockStreamObject({ code: 'rate_limit_exceeded', status: 429 }),
+    );
 
     const response = await POST(createRequest(VALID_BODY));
     const events = await parseSSEResponse(response);
@@ -247,15 +260,54 @@ describe('POST /api/analyze', () => {
     expect((errorEvent!.data as { error: string }).error).toBe(
       '분석 요청이 몰리고 있어요. 잠시 후 다시 시도해주세요',
     );
+    expect(mockStream).toHaveBeenCalledTimes(1);
   });
 
-  it('output_parsed가 null이면 error 이벤트를 전송한다', async () => {
-    mockStream.mockReturnValue(createMockStreamObject(null));
+  it('output_parsed가 null이면 3회 시도 후 error 이벤트를 전송한다', async () => {
+    mockStream.mockImplementation(() => createMockStreamObject(null));
 
     const response = await POST(createRequest(VALID_BODY));
     const events = await parseSSEResponse(response);
 
     const errorEvent = events.find((e) => e.event === 'error');
     expect(errorEvent).toBeDefined();
+    expect(mockStream).toHaveBeenCalledTimes(3);
+  });
+
+  it('첫 시도 실패 후 재시도에서 성공하면 result를 전송한다', async () => {
+    mockStream
+      .mockReturnValueOnce(createMockStreamObject(null))
+      .mockReturnValueOnce(createMockStreamObject(VALID_RESULT));
+
+    const response = await POST(createRequest(VALID_BODY));
+    const events = await parseSSEResponse(response);
+
+    const resultEvent = events.find((e) => e.event === 'result');
+    expect(resultEvent).toBeDefined();
+    expect((resultEvent!.data as { data: { chemistryScore: number } }).data.chemistryScore).toBe(82);
+
+    const errorEvent = events.find((e) => e.event === 'error');
+    expect(errorEvent).toBeUndefined();
+
+    expect(mockStream).toHaveBeenCalledTimes(2);
+  });
+
+  it('재시도 시 progress가 뒤로 가지 않는다', async () => {
+    const longChunks = Array.from({ length: 50 }, () => 'a'.repeat(100));
+
+    mockStream
+      .mockReturnValueOnce(createMockStreamObject(null, longChunks))
+      .mockReturnValueOnce(createMockStreamObject(VALID_RESULT, ['short']));
+
+    const response = await POST(createRequest(VALID_BODY));
+    const events = await parseSSEResponse(response);
+
+    const progressValues = events
+      .filter((e) => e.event === 'progress')
+      .map((e) => (e.data as { progress: number }).progress);
+
+    for (let i = 1; i < progressValues.length; i++) {
+      expect(progressValues[i]).toBeGreaterThanOrEqual(progressValues[i - 1]);
+    }
   });
 });

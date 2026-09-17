@@ -14,6 +14,10 @@ import {
 
 import { estimateResponseSize } from './estimate-response-size';
 
+export const maxDuration = 120;
+
+const MAX_ATTEMPTS = 3;
+
 type CompletenessResult =
   | { data: true }
   | { error: string };
@@ -91,15 +95,22 @@ export const POST = async (request: Request) => {
     const pairCount = analysisInput.expectedPairs.length;
     const estimatedSize = estimateResponseSize(memberCount, pairCount);
 
-    const stream = openai.responses.stream({
+    const expectedPairIds = new Set(
+      analysisInput.expectedPairs.map((pair) => pair.pairId),
+    );
+    const expectedMemberIds = new Set(
+      analysisInput.members.map((member) => member.memberId),
+    );
+
+    const streamConfig = {
       model: process.env.OPENAI_ANALYSIS_MODEL ?? 'gpt-5.6-luna',
       instructions: ANALYSIS_INSTRUCTIONS,
       input: [
         {
-          role: 'user',
+          role: 'user' as const,
           content: [
             {
-              type: 'input_text',
+              type: 'input_text' as const,
               text: JSON.stringify(analysisInput),
             },
           ],
@@ -114,51 +125,60 @@ export const POST = async (request: Request) => {
               'MIXTI MBTI group chemistry analysis result for mobile UI cards.',
           },
         ),
-        verbosity: 'high',
+        verbosity: 'high' as const,
       },
       reasoning: {
-        effort: 'low',
+        effort: 'low' as const,
       },
       prompt_cache_key: 'mingle-analysis-v3',
       store: false,
-    });
+    };
 
-    let receivedChars = 0;
-    let lastSentProgress = 0;
-    let lastSentTime = 0;
+    let currentStream: ReturnType<typeof openai.responses.stream> | null = null;
 
     const readable = new ReadableStream({
-      start(controller) {
+      async start(controller) {
         const encoder = new TextEncoder();
+        let lastSentProgress = 0;
+        let lastSentTime = 0;
 
         controller.enqueue(encoder.encode(formatSSE('progress', { progress: 2 })));
         lastSentProgress = 2;
         lastSentTime = Date.now();
 
-        stream.on('response.output_text.delta', (event) => {
-          receivedChars += event.delta.length;
-          const rawProgress = Math.min(
-            Math.round((receivedChars / estimatedSize) * 90),
-            90,
-          );
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+          let receivedChars = 0;
 
-          const now = Date.now();
-          const shouldSend
-            = rawProgress - lastSentProgress >= MIN_PROGRESS_DELTA
-            || now - lastSentTime >= MIN_PROGRESS_INTERVAL_MS;
+          const stream = openai.responses.stream(streamConfig);
+          currentStream = stream;
 
-          if (shouldSend && rawProgress > lastSentProgress) {
-            controller.enqueue(
-              encoder.encode(formatSSE('progress', { progress: rawProgress })),
+          stream.on('response.output_text.delta', (event) => {
+            receivedChars += event.delta.length;
+            const rawProgress = Math.min(
+              Math.round((receivedChars / estimatedSize) * 90),
+              90,
             );
-            lastSentProgress = rawProgress;
-            lastSentTime = now;
-          }
-        });
 
-        stream.finalResponse()
-          .then((response) => {
+            const now = Date.now();
+            const shouldSend
+              = rawProgress - lastSentProgress >= MIN_PROGRESS_DELTA
+              || now - lastSentTime >= MIN_PROGRESS_INTERVAL_MS;
+
+            if (shouldSend && rawProgress > lastSentProgress) {
+              controller.enqueue(
+                encoder.encode(formatSSE('progress', { progress: rawProgress })),
+              );
+              lastSentProgress = rawProgress;
+              lastSentTime = now;
+            }
+          });
+
+          try {
+            const response = await stream.finalResponse();
+
             if (!response.output_parsed) {
+              console.warn(`[api/analyze] attempt ${attempt}/${MAX_ATTEMPTS} failed: output_parsed is null`);
+              if (attempt < MAX_ATTEMPTS) continue;
               controller.enqueue(
                 encoder.encode(
                   formatSSE('error', {
@@ -170,12 +190,6 @@ export const POST = async (request: Request) => {
               return;
             }
 
-            const expectedPairIds = new Set(
-              analysisInput.expectedPairs.map((pair) => pair.pairId),
-            );
-            const expectedMemberIds = new Set(
-              analysisInput.members.map((member) => member.memberId),
-            );
             const completeness = validateAnalysisCompleteness(
               expectedPairIds,
               expectedMemberIds,
@@ -183,6 +197,8 @@ export const POST = async (request: Request) => {
             );
 
             if ('error' in completeness) {
+              console.warn(`[api/analyze] attempt ${attempt}/${MAX_ATTEMPTS} failed: ${completeness.error}`);
+              if (attempt < MAX_ATTEMPTS) continue;
               controller.enqueue(
                 encoder.encode(
                   formatSSE('error', {
@@ -216,25 +232,43 @@ export const POST = async (request: Request) => {
               encoder.encode(formatSSE('result', { data: resultData })),
             );
             controller.close();
-          })
-          .catch((error) => {
-            console.error('[api/analyze] failed', error);
-
-            let errorMessage = '분석 중 오류가 발생했습니다';
+            return;
+          } catch (error) {
             if (isOpenAIQuotaError(error)) {
-              errorMessage = 'AI 분석 사용량 한도를 초과했습니다';
-            } else if (isOpenAIRateLimitError(error)) {
-              errorMessage = '분석 요청이 몰리고 있어요. 잠시 후 다시 시도해주세요';
+              controller.enqueue(
+                encoder.encode(
+                  formatSSE('error', { error: 'AI 분석 사용량 한도를 초과했습니다' }),
+                ),
+              );
+              controller.close();
+              return;
             }
 
+            if (isOpenAIRateLimitError(error)) {
+              controller.enqueue(
+                encoder.encode(
+                  formatSSE('error', { error: '분석 요청이 몰리고 있어요. 잠시 후 다시 시도해주세요' }),
+                ),
+              );
+              controller.close();
+              return;
+            }
+
+            console.warn(`[api/analyze] attempt ${attempt}/${MAX_ATTEMPTS} failed:`, error);
+            if (attempt < MAX_ATTEMPTS) continue;
+
             controller.enqueue(
-              encoder.encode(formatSSE('error', { error: errorMessage })),
+              encoder.encode(
+                formatSSE('error', { error: '분석 중 오류가 발생했습니다' }),
+              ),
             );
             controller.close();
-          });
+            return;
+          }
+        }
       },
       cancel() {
-        stream.abort();
+        currentStream?.abort();
       },
     });
 

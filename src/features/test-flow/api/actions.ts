@@ -10,7 +10,7 @@ type RequestAnalysisInput = {
   onProgress?: (progress: number) => void;
 };
 
-const ANALYSIS_TIMEOUT_MS = 60_000;
+const ANALYSIS_TIMEOUT_MS = 120_000;
 
 const parseSSEStream = async (
   reader: ReadableStreamDefaultReader<Uint8Array>,
