@@ -11,20 +11,20 @@ const scoreSchema = z.number().int().min(0).max(100);
 
 const categoryWithScoreSchema = z.object({
   title: z.string().min(1).max(30),
-  description: z.string().min(40).max(300),
+  description: z.string().min(40).max(400),
   score: scoreSchema,
 });
 
 const categorySchema = z.object({
   title: z.string().min(1).max(30),
-  description: z.string().min(40).max(300),
+  description: z.string().min(40).max(400),
 });
 
 const compatibilityResultSchema = z.object({
   chemistryScore: scoreSchema,
   title: z.string().min(1).max(30),
   tagline: z.string().min(1).max(50),
-  summary: z.string().min(20).max(150),
+  summary: z.string().min(20).max(250),
   conversationStyle: categoryWithScoreSchema,
   conflictStyle: categoryWithScoreSchema,
   emotionalConnection: categoryWithScoreSchema,

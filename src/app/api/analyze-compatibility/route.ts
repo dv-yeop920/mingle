@@ -26,7 +26,7 @@ const isOpenAIRateLimitError = (error: unknown) =>
 const formatSSE = (event: string, data: unknown) =>
   `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 
-const ESTIMATED_RESPONSE_SIZE = 3000;
+const ESTIMATED_RESPONSE_SIZE = 3500;
 const MIN_PROGRESS_DELTA = 3;
 const MIN_PROGRESS_INTERVAL_MS = 500;
 
