@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
+import { trackCompatibilityRetest } from '@/shared/lib/analytics';
 import { getTemperamentStyles } from '@/shared/lib/mbti';
 import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { cn } from '@/shared/lib/utils';
@@ -151,6 +152,7 @@ const CompatibilityResultView = ({
   }
 
   const handleRetest = () => {
+    trackCompatibilityRetest();
     resetStore();
     router.push('/compatibility');
   };

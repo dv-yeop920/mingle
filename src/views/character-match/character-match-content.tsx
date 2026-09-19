@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { queryKeys } from '@/shared/config/query-keys';
+import { trackCharacterMatchComplete, trackCharacterMatchGenerate } from '@/shared/lib/analytics';
 import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { Button, useToast } from '@/shared/ui';
 
@@ -61,6 +62,7 @@ const CharacterMatchContent = () => {
   const handleGenerate = async () => {
     if (!selectedWork || !activeMbti) return;
 
+    trackCharacterMatchGenerate(activeMbti, selectedWork.id);
     setIsGenerating(true);
     try {
       const response = await fetch('/api/character-match', {
@@ -80,6 +82,7 @@ const CharacterMatchContent = () => {
         return;
       }
 
+      trackCharacterMatchComplete(activeMbti, selectedWork.id);
       setResult(json.data);
 
       if (userId) {

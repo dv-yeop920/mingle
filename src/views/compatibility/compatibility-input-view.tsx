@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { trackCompatibilityStart } from '@/shared/lib/analytics';
 import { getTemperamentStyles } from '@/shared/lib/mbti';
 import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { cn } from '@/shared/lib/utils';
@@ -88,6 +89,7 @@ const CompatibilityInputView = ({ className }: CompatibilityInputViewProps) => {
 
   const handleStart = () => {
     if (!mbtiA || !mbtiB) return;
+    trackCompatibilityStart(mbtiA, mbtiB);
     router.push('/compatibility/analyzing');
   };
 

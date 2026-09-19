@@ -77,11 +77,36 @@ const trackCompatibilityComplete = (mbtiA: string, mbtiB: string, chemistryScore
   });
 };
 
+const trackCompatibilityRetest = () => {
+  sendGAEvent('event', 'compatibility_retest');
+};
+
+const trackCharacterMatchGenerate = (mbti: string, workId: string) => {
+  sendGAEvent('event', 'character_match_generate', { mbti, work_id: workId });
+};
+
+const trackCharacterMatchComplete = (mbti: string, workId: string) => {
+  sendGAEvent('event', 'character_match_complete', { mbti, work_id: workId });
+};
+
+const trackMbtiProfileGenerate = (mbti: string) => {
+  sendGAEvent('event', 'mbti_profile_generate', { mbti });
+};
+
+const trackMbtiProfileComplete = (mbti: string) => {
+  sendGAEvent('event', 'mbti_profile_complete', { mbti });
+};
+
 export {
   trackAnalysisComplete,
+  trackCharacterMatchComplete,
+  trackCharacterMatchGenerate,
   trackCompatibilityComplete,
+  trackCompatibilityRetest,
   trackCompatibilityStart,
   trackLogin,
+  trackMbtiProfileComplete,
+  trackMbtiProfileGenerate,
   trackMembersComplete,
   trackResultDetailView,
   trackResultRetest,

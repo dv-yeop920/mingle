@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { queryKeys } from '@/shared/config/query-keys';
+import { trackMbtiProfileComplete, trackMbtiProfileGenerate } from '@/shared/lib/analytics';
 import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { Button, useToast } from '@/shared/ui';
 
@@ -82,6 +83,7 @@ const MbtiProfileContent = () => {
   }
 
   const handleGenerate = async () => {
+    trackMbtiProfileGenerate(activeMbti);
     setIsGenerating(true);
     try {
       const response = await fetch('/api/analyze-profile', {
@@ -101,6 +103,7 @@ const MbtiProfileContent = () => {
         return;
       }
 
+      trackMbtiProfileComplete(activeMbti);
       setResult(json.data);
 
       if (userId) {
