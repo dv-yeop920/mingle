@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 
 import { GROUP_TYPE_LABELS } from '@/shared/config/group-types';
-import { trackResultRetest, trackResultShare } from '@/shared/lib/analytics';
+import {
+  trackResultRetest,
+  trackResultShare,
+  trackSharedResultView,
+  trackTryItCtaClick,
+} from '@/shared/lib/analytics';
 import { useAuthUserId } from '@/shared/lib/supabase/use-auth-user-id';
 import { useGuardedAction } from '@/shared/lib/use-guarded-action';
 import { cn } from '@/shared/lib/utils';
@@ -21,7 +26,7 @@ import {
 import type { GroupType } from '@/entities/group';
 import type { SituationInput } from '@/entities/situation';
 
-import { makeAnalysisPublic } from '@/features/analysis-result';
+import { TryItCta } from '@/features/analysis-result';
 import {
   PendingAnalysisSaveResumer,
   useTestFlowStore,
@@ -75,11 +80,18 @@ const ResultView = ({
   const isAnalysisResultHydrated = useTestFlowStore(
     (s) => s.isAnalysisResultHydrated,
   );
+  const justCompletedAnalysisId = useTestFlowStore(
+    (s) => s.justCompletedAnalysisId,
+  );
   const resetStore = useTestFlowStore((s) => s.reset);
   const id = propAnalysisId ?? storeAnalysisId ?? '';
 
   const { data: dbAnalysis, isError, isLoading } = useAnalysis(userId, id);
   const isGuest = !id && !!storeResult;
+
+  const isCreator = !!propAnalysisId && propAnalysisId === justCompletedAnalysisId;
+  const isOwner = !!userId && dbAnalysis?.user_id === userId;
+  const isNonOwner = !!propAnalysisId && !isOwner && !isCreator && !isGuest;
 
   const {
     isSaving,
@@ -99,13 +111,9 @@ const ResultView = ({
   } = useResultSave({ isGuest, userId });
 
   const [guardedShare] = useGuardedAction(async () => {
-    if (id) {
-      await makeAnalysisPublic(id);
-    }
-
-    const url = isGuest
-      ? `${window.location.origin}/`
-      : `${window.location.origin}/result?id=${id}`;
+    const url = id
+      ? `${window.location.origin}/result?id=${id}`
+      : `${window.location.origin}/`;
     if (navigator.share) {
       trackResultShare('native_share');
       navigator.share({ title: 'MIXTI 케미 분석 결과', url }).catch(() => {});
@@ -170,6 +178,12 @@ const ResultView = ({
     router.prefetch(`/result/atmosphere${idQuery}`);
     router.prefetch(`/result/pairs${idQuery}`);
   }, [normalized, id, router]);
+
+  useEffect(() => {
+    if (isNonOwner && normalized) {
+      trackSharedResultView();
+    }
+  }, [isNonOwner, normalized]);
 
   const handleRetest = () => {
     trackResultRetest();
@@ -298,6 +312,15 @@ const ResultView = ({
         onShare={guardedShare}
       />
 
+      {isNonOwner && (
+        <div className="px-5 pt-5">
+          <TryItCta
+            variant="compact"
+            onClick={() => trackTryItCtaClick('top')}
+          />
+        </div>
+      )}
+
       <div className="flex flex-col gap-8 px-5 pt-8">
         <ResultMetricsSection metrics={metrics} />
 
@@ -380,33 +403,51 @@ const ResultView = ({
         </section>
       </div>
 
-      <ResultActionsFooter
-        isGuest={isGuest}
-        isSaving={isSaving}
-        isCheckingSavePermission={isCheckingSavePermission}
-        saveError={saveError}
-        onSave={() => void handleSaveButtonClick()}
-        onRetest={handleRetest}
-        onAddMembers={handleAddMembers}
-        onShare={guardedShare}
-      />
+      {isNonOwner ? (
+        <div className="flex flex-col gap-3 px-5 pb-[46px] pt-6">
+          <TryItCta
+            variant="full"
+            onClick={() => trackTryItCtaClick('bottom')}
+          />
+          <button
+            type="button"
+            onClick={guardedShare}
+            className="w-full cursor-pointer rounded-button bg-tonal py-[14px] text-center text-body font-extrabold text-tonal-foreground btn-press"
+          >
+            ↗ 결과 공유하기
+          </button>
+        </div>
+      ) : (
+        <>
+          <ResultActionsFooter
+            isGuest={isGuest}
+            isSaving={isSaving}
+            isCheckingSavePermission={isCheckingSavePermission}
+            saveError={saveError}
+            onSave={() => void handleSaveButtonClick()}
+            onRetest={handleRetest}
+            onAddMembers={handleAddMembers}
+            onShare={guardedShare}
+          />
 
-      {hasEverOpenedSaveSheet && (
-        <SaveAnalysisSheet
-          isOpen={isSaveSheetOpen}
-          onClose={handleSaveSheetClose}
-          onSubmit={handleSave}
-          isSubmitting={isSaving}
-          submitError={saveError}
-          defaultTitle={pendingSave?.title}
-        />
-      )}
-      {hasEverOpenedGuestSheet && (
-        <GuestSavePromptSheet
-          isOpen={isGuestSavePromptOpen}
-          onClose={handleGuestSheetClose}
-          onConfirm={handleGuestSheetConfirm}
-        />
+          {hasEverOpenedSaveSheet && (
+            <SaveAnalysisSheet
+              isOpen={isSaveSheetOpen}
+              onClose={handleSaveSheetClose}
+              onSubmit={handleSave}
+              isSubmitting={isSaving}
+              submitError={saveError}
+              defaultTitle={pendingSave?.title}
+            />
+          )}
+          {hasEverOpenedGuestSheet && (
+            <GuestSavePromptSheet
+              isOpen={isGuestSavePromptOpen}
+              onClose={handleGuestSheetClose}
+              onConfirm={handleGuestSheetConfirm}
+            />
+          )}
+        </>
       )}
     </div>
   );

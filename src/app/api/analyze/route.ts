@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 
+import { createAdminClient } from '@/shared/lib/supabase/admin';
+import type { Json } from '@/shared/types/database';
+
 import {
   ANALYSIS_INSTRUCTIONS,
   buildAnalysisInput,
@@ -214,22 +217,45 @@ export const POST = async (request: Request) => {
               encoder.encode(formatSSE('progress', { progress: 95 })),
             );
 
+            const resultMembers = analysisInput.members.map((member) => ({
+              nickname: member.nickname,
+              mbti: member.mbti,
+              gender: member.gender,
+              is_self: member.isSelf,
+              role: member.role,
+            }));
+
             const resultData = {
               ...response.output_parsed,
               groupType: analysisInput.group.type,
               customName: parsed.data.group.customName,
-              members: analysisInput.members.map((member) => ({
-                nickname: member.nickname,
-                mbti: member.mbti,
-                gender: member.gender,
-                is_self: member.isSelf,
-                role: member.role,
-              })),
+              members: resultMembers,
               situation: parsed.data.situation ?? null,
             };
 
+            let analysisId: string | null = null;
+            try {
+              const supabase = createAdminClient();
+              const { data: savedId } = await supabase.rpc('save_anonymous_analysis', {
+                p_group_type: analysisInput.group.type,
+                p_custom_name: parsed.data.group.customName,
+                p_members: resultMembers as unknown as Json,
+                p_chemistry_score: response.output_parsed.chemistryScore,
+                p_tagline: response.output_parsed.tagline,
+                p_metrics: response.output_parsed.metrics as unknown as Json,
+                p_group_atmosphere: response.output_parsed.groupAtmosphere as unknown as Json,
+                p_member_roles: response.output_parsed.memberRoles as unknown as Json,
+                p_pair_chemistry: response.output_parsed.pairChemistry as unknown as Json,
+                p_summary: response.output_parsed.summary,
+                p_situation: (parsed.data.situation ?? null) as Json | null,
+              });
+              analysisId = savedId ?? null;
+            } catch (saveError) {
+              console.warn('[api/analyze] anonymous save failed, continuing without ID', saveError);
+            }
+
             controller.enqueue(
-              encoder.encode(formatSSE('result', { data: resultData })),
+              encoder.encode(formatSSE('result', { data: resultData, analysisId })),
             );
             controller.close();
             return;

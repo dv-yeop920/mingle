@@ -89,13 +89,45 @@ describe('requestAnalysis', () => {
 
     const result = await requestAnalysis(validInput);
 
-    expect(result).toEqual({ data: mockData });
+    expect(result).toEqual({ data: { ...mockData, analysisId: null } });
     expect(mockFetch).toHaveBeenCalledWith('/api/analyze', expect.objectContaining({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(expectedBody),
       signal: expect.any(AbortSignal),
     }));
+  });
+
+  it('result 이벤트의 analysisId를 데이터에 포함시켜 반환한다', async () => {
+    const mockData = { chemistryScore: 85, summary: '좋은 케미' };
+    mockFetch.mockResolvedValue(
+      createSSEResponse([
+        { event: 'progress', data: { progress: 2 } },
+        {
+          event: 'result',
+          data: { data: mockData, analysisId: 'analysis-abc' },
+        },
+      ]),
+    );
+
+    const result = await requestAnalysis(validInput);
+
+    expect(result).toEqual({
+      data: { ...mockData, analysisId: 'analysis-abc' },
+    });
+  });
+
+  it('result 이벤트에 analysisId가 없으면 null로 채워 반환한다', async () => {
+    const mockData = { chemistryScore: 85 };
+    mockFetch.mockResolvedValue(
+      createSSEResponse([
+        { event: 'result', data: { data: mockData } },
+      ]),
+    );
+
+    const result = await requestAnalysis(validInput);
+
+    expect(result).toEqual({ data: { ...mockData, analysisId: null } });
   });
 
   it('onProgress 콜백이 progress 이벤트마다 호출된다', async () => {

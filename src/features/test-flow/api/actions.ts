@@ -49,7 +49,7 @@ const parseSSEStream = async (
         onProgress?.(parsed.progress);
       } else if (event === 'result') {
         onProgress?.(100);
-        return { data: parsed.data };
+        return { data: { ...parsed.data, analysisId: parsed.analysisId ?? null } };
       } else if (event === 'error') {
         return { error: parsed.error as string };
       }

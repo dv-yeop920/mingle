@@ -30,3 +30,4 @@ export {
 export { ResultActions, type ResultActionsProps } from './ui/result-actions';
 export { ResultReport, type ResultReportProps } from './ui/result-report';
 export { ShareButton, type ShareButtonProps } from './ui/share-button';
+export { TryItCta, type TryItCtaProps } from './ui/try-it-cta/try-it-cta';

@@ -21,6 +21,7 @@ export type Database = {
           group_atmosphere: Json
           group_id: string
           id: string
+          is_anonymous: boolean
           is_public: boolean
           member_roles: Json
           metrics: Json
@@ -30,7 +31,7 @@ export type Database = {
           summary: string
           tagline: string | null
           title: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           chemistry_score: number
@@ -38,6 +39,7 @@ export type Database = {
           group_atmosphere: Json
           group_id: string
           id?: string
+          is_anonymous?: boolean
           is_public?: boolean
           member_roles: Json
           metrics: Json
@@ -47,7 +49,7 @@ export type Database = {
           summary: string
           tagline?: string | null
           title: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           chemistry_score?: number
@@ -55,6 +57,7 @@ export type Database = {
           group_atmosphere?: Json
           group_id?: string
           id?: string
+          is_anonymous?: boolean
           is_public?: boolean
           member_roles?: Json
           metrics?: Json
@@ -64,7 +67,7 @@ export type Database = {
           summary?: string
           tagline?: string | null
           title?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -299,14 +302,14 @@ export type Database = {
           custom_name: string | null
           id: string
           type: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           custom_name?: string | null
           id?: string
           type: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -505,6 +508,22 @@ export type Database = {
       release_incident_lock: {
         Args: { p_fingerprint: string }
         Returns: undefined
+      }
+      save_anonymous_analysis: {
+        Args: {
+          p_chemistry_score?: number
+          p_custom_name?: string | null
+          p_group_atmosphere?: Json
+          p_group_type: string
+          p_member_roles?: Json
+          p_members?: Json
+          p_metrics?: Json
+          p_pair_chemistry?: Json
+          p_situation?: Json | null
+          p_summary?: string
+          p_tagline?: string
+        }
+        Returns: string
       }
       save_guest_analysis: {
         Args: {

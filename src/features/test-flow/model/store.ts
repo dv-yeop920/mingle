@@ -30,6 +30,7 @@ type TestFlowState = {
   analysisId: string | null;
   analysisResult: AnalysisResult | null;
   isAnalysisResultHydrated: boolean;
+  justCompletedAnalysisId: string | null;
 };
 
 type TestFlowActions = {
@@ -47,6 +48,7 @@ type TestFlowActions = {
   setAnalysisId: (id: string | null) => void;
   setAnalysisResult: (result: AnalysisResult | null) => void;
   setIsAnalysisResultHydrated: (value: boolean) => void;
+  setJustCompletedAnalysisId: (id: string | null) => void;
   restoreMemberDraft: (draft: MemberDraft) => void;
   reset: () => void;
 };
@@ -60,6 +62,7 @@ const INITIAL_STATE: TestFlowState = {
   analysisId: null,
   analysisResult: null,
   isAnalysisResultHydrated: false,
+  justCompletedAnalysisId: null,
 };
 
 const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
@@ -99,6 +102,7 @@ const useTestFlowStore = create<TestFlowState & TestFlowActions>((set) => ({
     }),
   setIsAnalysisResultHydrated: (value) =>
     set({ isAnalysisResultHydrated: value }),
+  setJustCompletedAnalysisId: (id) => set({ justCompletedAnalysisId: id }),
   restoreMemberDraft: ({ groupType, memberCount, members, situation }) =>
     set({ groupType, memberCount, members, situation: situation ?? null }),
   reset: () =>

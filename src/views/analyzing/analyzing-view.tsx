@@ -27,6 +27,9 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
   const situation = useTestFlowStore((s) => s.situation);
   const setAnalysisId = useTestFlowStore((s) => s.setAnalysisId);
   const setAnalysisResult = useTestFlowStore((s) => s.setAnalysisResult);
+  const setJustCompletedAnalysisId = useTestFlowStore(
+    (s) => s.setJustCompletedAnalysisId,
+  );
 
   const startAnalysis = async () => {
     if (!groupType || members.length < 2) {
@@ -59,6 +62,7 @@ const AnalyzingView = ({ className }: AnalyzingViewProps) => {
       );
 
       if (analysisId) {
+        setJustCompletedAnalysisId(analysisId);
         setAnalysisId(analysisId);
         router.replace(`/result?id=${analysisId}`);
       } else {

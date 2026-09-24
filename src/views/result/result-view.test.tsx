@@ -332,6 +332,7 @@ describe('ResultView save flow', () => {
     mockUseAnalysis.mockReturnValue({
       data: {
         id: 'analysis-1',
+        user_id: 'user-id',
         chemistry_score: 87,
         tagline: '서로의 리듬을 살려주는 팀',
         summary: '다른 관점이 자연스럽게 균형을 만들어요.',

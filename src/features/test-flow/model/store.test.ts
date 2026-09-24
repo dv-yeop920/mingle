@@ -137,6 +137,23 @@ describe('useTestFlowStore', () => {
     expect(useTestFlowStore.getState().analysisResult).not.toBeNull();
   });
 
+  it('justCompletedAnalysisId를 설정한다', () => {
+    act(() => {
+      useTestFlowStore.getState().setJustCompletedAnalysisId('analysis-999');
+    });
+    expect(useTestFlowStore.getState().justCompletedAnalysisId).toBe(
+      'analysis-999',
+    );
+  });
+
+  it('justCompletedAnalysisId를 null로 되돌릴 수 있다', () => {
+    act(() => {
+      useTestFlowStore.getState().setJustCompletedAnalysisId('analysis-999');
+      useTestFlowStore.getState().setJustCompletedAnalysisId(null);
+    });
+    expect(useTestFlowStore.getState().justCompletedAnalysisId).toBeNull();
+  });
+
   it('세션에 저장된 멤버 초안을 복원한다', () => {
     act(() => {
       useTestFlowStore.getState().restoreMemberDraft({
@@ -168,5 +185,14 @@ describe('useTestFlowStore', () => {
     expect(state.members).toEqual([]);
     expect(state.isAnalyzing).toBe(false);
     expect(state.analysisId).toBeNull();
+  });
+
+  it('리셋하면 justCompletedAnalysisId도 null로 초기화된다', () => {
+    act(() => {
+      useTestFlowStore.getState().setJustCompletedAnalysisId('analysis-999');
+      useTestFlowStore.getState().reset();
+    });
+
+    expect(useTestFlowStore.getState().justCompletedAnalysisId).toBeNull();
   });
 });

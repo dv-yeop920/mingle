@@ -55,6 +55,14 @@ const trackResultRetest = () => {
   sendGAEvent('event', 'result_retest');
 };
 
+const trackSharedResultView = () => {
+  sendGAEvent('event', 'shared_result_view');
+};
+
+const trackTryItCtaClick = (position: 'top' | 'bottom') => {
+  sendGAEvent('event', 'try_it_cta_click', { position });
+};
+
 type ResultDetailType =
   | 'atmosphere'
   | 'pairs'
@@ -112,8 +120,10 @@ export {
   trackResultRetest,
   trackResultSave,
   trackResultShare,
+  trackSharedResultView,
   trackSignup,
   trackSituationComplete,
   trackTestStart,
+  trackTryItCtaClick,
   type ResultDetailType,
 };
