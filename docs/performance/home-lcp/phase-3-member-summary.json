@@ -1,0 +1,102 @@
+{
+  "measuredAt": "2026-09-17",
+  "baseSha": "693eafee62563386bea6745dc7c26892997cde59",
+  "buildId": "-l1fY2_cisVMqYxq88fZ",
+  "candidate": "B1 + F1 + experimental.inlineCss: true",
+  "environment": {
+    "next": "16.3.1",
+    "lighthouse": "13.4.1",
+    "chrome": "152.0.7977.83",
+    "viewport": "412x823@1.75",
+    "audience": "member",
+    "navigation": "cold HTTP cache with preserved authentication cookies and storage"
+  },
+  "fixture": {
+    "recentAnalysisCount": 0,
+    "isProfileCompletionPromptVisible": true,
+    "secondAccountAvailable": false,
+    "containsPiiOrCredentials": false
+  },
+  "acceptance": {
+    "lcpMedianMaxMs": 2500,
+    "clsMax": 0.1,
+    "tbtMaxMs": 200,
+    "simulate": "fail",
+    "devtools": "pass",
+    "member": "fail"
+  },
+  "simulate": {
+    "lcpMs": [3167, 2715, 2863, 2711, 2715],
+    "median": {
+      "ttfbMs": 14,
+      "fcpMs": 913,
+      "lcpMs": 2715,
+      "cls": 0,
+      "tbtMs": 64,
+      "totalBytes": 1427479,
+      "fontBytes": 843170,
+      "scriptBytes": 497566,
+      "stylesheetBytes": 0,
+      "fontRequestCount": 8,
+      "stylesheetRequestCount": 0
+    },
+    "range": {
+      "lcpMs": [2711, 3167],
+      "fcpMs": [910, 924],
+      "cls": [0, 0],
+      "tbtMs": [48, 160]
+    }
+  },
+  "devtools": {
+    "lcpMs": [906, 877, 965, 865, 864],
+    "median": {
+      "ttfbMs": 18,
+      "fcpMs": 877,
+      "lcpMs": 877,
+      "cls": 0.019334,
+      "tbtMs": 88,
+      "totalBytes": 1428696,
+      "fontBytes": 843170,
+      "scriptBytes": 498768,
+      "stylesheetBytes": 0,
+      "fontRequestCount": 8,
+      "stylesheetRequestCount": 0
+    },
+    "range": {
+      "lcpMs": [864, 965],
+      "fcpMs": [864, 965],
+      "cls": [0.019306, 0.019334],
+      "tbtMs": [80, 99]
+    }
+  },
+  "rendering": {
+    "lcpNode": "SeoIntro description paragraph",
+    "externalStylesheetRequests": 0,
+    "localConsoleKnownIssue": "Speed Insights script endpoint returned HTML and failed to parse in the local production server",
+    "v1ResidualFonts": [
+      "gothic-a1-700.woff2",
+      "gothic-a1-800.woff2",
+      "gothic-a1-900.woff2",
+      "nunito-900.woff2"
+    ],
+    "v2CriticalFontRequestCount": 4
+  },
+  "flows": {
+    "memberHeader": "pass",
+    "recentZeroState": "pass",
+    "profileVisibility": "pass",
+    "homeReturnWithoutBusyUi": "pass",
+    "homeReturnProfileRequests": 0,
+    "homeReturnAnalysisRequests": 0,
+    "logoutToGuest": "pass",
+    "relogin": "pass",
+    "finalLogoutAuthCookieCount": 0,
+    "accountSwitch": "not_run_single_fixture"
+  },
+  "rawArtifacts": {
+    "directory": "logs/performance/home-lcp/phase-3/member/raw",
+    "tracked": false,
+    "directoryMode": "0700",
+    "fileMode": "0600"
+  }
+}

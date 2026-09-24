@@ -91,14 +91,14 @@ describe('Gothic A1 critical font contract', () => {
     );
   });
 
-  it('네 weight의 input과 immutable v2 output checksum 및 크기를 고정한다', () => {
+  it('네 weight의 input과 immutable v3 output checksum 및 크기를 고정한다', () => {
     for (const weight of WEIGHTS) {
       const input = manifest.inputs[weight];
       const output = manifest.outputs[weight];
 
       expect(convertFileToSha256(input.path)).toBe(input.sha256);
       expect(output.path).toBe(
-        `public/fonts/v2/gothic-a1-critical-${weight}.woff2`,
+        `public/fonts/v3/gothic-a1-critical-${weight}.woff2`,
       );
       expect(existsSync(resolve(ROOT, output.path))).toBe(true);
       expect(statSync(resolve(ROOT, output.path)).size).toBe(output.bytes);
@@ -125,7 +125,7 @@ describe('Gothic A1 critical font contract', () => {
       expect(face).toContain(`font-weight: ${weight};`);
       expect(face).toContain('font-display: optional;');
       expect(face).toContain(
-        `/fonts/v2/gothic-a1-critical-${weight}.woff2`,
+        `/fonts/v3/gothic-a1-critical-${weight}.woff2`,
       );
       expect(face.replace(/\s+/g, ' ')).toContain(
         `unicode-range: ${manifest.inventory.unicode_range};`,
@@ -156,13 +156,13 @@ describe('Gothic A1 critical font contract', () => {
     ].map((match) => match[1]);
 
     expect(preloadUrls).toEqual([
-      '/fonts/v2/gothic-a1-critical-700.woff2',
-      '/fonts/v2/gothic-a1-critical-800.woff2',
-      '/fonts/v2/gothic-a1-critical-900.woff2',
+      '/fonts/v3/gothic-a1-critical-700.woff2',
+      '/fonts/v3/gothic-a1-critical-800.woff2',
+      '/fonts/v3/gothic-a1-critical-900.woff2',
     ]);
     expect(manifest.preload_weights).toEqual(['700', '800', '900']);
     expect(layout).not.toContain('href="/fonts/v1/gothic-a1-');
-    expect(nextConfig).toContain("source: '/fonts/v2/:path*'");
+    expect(nextConfig).toContain("source: '/fonts/v3/:path*'");
     expect(nextConfig).toContain(
       "value: 'public, max-age=31536000, immutable'",
     );

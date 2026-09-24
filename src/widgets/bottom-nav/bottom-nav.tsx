@@ -20,9 +20,7 @@ const renderIcon = (href: string, isActive: boolean) => {
         <div className={cn('h-6 w-6 rounded-full border-[3px]', border)} />
       );
     case '/analysis':
-      return (
-        <div className={cn('h-5 w-5 rotate-45 rounded-[5px]', bg)} />
-      );
+      return <div className={cn('h-5 w-5 rotate-45 rounded-[5px]', bg)} />;
     case '/mypage':
       return <div className={cn('h-6 w-6 rounded-full', bg)} />;
     default:

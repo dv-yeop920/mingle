@@ -22,7 +22,8 @@ FONT_DIR = ROOT / "scripts" / "fonts"
 SOURCES_PATH = FONT_DIR / "home-critical-sources.txt"
 CODEPOINTS_PATH = FONT_DIR / "home-critical-codepoints.txt"
 MANIFEST_PATH = FONT_DIR / "home-critical-fonts.json"
-OUTPUT_DIR = ROOT / "public" / "fonts" / "v2"
+IMMUTABLE_VERSION = "v3"
+OUTPUT_DIR = ROOT / "public" / "fonts" / IMMUTABLE_VERSION
 ASCII_CODEPOINTS = frozenset(range(0x20, 0x7F))
 WEIGHTS = ("400", "700", "800", "900")
 DYNAMIC_FALLBACK_PROBE = ord("힣")
@@ -265,10 +266,34 @@ def normalize_css_range(value: str) -> str:
     return ", ".join(part.strip() for part in value.split(","))
 
 
-def write_full_css_ranges(manifest: dict) -> None:
+def write_css_contract(manifest: dict, critical_range: str) -> None:
     css_path = ROOT / "src/shared/styles/fonts.css"
     css = css_path.read_text(encoding="utf-8")
-    updated_weights: set[str] = set()
+    updated_critical_weights: set[str] = set()
+    updated_full_weights: set[str] = set()
+
+    def replace_critical_face(match: re.Match[str]) -> str:
+        block = match.group(0)
+        if not re.search(r"font-family:\s*['\"]Gothic A1 Critical['\"];", block):
+            return block
+        weight_match = re.search(r"font-weight:\s*(400|700|800|900);", block)
+        if not weight_match:
+            return block
+        weight = weight_match.group(1)
+        updated, range_count = re.subn(
+            r"unicode-range:\s*[^;]+;",
+            f"unicode-range: {critical_range};",
+            block,
+        )
+        updated, source_count = re.subn(
+            r"/fonts/v\d+/gothic-a1-critical-(400|700|800|900)\.woff2",
+            f"/fonts/{IMMUTABLE_VERSION}/gothic-a1-critical-{weight}.woff2",
+            updated,
+        )
+        if range_count != 1 or source_count != 1:
+            raise RuntimeError(f"could not update critical face contract for weight {weight}")
+        updated_critical_weights.add(weight)
+        return updated
 
     def replace_full_face(match: re.Match[str]) -> str:
         block = match.group(0)
@@ -288,14 +313,23 @@ def write_full_css_ranges(manifest: dict) -> None:
         )
         if count != 1:
             raise RuntimeError(f"could not update full face unicode-range for weight {weight}")
-        updated_weights.add(weight)
+        updated_full_weights.add(weight)
         return updated
 
     updated_css = re.sub(
-        r"@font-face\s*\{[^}]+\}", replace_full_face, css, flags=re.DOTALL
+        r"@font-face\s*\{[^}]+\}", replace_critical_face, css, flags=re.DOTALL
     )
-    if updated_weights != set(WEIGHTS):
-        raise RuntimeError(f"did not update all full face ranges: {sorted(updated_weights)}")
+    updated_css = re.sub(
+        r"@font-face\s*\{[^}]+\}", replace_full_face, updated_css, flags=re.DOTALL
+    )
+    if updated_critical_weights != set(WEIGHTS):
+        raise RuntimeError(
+            f"did not update all critical face contracts: {sorted(updated_critical_weights)}"
+        )
+    if updated_full_weights != set(WEIGHTS):
+        raise RuntimeError(
+            f"did not update all full face ranges: {sorted(updated_full_weights)}"
+        )
     css_path.write_text(updated_css, encoding="utf-8")
 
 
@@ -364,7 +398,7 @@ def verify_integration(manifest: dict, unicode_range: str) -> None:
         raise RuntimeError("unexpected F1 font-display contract")
 
     for weight in WEIGHTS:
-        url = f"/fonts/v2/gothic-a1-critical-{weight}.woff2"
+        url = f"/fonts/{IMMUTABLE_VERSION}/gothic-a1-critical-{weight}.woff2"
         if len(re.findall(rf"url\(['\"]{re.escape(url)}['\"]\)", css)) != 1:
             raise RuntimeError(f"fonts.css must reference {url} exactly once")
 
@@ -372,19 +406,23 @@ def verify_integration(manifest: dict, unicode_range: str) -> None:
         r'<link\s+rel="preload"\s+href="([^"]+)"\s+as="font"', layout
     )
     expected_preloads = [
-        f"/fonts/v2/gothic-a1-critical-{weight}.woff2"
+        f"/fonts/{IMMUTABLE_VERSION}/gothic-a1-critical-{weight}.woff2"
         for weight in manifest["preload_weights"]
     ]
     if preload_urls != expected_preloads:
         raise RuntimeError(f"unexpected font preloads: {preload_urls}")
     if manifest["preload_weights"] != ["700", "800", "900"]:
         raise RuntimeError("F1 must preload critical weights 700, 800, and 900")
-    if "source: '/fonts/v2/:path*'" not in next_config:
-        raise RuntimeError("next.config.ts is missing the immutable v2 font cache rule")
+    if f"source: '/fonts/{IMMUTABLE_VERSION}/:path*'" not in next_config:
+        raise RuntimeError(
+            f"next.config.ts is missing the immutable {IMMUTABLE_VERSION} font cache rule"
+        )
 
     for weight in WEIGHTS:
         output = manifest["outputs"][weight]
-        expected_path = f"public/fonts/v2/gothic-a1-critical-{weight}.woff2"
+        expected_path = (
+            f"public/fonts/{IMMUTABLE_VERSION}/gothic-a1-critical-{weight}.woff2"
+        )
         if output["path"] != expected_path:
             raise RuntimeError(f"unexpected output path for weight {weight}")
         output_path = ROOT / output["path"]
@@ -395,6 +433,10 @@ def verify_integration(manifest: dict, unicode_range: str) -> None:
 def main() -> None:
     args = parse_args()
     manifest = read_manifest()
+    if manifest["version"] != IMMUTABLE_VERSION:
+        raise RuntimeError(
+            f"manifest version must be {IMMUTABLE_VERSION}, got {manifest['version']}"
+        )
     input_cmaps = verify_inputs_and_tools(manifest)
     sources = read_sources()
     codepoints, platform_fallback = collect_inventory(sources, input_cmaps)
@@ -427,7 +469,7 @@ def main() -> None:
             "platform_fallback_codepoints": [f"U+{value:04X}" for value in platform_fallback],
         }
         manifest["full_cmaps"] = build_full_cmap_manifest(input_cmaps, set(codepoints))
-        write_full_css_ranges(manifest)
+        write_css_contract(manifest, unicode_range)
         MANIFEST_PATH.write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",

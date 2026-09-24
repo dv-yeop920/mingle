@@ -672,3 +672,76 @@ Backend, Supabase, DB 변경은 없다. UI 역할은 typography·BottomSheet·Bo
 ## Phase 4 승인 판정
 
 **구현 진행 승인 권고, ship은 보류**. 프롬프트는 고정 source임에도 critical inventory에서 누락되어 있었고 보완 후 font transfer가 843KB에서 91KB로 줄어드는 구체적 증거가 있다. 또한 보호 라우트 두 개만 prefetch를 끄는 combined variant가 회원 `simulate` 2423ms, `devtools` 861ms, CLS 0으로 목표를 통과했고 모든 링크를 끄는 대안은 2808ms로 기각됐다. 다만 outlier와 guest·navigation 회귀 미확정을 감안해, 위 두 변경의 구현과 Review/Test까지만 진행하고 모든 합격 기준을 통과한 뒤에만 `/ship`한다.
+
+## 2026-09-19 Phase 4 Review 결과와 현재 상태
+
+위 Phase 4 계획과 2423ms 수치는 **구현 전 격리 combined 후보**의 기록이며, 최종 합격 판정이 아니다. 구현 후 동일 전체 후보의 5회 cold Lighthouse `simulate` 중앙값은 guest 3257ms, member 2714ms로 모두 2500ms 기준을 넘었다. `devtools` 중앙값은 guest 848ms, member 866ms였고 CLS는 0이었다. 자세한 raw series와 조건은 `measurements.md`에 보존한다.
+
+Review 결과 보호 링크 selective `prefetch={false}`는 독립 효과가 확인되지 않았고 기본 navigation 계약을 변경하므로 제거했다. 현재 BottomNav 네 링크는 모두 Next 기본 prefetch이며, v3 critical font 및 Phase 3 inline CSS는 유지한다. 따라서 최종 combined series를 현재 rollback 상태의 성능 증거로 재사용할 수 없다. 새 guest/member production cold 5회 series와 회귀 검증 전까지 **LCP 2.5초 acceptance 미입증, `/ship` 보류**로 판정한다.
+
+# Phase 5 — LCP 합격 지표 결정 및 재현 가능한 다음 실험 (2026-09-19)
+
+## Research와 현재 판정
+
+- 보호 링크 prefetch rollback 후 **현재 작업 트리**의 새 guest production cold 5회 LCP는 Lighthouse `simulate` 6139, 3527, 2829, 2977, 3259ms(중앙값 **3259ms**), 실제 Chrome throttling `devtools` 853, 840, 843, 837, 897ms(중앙값 **843ms**)이며 CLS 0이다. 이전 Phase 4 combined 후보의 guest 3257ms/member 2714ms를 현재 트리 결과로 재사용하지 않는다.
+- 새 guest 측정의 LCP 요소는 모두 동일한 `SeoIntro` 문단이고 폰트·스크립트 요청도 안정적이다. 이것만으로 Lantern `simulate` 지연 원인이나 특정 코드 변경의 효능은 알 수 없다. 이전 font/preload/JS/prefetch A/B도 재현성 있게 `simulate` 2.5초 이하를 입증하지 못했다.
+- Phase 4의 원격 비운영 **회원 fixture는 승인 후 삭제됐고 로컬 자격증명 파일도 제거됐다**. 이 문서 앞부분과 `measurements.md`의 “fixture 존재”는 과거 기록이다. 새로운 회원 series는 별도 승인·격리된 fixture가 생기기 전 불가능하다.
+- 원래 요청과 Phase 1–4의 release gate는 **mobile Lighthouse `simulate` guest/member 5회 중앙값 LCP ≤ 2.5초**다. `devtools` 수치로 이를 조용히 대체할 수 없다. 현재 판정은 **원래 목표 미달, 회원 최신 검증 없음, no-ship**이다.
+
+## 1단계: 요구사항과 사용자 상태
+
+guest 첫 방문, 회원 첫 방문, 반복 방문/뒤로가기, 로그인·로그아웃·계정 전환에서 정상 화면과 빠른 LCP가 필요하다. 공개 `SeoIntro`는 인증·최근 기록·MBTI 안내와 관계없이 접근 가능해야 하고, 회원 데이터가 비거나 인증 요청이 실패해도 사라지거나 밀리지 않아야 한다. 이 Phase는 UI 동작을 바꾸지 않는다. guest와 member, `simulate`와 `devtools`를 별도 상태/측정 집단으로 유지한다. 회원 fixture가 없으면 guest 값으로 회원 합격을 추정하지 않는다.
+
+결정지는 두 개다. **A**는 원래 synthetic `simulate` ≤ 2.5초를 출시 기준으로 유지한다. **B**는 실제 Chrome `devtools` 및 배포 후 field/RUM LCP ≤ 2.5초를 출시·운영 기준으로 채택하고 `simulate`를 별도 경고 지표로 보고한다. **B는 사용자 목표의 변경이므로 명시적 선택·승인 없이는 채택하지 않는다.** 단순한 “계속 진행”은 B 승인으로 해석하지 않는다.
+
+## 2단계: 아키텍처·측정 흐름
+
+### A — 기존 목표 유지, 통제된 trace 진단
+
+1. 동일 build ID/소스/환경을 고정하고 raw Lighthouse LHR·trace·Lantern settings/network records와 Chrome 버전을 수집한다. guest baseline을 독립 cold profile에서 순차 5회 이상 재현하고 6139ms 같은 이상치를 임의 제외하지 않는다.
+2. `simulate` 계산의 LCP node·resource dependency·network/CPU timing을 `devtools` trace와 비교한다. FCP→LCP 구간, HTML/RSC chunk, CSS inline, font request, JS parse/evaluate와 main-thread task, prefetch traffic 중 **재현 가능한 단일 병목 가설**을 먼저 기록한다.
+3. 가설이 확인될 때만 한 변수의 A/B를 동일 시간대에 교차 순서(A–B–B–A 등)로 실행한다. 각 arm에 guest `simulate`/`devtools` cold 5회 이상, 동일 throttling·cache reset, 5개 원시값, LCP node, CLS/TBT/전송량을 보존한다. 서로 다른 날의 숫자나 여러 변경을 합친 단발 통과는 효능으로 인정하지 않는다.
+4. 독립 이득이 확인되면 영향 영역의 역할 Agent가 별도 구현 계획을 내고 Test/Review를 진행한다. 지금은 **진단 설계만** 하며, 원인을 모르는 상태에서 제품 코드·테스트·인증 구조를 추측으로 수정하지 않는다. 새 구조는 별도 Plan과 승인을 받는다.
+5. 새 비운영 회원 fixture가 정당하게 준비되면 member 동일 series와 로그인·최근 기록·로그아웃·계정 전환을 확인한다. 없으면 회원 acceptance 미검증이며 `/ship`하지 않는다.
+
+### B — 목표 재정의 (사용자 명시 승인 필요)
+
+1. 원래 synthetic 기준의 실패를 그대로 제시하고 변경된 계약을 기록한다: guest/member production mobile cold 실제 Chrome `devtools` 5회 중앙값 LCP ≤ 2.5초, CLS ≤ 0.1, TBT ≤ 200ms. production preview에서도 같은 기준을 재현한다. 배포 후 충분한 모바일 현장 표본에서 p75 LCP ≤ 2.5초를 운영 기준으로 관측한다. 표본 부족은 통과가 아닌 “판정 보류”다.
+2. `simulate` 5개 값과 중앙값은 **별도 경고·추세 지표**로 매 release 보고하고 악화하면 조사한다. B를 택해도 `simulate` 3.259초를 2.5초 달성으로 보고하지 않는다.
+3. 회원 fixture가 삭제된 상태이므로 새 member 및 production preview 검증 없이는 B 기준으로도 ship하지 않는다. RUM은 기존 설정·동의·개인정보 정책부터 확인한다. 새 telemetry client, 외부 endpoint, 개인정보 전송은 이 설계만으로 허가되지 않는다.
+
+## 3단계: 데이터·상태·보안 계약
+
+측정 기록에는 build ID, 소스 상태, mode/audience, 회차, viewport/DPR, Chrome/Lighthouse 버전, throttling, LCP node/value, FCP/TTFB/TBT/CLS, transfer·resource timing, cache/auth 조건을 포함한다. guest/member와 `simulate`/`devtools` 중앙값은 섞지 않는다. raw LHR/trace/HAR와 인증 profile은 gitignore된 접근 제한 디렉터리에만 두고 git 문서에는 비식별 수치·조건·checksum만 남긴다. token, cookie, password, 회원 ID, 원격 host, response body는 commit artifact에서 제외한다. 원격 fixture 생성·삭제·데이터 변경은 Backend/Supabase 지침과 별도 승인 범위로 관리한다. 제품 React Query/Zustand 상태나 DB 스키마는 진단 중 바꾸지 않는다.
+
+## 4단계: UI·접근성·회원 흐름
+
+측정만 하는 동안 시각 UI, semantic heading, focus order, BottomNav/BottomSheet, typography를 유지한다. 후보 변경이 생기면 412×823 모바일 guest/member 화면과 키보드·스크린리더 기본 흐름, 44px touch target, 가로 overflow, CLS, 뒤로가기·복귀를 before/after로 비교한다. 빈 최근 기록·MBTI 미설정·인증 실패에서 공개 `SeoIntro`가 같은 LCP node인지 확인한다. RUM 계측 구현이 별도로 필요하면 설치된 Next 16 문서의 `useReportWebVitals` 방식과 격리된 client boundary를 검토하고, 동의/개인정보 검토를 먼저 한다.
+
+## 5단계: 성능·운영·출시 게이트
+
+- A의 성공은 **현재 후보**에서 guest/member 각각 production mobile cold `simulate`와 `devtools` 5회 중앙값 LCP ≤ 2.5초, CLS ≤ 0.1, TBT ≤ 200ms, LCP node 일치, 기능·접근성 회귀 없음이다. 원시 분포와 이상치를 함께 보고한다. 과거 단발 2.423초, 회원 2.714초, 현재 guest 실제 Chrome 0.843초는 A의 synthetic 합격을 대신하지 못한다.
+- B는 명시 승인 후에만 유효하다. preview 실제 Chrome 기준, 회원 검증, `/review → /test → /ship`을 통과하고 배포 후 field p75를 관찰한다. field p75는 실제 사용자 표본 전 확정할 수 없으므로 preview 출시 판단과 운영 목표를 구분한다.
+- 양쪽 모두 preview에서 production build ID, asset/CDN·auth 동작, cold/warm, guest/member, 로그인·로그아웃·복귀를 검증한다. preview 실패 또는 회원 미검증은 no-ship이다. 제품 변경의 롤백은 확인된 단일 hunk/commit만 되돌리고 기존 v3 immutable font와 다른 dirty 작업을 보존한다.
+- 병목 가설이 재현되지 않으면 A는 Research로 돌아가 no-ship을 유지한다. 승인 없는 metric 변경, 단발값 선택, 추측성 추가 최적화는 금지한다.
+
+## 파일·역할 및 승인 지점
+
+| 파일/산출물 | Phase 5 범위 | 역할 |
+|---|---|---|
+| `docs/performance/home-lcp/design-note.md` | 이 5단계 설계와 선택지 기록 | Frontend Plan |
+| `docs/performance/home-lcp/measurements.md` | 결정 후 새 baseline/A-B/preview/RUM의 비식별 요약 | Test |
+| `logs/performance/home-lcp/phase-5/` | 접근 제한 raw trace/LHR·비커밋 artifact | Test |
+| 제품 소스·테스트 | A의 병목 확인 또는 B의 계측 계약이 별도 승인되기 전 변경 없음 | 해당 역할 Agent |
+
+## 2026-09-24 Phase 5 A 실행 상태
+
+사용자가 **A(원래 Lighthouse `simulate` ≤ 2.5초 기준 유지 및 trace 기반 진단 계속)**를 명시적으로 승인했고, 제품 변경 없이 통제된 guest paired 진단을 실행했다. **B(실제 Chrome + field LCP로 출시 기준 변경)는 승인되지 않았으며 적용하지 않는다.**
+
+- guest `simulate`: 중앙값 **1677ms**, 범위 **1453–2660ms**. 중앙값은 2.5초 이하였지만 한 회는 2.5초를 초과했다.
+- guest `devtools`: 중앙값 **849ms**, 범위 **827–861ms**.
+- CLS: **0**.
+
+이 결과는 같은 소스에서 앞서 측정한 guest `simulate` 중앙값 **3259ms**와 크게 충돌한다. 따라서 이번 중앙값만 골라 안정적인 `simulate` ≤ 2.5초 달성이나 코드 개선 효과로 판정하지 않는다. 측정 변동의 trace-level 원인이 재현될 때까지 A의 acceptance는 미입증 상태다.
+
+회원 fixture와 로컬 자격증명은 이미 삭제되어 member acceptance는 검증하지 못했다. guest 결과와 관계없이 회원 미검증이므로 **no-ship**을 유지한다. 다음 단계는 A의 trace 비교와 재현성 확보이며, 목표 재정의(B)나 제품 구현은 별도 명시 승인 없이는 시작하지 않는다.

@@ -1,0 +1,596 @@
+{
+  "measuredAt": "2026-09-18",
+  "baseSha": "608c46ed40bf6011b56385ae43bbfb4399164269",
+  "buildId": "R62ss8IAz_9-vxFLiwWm",
+  "candidate": "B1 + F1 + inlineCss + immutable Gothic A1 critical v3 + protected-nav prefetch false",
+  "environment": {
+    "next": "16.3.1",
+    "lighthouse": "13.4.1",
+    "chrome": "152.0.7977.83",
+    "viewport": "412x823@1.75",
+    "navigation": "cold HTTP cache; guest storage reset; member authentication preserved per run",
+    "isolation": "/private/tmp build containing the latest full task source",
+    "concurrency": "no concurrent Lighthouse or browser measurement sessions"
+  },
+  "fixture": {
+    "memberRecentAnalysisCount": 0,
+    "isMbtiSetupPromptVisible": true,
+    "containsPiiOrCredentials": false,
+    "secondAccountAvailable": false
+  },
+  "acceptance": {
+    "lcpMedianMaxMs": 2500,
+    "clsMax": 0.1,
+    "tbtMaxMs": 200,
+    "guest": {
+      "simulate": "fail",
+      "devtools": "pass",
+      "cls": "pass",
+      "tbt": "pass"
+    },
+    "member": {
+      "simulate": "fail",
+      "devtools": "pass",
+      "cls": "pass",
+      "tbt": "pass"
+    }
+  },
+  "comparison": {
+    "status": "unavailable",
+    "reason": "No clean pre-Phase-4 full-source build with the same fixture and sequential measurement window was available."
+  },
+  "guest": {
+    "simulate": {
+      "runs": [
+        {
+          "file": "simulate-run-1.json",
+          "sha256": "1317249cd1075d11eb5ffa303b1d2ae621059dc5d4ac80ef65d92f34f4c08d9f",
+          "ttfbMs": 13,
+          "fcpMs": 910,
+          "lcpMs": 3205,
+          "cls": 0,
+          "tbtMs": 110,
+          "totalBytes": 619298,
+          "fontBytes": 72740,
+          "scriptBytes": 500824,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "simulate-run-2.json",
+          "sha256": "c63dc7a305c05654495727187f34f35feab57ca96ce61e4bf3acbd2051772c5a",
+          "ttfbMs": 11,
+          "fcpMs": 917,
+          "lcpMs": 2979,
+          "cls": 0,
+          "tbtMs": 119,
+          "totalBytes": 619298,
+          "fontBytes": 72740,
+          "scriptBytes": 500824,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "simulate-run-3.json",
+          "sha256": "38406d80bce923e062405427f3bcda5215d34466093eeec0b1accdc08eb81ccd",
+          "ttfbMs": 10,
+          "fcpMs": 912,
+          "lcpMs": 3262,
+          "cls": 0,
+          "tbtMs": 107,
+          "totalBytes": 619298,
+          "fontBytes": 72740,
+          "scriptBytes": 500824,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "simulate-run-4.json",
+          "sha256": "06f898ab591b79915fbb7b72307ff8f3a07d13da7737abace464033719eb792a",
+          "ttfbMs": 16,
+          "fcpMs": 913,
+          "lcpMs": 3262,
+          "cls": 0,
+          "tbtMs": 72,
+          "totalBytes": 619298,
+          "fontBytes": 72740,
+          "scriptBytes": 500824,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "simulate-run-5.json",
+          "sha256": "312cbf3f5fbf523f94e62417d40fe0fc579258c28bf965369d358a9a24d8114e",
+          "ttfbMs": 5,
+          "fcpMs": 913,
+          "lcpMs": 3257,
+          "cls": 0,
+          "tbtMs": 74,
+          "totalBytes": 619298,
+          "fontBytes": 72740,
+          "scriptBytes": 500824,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        }
+      ],
+      "median": {
+        "ttfbMs": 11,
+        "fcpMs": 913,
+        "lcpMs": 3257,
+        "cls": 0,
+        "tbtMs": 107,
+        "totalBytes": 619298,
+        "fontBytes": 72740,
+        "scriptBytes": 500824,
+        "stylesheetBytes": 0,
+        "fontRequestCount": 4,
+        "stylesheetRequestCount": 0,
+        "gothicV1RequestCount": 0,
+        "criticalV3RequestCount": 3,
+        "authenticatedDataRequestCount": 0
+      },
+      "range": {
+        "fcpMs": [
+          910,
+          917
+        ],
+        "lcpMs": [
+          2979,
+          3262
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "tbtMs": [
+          72,
+          119
+        ]
+      }
+    },
+    "devtools": {
+      "runs": [
+        {
+          "file": "devtools-run-1.json",
+          "sha256": "6aa756a0cc07ffd0cd5f975e031c9b80297b559948aa403240dd8547dc0b4692",
+          "ttfbMs": 8,
+          "fcpMs": 882,
+          "lcpMs": 882,
+          "cls": 0,
+          "tbtMs": 63,
+          "totalBytes": 619294,
+          "fontBytes": 72740,
+          "scriptBytes": 500820,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "devtools-run-2.json",
+          "sha256": "9459cf76bbfe6665f893dc426823b3d34cf14ca63ded411c08120dcb2db97a2b",
+          "ttfbMs": 13,
+          "fcpMs": 848,
+          "lcpMs": 848,
+          "cls": 0,
+          "tbtMs": 59,
+          "totalBytes": 619307,
+          "fontBytes": 72740,
+          "scriptBytes": 500824,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "devtools-run-3.json",
+          "sha256": "d3d4d844f2aca6029e109c5dca914ce203fc811f232f6eae9c80e06b1face4e3",
+          "ttfbMs": 19,
+          "fcpMs": 885,
+          "lcpMs": 885,
+          "cls": 0,
+          "tbtMs": 80,
+          "totalBytes": 619307,
+          "fontBytes": 72740,
+          "scriptBytes": 500824,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "devtools-run-4.json",
+          "sha256": "83102e57c304d1637275bf6b26fe2fd942ce8def3c00421e15a24a5a41c3d413",
+          "ttfbMs": 6,
+          "fcpMs": 836,
+          "lcpMs": 836,
+          "cls": 0,
+          "tbtMs": 57,
+          "totalBytes": 619351,
+          "fontBytes": 72740,
+          "scriptBytes": 500868,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "devtools-run-5.json",
+          "sha256": "ef3abe2d2f818fa732208ce52aa10ece03ccdd4a4125688f7e3aa88373c89870",
+          "ttfbMs": 6,
+          "fcpMs": 845,
+          "lcpMs": 845,
+          "cls": 0,
+          "tbtMs": 59,
+          "totalBytes": 619298,
+          "fontBytes": 72740,
+          "scriptBytes": 500824,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 4,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 3,
+          "authenticatedDataRequestCount": 0,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        }
+      ],
+      "median": {
+        "ttfbMs": 8,
+        "fcpMs": 848,
+        "lcpMs": 848,
+        "cls": 0,
+        "tbtMs": 59,
+        "totalBytes": 619307,
+        "fontBytes": 72740,
+        "scriptBytes": 500824,
+        "stylesheetBytes": 0,
+        "fontRequestCount": 4,
+        "stylesheetRequestCount": 0,
+        "gothicV1RequestCount": 0,
+        "criticalV3RequestCount": 3,
+        "authenticatedDataRequestCount": 0
+      },
+      "range": {
+        "fcpMs": [
+          836,
+          885
+        ],
+        "lcpMs": [
+          836,
+          885
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "tbtMs": [
+          57,
+          80
+        ]
+      }
+    }
+  },
+  "member": {
+    "simulate": {
+      "runs": [
+        {
+          "file": "simulate-run-1.json",
+          "sha256": "7e1926a0a7a2f1fcc5530732eb37d10ed9f4eba56900711fb808e5daaebbef80",
+          "ttfbMs": 17,
+          "fcpMs": 910,
+          "lcpMs": 2861,
+          "cls": 0,
+          "tbtMs": 61,
+          "totalBytes": 642974,
+          "fontBytes": 91396,
+          "scriptBytes": 471373,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "simulate-run-2.json",
+          "sha256": "cf36ca3baf58f63cfc3b34ce7ddb50363ef96070ce13e5228e9fcdc39f9136be",
+          "ttfbMs": 17,
+          "fcpMs": 910,
+          "lcpMs": 2711,
+          "cls": 0,
+          "tbtMs": 50,
+          "totalBytes": 643104,
+          "fontBytes": 91396,
+          "scriptBytes": 471375,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "simulate-run-3.json",
+          "sha256": "151c201e3c7b99e233d50819bc7f8a45797f897f5189084d64fa914a52f3ddd7",
+          "ttfbMs": 9,
+          "fcpMs": 912,
+          "lcpMs": 2862,
+          "cls": 0,
+          "tbtMs": 79,
+          "totalBytes": 643195,
+          "fontBytes": 91396,
+          "scriptBytes": 471373,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "simulate-run-4.json",
+          "sha256": "e9a5c92c3fb831c6ee1baed074803e89167509618a62f2cbb4918efd798dc306",
+          "ttfbMs": 21,
+          "fcpMs": 910,
+          "lcpMs": 2711,
+          "cls": 0,
+          "tbtMs": 66,
+          "totalBytes": 643195,
+          "fontBytes": 91396,
+          "scriptBytes": 471373,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "simulate-run-5.json",
+          "sha256": "4951633464037b8b35b0137fdc66d2b67543b109c57d93d1e766a71cf167f067",
+          "ttfbMs": 4,
+          "fcpMs": 913,
+          "lcpMs": 2714,
+          "cls": 0,
+          "tbtMs": 88,
+          "totalBytes": 643194,
+          "fontBytes": 91396,
+          "scriptBytes": 471373,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        }
+      ],
+      "median": {
+        "ttfbMs": 17,
+        "fcpMs": 910,
+        "lcpMs": 2714,
+        "cls": 0,
+        "tbtMs": 66,
+        "totalBytes": 643194,
+        "fontBytes": 91396,
+        "scriptBytes": 471373,
+        "stylesheetBytes": 0,
+        "fontRequestCount": 5,
+        "stylesheetRequestCount": 0,
+        "gothicV1RequestCount": 0,
+        "criticalV3RequestCount": 4,
+        "authenticatedDataRequestCount": 4
+      },
+      "range": {
+        "fcpMs": [
+          910,
+          913
+        ],
+        "lcpMs": [
+          2711,
+          2862
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "tbtMs": [
+          50,
+          88
+        ]
+      }
+    },
+    "devtools": {
+      "runs": [
+        {
+          "file": "devtools-run-1.json",
+          "sha256": "068b6267c0a1d299d4e5aac19c46027c9f800c4f06085fbc3cacd05a0002e6e9",
+          "ttfbMs": 6,
+          "fcpMs": 867,
+          "lcpMs": 867,
+          "cls": 0,
+          "tbtMs": 73,
+          "totalBytes": 643251,
+          "fontBytes": 91396,
+          "scriptBytes": 471373,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "devtools-run-2.json",
+          "sha256": "103c2e7462632648ead79808a4e8a5fcc0adfced2b6fbd679c226bfe9c03f5cd",
+          "ttfbMs": 16,
+          "fcpMs": 866,
+          "lcpMs": 866,
+          "cls": 0,
+          "tbtMs": 80,
+          "totalBytes": 643257,
+          "fontBytes": 91396,
+          "scriptBytes": 471373,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "devtools-run-3.json",
+          "sha256": "4b06068422e816f2aeee4d6f52dc986a487c1be40eaf952fee891a357858aa99",
+          "ttfbMs": 7,
+          "fcpMs": 861,
+          "lcpMs": 861,
+          "cls": 0,
+          "tbtMs": 78,
+          "totalBytes": 643245,
+          "fontBytes": 91396,
+          "scriptBytes": 471373,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "devtools-run-4.json",
+          "sha256": "a0a9259934bd4ab4836a34f9a79a1da1a5aef1c35c0869aa5aafddf6b0c8580e",
+          "ttfbMs": 6,
+          "fcpMs": 867,
+          "lcpMs": 867,
+          "cls": 0,
+          "tbtMs": 79,
+          "totalBytes": 634106,
+          "fontBytes": 91396,
+          "scriptBytes": 462266,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 2,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        },
+        {
+          "file": "devtools-run-5.json",
+          "sha256": "f1f6bab906369918838ebdf06e0a675f200b33c532704616bb5573bb02a24280",
+          "ttfbMs": 6,
+          "fcpMs": 863,
+          "lcpMs": 863,
+          "cls": 0,
+          "tbtMs": 79,
+          "totalBytes": 643299,
+          "fontBytes": 91396,
+          "scriptBytes": 471417,
+          "stylesheetBytes": 0,
+          "fontRequestCount": 5,
+          "stylesheetRequestCount": 0,
+          "gothicV1RequestCount": 0,
+          "criticalV3RequestCount": 4,
+          "authenticatedDataRequestCount": 4,
+          "lcpSelector": "div.flex > section.px-5 > div.rounded-card-lg > p.mt-2"
+        }
+      ],
+      "median": {
+        "ttfbMs": 6,
+        "fcpMs": 866,
+        "lcpMs": 866,
+        "cls": 0,
+        "tbtMs": 79,
+        "totalBytes": 643251,
+        "fontBytes": 91396,
+        "scriptBytes": 471373,
+        "stylesheetBytes": 0,
+        "fontRequestCount": 5,
+        "stylesheetRequestCount": 0,
+        "gothicV1RequestCount": 0,
+        "criticalV3RequestCount": 4,
+        "authenticatedDataRequestCount": 4
+      },
+      "range": {
+        "fcpMs": [
+          861,
+          867
+        ],
+        "lcpMs": [
+          861,
+          867
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "tbtMs": [
+          73,
+          80
+        ]
+      }
+    }
+  },
+  "browserFlows": {
+    "guestMemberLogoutRelogin": "pass",
+    "recentZeroState": "pass",
+    "mbtiPromptAndSettingsNavigation": "pass",
+    "historyNavigationAndBack": "pass",
+    "mypageAndSettingsDelayedRendering": "pass",
+    "noErrorOverlayOrHorizontalOverflow": "pass",
+    "hydrationErrors": 0,
+    "localOnlyKnownIssue": "Vercel Speed Insights local endpoint returned HTML instead of JavaScript.",
+    "finalLogoutAuthCookieCount": 0,
+    "accountSwitch": "not_run_single_fixture"
+  },
+  "rawArtifacts": {
+    "directory": "logs/performance/home-lcp/phase-4/{guest,member}/raw",
+    "tracked": false,
+    "directoryMode": "0700",
+    "fileMode": "0600"
+  }
+}

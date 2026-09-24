@@ -293,3 +293,104 @@ LCP node는 10회 모두 `SeoIntro` 설명 문단이었다. 외부 stylesheet �
 ## 판정
 
 회원 기능·CSS·실제 throttling 회귀는 통과했지만 핵심 `simulate` LCP 중앙값 2.715초로 **회원 acceptance는 실패**다. guest 재현 결과와 마찬가지로 I1을 2.5초 목표 달성으로 판정하거나 `/ship`할 수 없다.
+
+# 2026-09-18 Phase 4 v3/prefetch 최종 검증
+
+## 조건
+
+- **기준 SHA / build ID**: `608c46ed40bf6011b56385ae43bbfb4399164269` / `R62ss8IAz_9-vxFLiwWm`.
+- 현재 작업 트리의 전체 변경을 새 `/private/tmp` 디렉터리에 복사하고 `node_modules`와 `.env.local`만 symlink한 production webpack build를 사용했다. `logs/**`와 Lighthouse 자격증명 파일은 격리 복사본에 포함하지 않았다.
+- Lighthouse 13.4.1, Chrome 152.0.7977.83, 412×823, DPR 1.75에서 guest/member와 `simulate`/`devtools`를 각각 5회 측정했다. 모든 series는 순차 실행했고 동시에 열린 다른 측정 브라우저는 없었다.
+- guest는 매회 storage를 초기화했다. member는 정상 로그인 UI로 인증하고 매회 HTTP cache만 삭제했으며, 각 유효 표본에서 profile/analysis 요청을 확인했다.
+- member fixture는 최근 분석 0건이고 MBTI가 비어 있어 설정 안내가 표시된다. 자격증명·token·사용자 식별자·원격 host는 추적 문서와 summary에 저장하지 않았다.
+- 같은 시간대·동일 전체 소스의 pre-Phase-4 production build가 없어 A→B 비교는 수행하지 않았다. Phase 3 수치를 paired 결과로 취급하지 않는다.
+
+## Cold 결과
+
+| Audience / mode | TTFB 중앙값 | FCP 중앙값 | LCP 5회 (ms) | LCP 중앙값 (min–max) | CLS | TBT 중앙값 (range) | Total / font / JS / CSS 중앙값 |
+|---|---:|---:|---|---:|---:|---:|---:|
+| guest simulate | 11ms | 913ms | 3205, 2979, 3262, 3262, 3257 | **3257 (2979–3262)** | 0 | 107ms (72–119) | 619,298 / 72,740 / 500,824 / 0B |
+| guest devtools | 8ms | 848ms | 882, 848, 885, 836, 845 | **848 (836–885)** | 0 | 59ms (57–80) | 619,307 / 72,740 / 500,824 / 0B |
+| member simulate | 17ms | 910ms | 2861, 2711, 2862, 2711, 2714 | **2714 (2711–2862)** | 0 | 66ms (50–88) | 643,194 / 91,396 / 471,373 / 0B |
+| member devtools | 6ms | 866ms | 867, 866, 861, 867, 863 | **866 (861–867)** | 0 | 79ms (73–80) | 643,251 / 91,396 / 471,373 / 0B |
+
+- guest는 Gothic A1 critical v3 700/800/900과 Nunito 900만 요청해 font 4건/72,740B였다.
+- member는 설정 안내의 고정 글리프를 포함한 critical v3 400/700/800/900과 Nunito 900만 요청해 font 5건/91,396B였다.
+- guest/member 20회 모두 Gothic A1 v1 요청과 외부 stylesheet 요청은 0건이었다. `inlineCss` 계약도 browser flow에서 `<style>` 존재, stylesheet link 0건으로 확인했다.
+- LCP node는 20회 모두 `SeoIntro` 설명 문단이었다.
+
+## 브라우저·자동 검증
+
+- 회원 개인화 헤더, 최근 기록 0건, MBTI 안내 sheet → 설정 이동, History 이동 → back, MyPage와 Settings의 지연 렌더링을 확인했다.
+- 로그아웃 뒤 guest 상태와 동일 fixture 재로그인을 확인했고 마지막 로그아웃 후 인증 cookie는 0개였다. fixture가 하나라 계정 A→B 전환은 실행하지 않았다.
+- 화면별 error overlay, hydration error, 가로 overflow는 0건이었다. 로컬 Speed Insights endpoint가 HTML을 반환하는 기존 `Unexpected token '<'` 오류만 재현됐다.
+- pinned fonttools 4.59.2 + brotli 1.1.0으로 224 codepoint와 v3 네 weight의 결정적 재생성/checksum 검증을 통과했다.
+- 관련 Vitest 2 files/8 tests와 전체 Vitest 64 files/443 tests가 통과했다. 전체 제품 ESLint는 오류 0건이며 기존 unrelated warning 1건이 남았다. 추적 제외 Chrome profile인 `logs/**`는 lint 입력에서 제외했다.
+- 최신 전체 작업 소스의 isolated production build가 통과했다.
+- 비식별 summary는 `phase-4-final-summary.json`, raw LHR·flow·profile은 gitignore된 mode 700/600 `logs/performance/home-lcp/phase-4/`에 보존했다.
+
+## 판정
+
+실제 Chrome throttling인 `devtools` LCP는 guest **0.848초**, member **0.866초**로 목표를 통과했고 CLS/TBT, CSS, 폰트 전송 및 브라우저 흐름도 통과했다. 그러나 필수 synthetic `simulate` 중앙값은 guest **3.257초**, member **2.714초**로 2.5초를 초과했다. 따라서 Phase 4 전체 acceptance는 **미통과**이며 현재 근거로 `/ship`하지 않는다.
+
+## 2026-09-19 Review 후 후보 상태
+
+- 위 표는 **v3 font + 보호 링크 selective prefetch를 함께 적용한 최종 5회 series**의 역사적 측정값이다. 설계 전 격리 실험에서 관측된 member `simulate` **2.423초** 통과는 별개의 단일 후보 결과이며, 최종 series의 **2.714초** 실패를 대체하지 않는다. guest 최종값도 **3.257초**로 실패했다.
+- Review 지적에 따라 `/history`, `/mypage`의 `prefetch={false}`를 제거하고 네 BottomNav 링크를 모두 Next.js 기본 prefetch로 되돌렸다. 따라서 위 최종 표는 **현재 작업 트리와 동일한 후보의 성능 측정이 아니다**. rollback 후 guest/member Lighthouse 5회 series는 아직 없다.
+- v3 font와 CSS inline 변경은 유지했다. selective prefetch 재도입이나 Phase 4 통과 판정은 새 동시대 A/B 및 완전한 acceptance 검증 없이는 하지 않는다. 현재 상태는 **LCP 2.5초 목표 미입증, `/ship` 보류**다.
+- 비운영 원격 회원 fixture는 여전히 존재한다. 삭제 승인이 거절되어 정리하지 못했으며, 자격증명이나 개인 식별 정보는 이 문서에 기록하지 않는다. 소유자의 승인된 삭제 또는 별도 정리가 필요하다.
+- rollback 상태에서 BottomNav 대상 Vitest 1/1, 전체 Vitest 64 files/442 tests, pinned fonttools/brotli 기반 224-codepoint 결정성 검사, 격리 production webpack build, `git diff --check`를 통과했다. `npx eslint . --ignore-pattern 'logs/**'`는 오류 0건과 기존 무관한 경고 1건으로 통과했다. 원시 `npm run lint`는 gitignore된 Chrome profile `logs/**`까지 스캔해 그 내부 외부 스크립트의 80 errors/3273 warnings로 실패한다. 이 프로필을 제품 소스 결함으로 해석하거나 삭제하지 않았다.
+
+# 2026-09-24 Phase 5 교차 trace 진단
+
+## 조건
+
+- **기준 HEAD / build ID**: `cdfddaa6af40a5f3d7678dfb08b8de6cafc86d87` / `6FYWnfIGUhfjC_dLQykYj167M`. 현재 rollback 작업 트리를 새 `/private/tmp` 디렉터리에 복제해 동일 production webpack build와 동일 `next start` 프로세스만 사용했다.
+- **도구**: Lighthouse 13.4.1, Headless Chrome 153, 412×823, DPR 1.75, mobile Slow 4G preset(RTT 150ms, 1,638.4Kbps, CPU 4×).
+- **상태**: guest cold navigation. 각 Lighthouse CLI 실행이 새 incognito Chrome을 시작했고 기본 storage reset을 유지했다.
+- **순서**: `simulate → devtools → devtools → simulate → simulate → devtools → devtools → simulate → simulate → devtools`. 실행 중 소스·서버·설정을 바꾸지 않았다.
+- LHR, DevTools log, trace 30개(174,610,434B, 166.52MiB; `du -sh` 167M)는 mode 700의 gitignore 경로 `logs/performance/home-lcp/phase-5/paired-2026-09-24/`에만 보존했다. 제품 소스·설정·테스트는 변경하지 않았다.
+
+## 결과
+
+| Mode | LCP 5회 (ms) | LCP 중앙값 (min–max) | trace observed LCP 중앙값 | FCP 중앙값 | TTFB 중앙값 | CLS | TBT 중앙값 | 전송량 중앙값 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| simulate (Lantern) | 1453, 2421, 1677, 2660, 1668 | **1677 (1453–2660)** | 64ms (55–158) | 914ms | 457ms | 0 | 59ms | 624,103B |
+| devtools (actual throttling) | 861, 860, 827, 833, 849 | **849 (827–861)** | 849ms (827–861) | 849ms | 12ms | 0 | 65ms | 624,112B |
+
+- 10회의 LCP node는 모두 동일한 `SeoIntro` 설명 문단이었다. auth/recent 상태 완료 후 다른 LCP candidate로 갱신되지 않았다.
+- `simulate`의 55–158ms observed LCP는 로컬 비제한 trace 관측값이고, 1,453–2,660ms는 같은 trace를 Slow 4G/CPU 4×로 재계산한 Lantern 값이다. 두 값을 하나의 series로 평균하지 않았다. `devtools`에서는 reported LCP와 observed LCP가 일치했다.
+- 총 전송량은 run 간 624,051–624,123B, JS는 501,087–501,159B, font는 전 회차 72,740B로 안정적이었다. 폰트는 critical Gothic A1 700/800/900과 Nunito 900 네 건이며 non-200과 v1 Gothic A1 요청은 없었다.
+- `devtools`의 font 완료 중앙값은 2,188ms였지만 LCP는 849ms였다. `font-display: optional`과 fallback으로 폰트 전송 완료가 현재 observed LCP를 차단하지 않음을 보여준다.
+- main-thread work 중앙값은 `simulate` 731ms, `devtools` 1,857ms였다. LHR의 long-task 중앙값은 각각 3개(최대 task 중앙값 94ms), 4개(85ms)였고 TBT는 모두 200ms 이하였다. `simulate` LHR의 long task는 Lantern 모델 결과이며 원 trace diagnostics에서는 50ms 초과 task가 0개였다.
+
+## 판정
+
+현재 guest 제품은 **실제 Chrome actual-throttling LCP 기준으로는 5회 모두 2.5초 이하**이며, CLS 0과 TBT 200ms 이하도 충족했다. 이 진단 round의 `simulate` 중앙값도 1.677초로 통과했지만, 1.453–2.660초로 분산했고 1회는 임계를 넘었다. 또한 같은 rollback 상태의 이전 5회 중앙값 3.259초와 상충하므로 **`simulate ≤ 2.5초`가 재현 가능하게 안정화됐다고 말할 수는 없다**. 전송량·LCP node·FCP가 안정적인데 Lantern LCP만 큰 폭으로 변해, 이 round에서 새로 증명된 단일 제품 병목이나 추가 코드 변경 근거는 없다.
+
+회원 fixture가 삭제된 상태이므로 이 결과는 guest 진단만 다룬다. 회원 acceptance와 원래 `simulate` release gate는 여전히 **미입증/no-ship**이다.
+
+# 2026-09-24 현재 후보 재측정
+
+## 조건
+
+- **기준 HEAD / build ID**: `a0b4c8b186baf390fa56bce8d4392a31a47e5acf` / `UlYl5yOaMB2QN3Wl8Bol_`. 새 `/private/tmp`의 HEAD archive에 LCP 작업 범위인 `inlineCss`와 v3 critical font 파일만 복사했다. 같은 작업 트리의 분석 결과·OG·에이전트 설정 등 무관한 dirty 변경은 포함하지 않았다.
+- build 동안만 `.env.local`을 symlink하고 성공 직후 제거했다. 동일 production webpack build와 동일 `next start` 프로세스만 사용했다.
+- Lighthouse 13.4.1, Chrome 153.0.8010.53, 412×823, DPR 1.75, RTT 150ms, 1,638.4Kbps, CPU 4× 조건이다. guest cold navigation으로 `simulate` 5회 후 `devtools` 5회를 순차 실행했으며, 각 회차는 새 incognito Chrome과 기본 storage reset을 사용했다.
+- raw LHR·DevTools log·trace·화면 31개, 138MiB는 mode 700/600의 gitignore 경로 `logs/performance/home-lcp/phase-5/latest-measurement/`에 보존했다. 원본 JSON 집합 checksum은 `a59b90573cf03a3d8aeb2435d0ed6f0e2044eb071b13773e957dfe1fe223a570`이다.
+
+## 결과
+
+| Mode | LCP 5회 (ms) | LCP 중앙값 (min–max) | FCP 중앙값 (min–max) | TTFB 중앙값 (min–max) | CLS | TBT 중앙값 (min–max) |
+|---|---|---:|---:|---:|---:|---:|
+| simulate (Lantern) | 3378, 3191, 3027, 3177, 3404 | **3191 (3027–3404)** | 920 (918–934) | 460 (459–467) | 0 | 199 (189–674) |
+| devtools (actual throttling) | 1089, 996, 1070, 989, 903 | **996 (903–1089)** | 996 (903–1089) | 19 (14–32) | 0 | 303 (198–437) |
+
+- LCP node는 10회 모두 `SeoIntro`의 “두 사람만 보는 궁합표가 아니라…” 관계 흐름 설명 문단으로 같았다.
+- 총 전송량 중앙값은 622,259B, JavaScript 501,472B(25건), font 72,740B(4건), CSS 0B(0건)였다. font는 Gothic A1 critical v3 700/800/900과 Nunito 900이며 non-200 요청은 없었다.
+- `simulate` 5회차에는 측정 장치 CPU가 Lighthouse 기대치보다 느리다는 경고가 있었으며 해당 3,404ms 표본을 제외하지 않았다. 나머지 9회에는 runtime error나 run warning이 없었다.
+- production 홈은 HTTP 200, 시작 CTA·분석 링크·SEO 제목과 SEO-before-recent 순서, 오류 overlay 없음, 가로 overflow 없음으로 확인했다. `agent-browser`와 Playwright가 없어 Lighthouse 설치본의 Puppeteer와 현재 Chrome으로 대체했다. 로컬 `_vercel/speed-insights/script.js`가 `/login` HTML로 redirect되어 생기는 기존 `Unexpected token '<'` pageerror는 제품 chunk·오류 overlay와 분리 확인했다.
+
+## 판정
+
+실제 Chrome `devtools` LCP는 5회 모두 2.5초 이하이고 CLS는 0이다. 그러나 필수 `simulate` LCP 중앙값은 **3.191초**로 목표 2.5초를 초과해 **실패**다. `devtools` TBT 중앙값도 303ms로 보조 기준 200ms를 초과했다. 회원 fixture가 삭제되어 member acceptance는 측정하지 않았으며, 현재 후보는 여전히 **no-ship**이다.
