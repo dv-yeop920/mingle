@@ -238,11 +238,20 @@ const executeFix = async (
       ? 'general-code'
       : fixResult.analysis.changeScope;
 
+  const hasStrongEvidence =
+    incident.occurrence_count >= 3 &&
+    sourceFiles.size > 0 &&
+    fixResult.fix !== null;
+  const resolvedReproducible =
+    fixResult.analysis.isReproducible || hasStrongEvidence;
+  const resolvedNormalBehavior =
+    fixResult.analysis.isNormalBehaviorKnown || hasStrongEvidence;
+
   const eligibility: RecoveryEligibility = {
     isExpected: fixResult.analysis.isExpected,
     isExternalFailure: fixResult.analysis.isExternalFailure,
-    isReproducible: fixResult.analysis.isReproducible,
-    isNormalBehaviorKnown: fixResult.analysis.isNormalBehaviorKnown,
+    isReproducible: resolvedReproducible,
+    isNormalBehaviorKnown: resolvedNormalBehavior,
     changeScope: resolvedScope,
     attemptCount: eligibilityContext.attemptCount,
     isConcurrentRepairActive: eligibilityContext.isConcurrentRepairActive,
