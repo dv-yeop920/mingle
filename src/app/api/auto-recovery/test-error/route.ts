@@ -5,8 +5,9 @@ export const GET = async () => {
   const headerList = await headers();
   const ua = headerList.get('user-agent') ?? 'unknown';
 
-  const config = JSON.parse('{"key":"value"}') as { key: string; missing: { label: string } };
-  const label = config.missing.label;
+  const items: string[] = [];
+  const first = items[0]!;
+  const len = first.length;
 
-  return NextResponse.json({ status: 'ok', label, ua });
+  return NextResponse.json({ status: 'ok', len, ua });
 };
