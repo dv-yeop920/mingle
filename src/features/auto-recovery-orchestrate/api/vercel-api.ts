@@ -5,10 +5,8 @@ const VERCEL_API_BASE = 'https://api.vercel.com';
 const getRuntimeErrors = async (
   token: string,
   projectId: string,
-  deploymentId: string,
 ): Promise<RuntimeError[]> => {
   const url = new URL(`${VERCEL_API_BASE}/v1/projects/${projectId}/logs`);
-  url.searchParams.set('deploymentId', deploymentId);
   url.searchParams.set('level', 'error');
   url.searchParams.set('limit', '50');
 

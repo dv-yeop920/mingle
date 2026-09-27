@@ -155,7 +155,6 @@ const executeFix = async (
       errors = await getRuntimeErrors(
         config.vercelToken,
         config.vercelProjectId,
-        incident.project_id,
       );
     } catch {
       // Vercel API unavailable — proceed with metadata only
@@ -238,14 +237,12 @@ const executeFix = async (
       ? 'general-code'
       : fixResult.analysis.changeScope;
 
-  const hasStrongEvidence =
-    incident.occurrence_count >= 3 &&
-    sourceFiles.size > 0 &&
-    fixResult.fix !== null;
+  const isFrequentError = incident.occurrence_count >= 3;
   const resolvedReproducible =
-    fixResult.analysis.isReproducible || hasStrongEvidence;
+    fixResult.analysis.isReproducible || isFrequentError;
   const resolvedNormalBehavior =
-    fixResult.analysis.isNormalBehaviorKnown || hasStrongEvidence;
+    fixResult.analysis.isNormalBehaviorKnown ||
+    (isFrequentError && (sourceFiles.size > 0 || fixResult.fix !== null));
 
   const eligibility: RecoveryEligibility = {
     isExpected: fixResult.analysis.isExpected,
