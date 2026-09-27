@@ -205,7 +205,7 @@ const executeFix = async (
   let fixResult: FixResult;
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: config.maxTokens,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: prompt }],
