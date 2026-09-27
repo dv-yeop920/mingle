@@ -1,0 +1,10 @@
+{
+  "fingerprint": "build-e53a6c880499",
+  "baseSha": "e53a6c880499ad36e28af4bacab5b33f3104a29e",
+  "incidentCategory": "build",
+  "incidentPaths": [
+    "src/shared/lib/mbti.ts"
+  ],
+  "fixDescription": "Changed the return type of getTemperament from 'number' to 'Temperament' to match the value type of MBTI_TEMPERAMENTS, fixing the type assignment error and the subsequent implicit-any indexing error on TEMPERAMENT_STYLES.",
+  "buildErrorCategory": "typescript"
+}
