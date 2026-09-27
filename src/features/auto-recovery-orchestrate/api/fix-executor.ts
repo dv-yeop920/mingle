@@ -24,7 +24,11 @@ Rules:
 - Only fix code bugs. Do not fix expected behavior, external service failures, or infrastructure issues.
 - Make minimal changes. Do not refactor surrounding code.
 - Do not touch: database migrations, environment variables, authentication logic, payment logic, or security-critical code.
-- If the error is in a protected area (auth, payments, DB schema), set changeScope to "protected".
+- changeScope classification:
+  - "protected": ONLY for files under src/shared/lib/supabase/, src/features/auth/, or supabase/migrations/
+  - "general-code": ALL other application code including API routes, pages, components, utilities, and any src/app/ routes
+  - "unknown": only when you truly cannot determine what the code does
+  - IMPORTANT: src/app/api/ routes (including auto-recovery, health-check, etc.) are general application code, NOT protected infrastructure
 - If you cannot determine the root cause, set isReproducible to false.
 - Return your analysis AND the fix (if any) as valid JSON.
 
