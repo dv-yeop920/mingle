@@ -1,0 +1,10 @@
+{
+  "fingerprint": "build-facc0bd16a06",
+  "baseSha": "facc0bd16a06ae6d9febbb062e775680a39824f2",
+  "incidentCategory": "build",
+  "incidentPaths": [
+    "src/features/auto-recovery-orchestrate/api/monitor.ts"
+  ],
+  "fixDescription": "Removed the extra third argument (state.deploymentId!) from the getRuntimeErrors() call in handleObserving, since the function signature only accepts (vercelToken, vercelProjectId), fixing TS2554.",
+  "buildErrorCategory": "typescript"
+}
