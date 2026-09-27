@@ -14,6 +14,7 @@ import type {
 } from '../model/types';
 
 import { createGitHubClient } from './github';
+import { checkScope } from './scope-checker';
 import { getRuntimeErrors } from './vercel-api';
 
 const SYSTEM_PROMPT = `You are an automated error recovery agent for the MIXTI web application (Next.js 16 / React 19 / Tailwind CSS v4 / Supabase).
@@ -227,12 +228,22 @@ const executeFix = async (
     return stopped('ai-api-error');
   }
 
+  const incidentFiles = [...sourceFiles.keys()].map((f) => ({
+    filename: f,
+    status: 'modified',
+  }));
+  const scopeResult = checkScope(incidentFiles);
+  const resolvedScope =
+    fixResult.analysis.changeScope !== 'general-code' && scopeResult.isPassed
+      ? 'general-code'
+      : fixResult.analysis.changeScope;
+
   const eligibility: RecoveryEligibility = {
     isExpected: fixResult.analysis.isExpected,
     isExternalFailure: fixResult.analysis.isExternalFailure,
     isReproducible: fixResult.analysis.isReproducible,
     isNormalBehaviorKnown: fixResult.analysis.isNormalBehaviorKnown,
-    changeScope: fixResult.analysis.changeScope,
+    changeScope: resolvedScope,
     attemptCount: eligibilityContext.attemptCount,
     isConcurrentRepairActive: eligibilityContext.isConcurrentRepairActive,
     isPreviousProductionRepairFailed:
