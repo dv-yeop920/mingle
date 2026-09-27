@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
-import { connection } from 'next/server';
 
 import { HistoryView } from '@/views/history';
 
-const HistoryPage = async () => {
-  await connection();
+const HistoryPage = () => {
   return <HistoryView />;
 };
 
