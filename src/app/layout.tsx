@@ -87,6 +87,13 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
       <head>
         <link
           rel="preload"
+          href="/fonts/v3/gothic-a1-critical-400.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
           href="/fonts/v3/gothic-a1-critical-700.woff2"
           as="font"
           type="font/woff2"

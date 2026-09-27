@@ -5,7 +5,7 @@
   "source": "https://github.com/google/fonts/tree/main/ofl/gothica1",
   "license": "SIL Open Font License 1.1",
   "license_file": "public/fonts/OFL-Gothic-A1.txt",
-  "preload_weights": ["700", "800", "900"],
+  "preload_weights": ["400", "700", "800", "900"],
   "display": {
     "critical": "optional",
     "residual": "swap"

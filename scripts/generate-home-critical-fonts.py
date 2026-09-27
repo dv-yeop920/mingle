@@ -411,8 +411,8 @@ def verify_integration(manifest: dict, unicode_range: str) -> None:
     ]
     if preload_urls != expected_preloads:
         raise RuntimeError(f"unexpected font preloads: {preload_urls}")
-    if manifest["preload_weights"] != ["700", "800", "900"]:
-        raise RuntimeError("F1 must preload critical weights 700, 800, and 900")
+    if manifest["preload_weights"] != ["400", "700", "800", "900"]:
+        raise RuntimeError("F1 must preload critical weights 400, 700, 800, and 900")
     if f"source: '/fonts/{IMMUTABLE_VERSION}/:path*'" not in next_config:
         raise RuntimeError(
             f"next.config.ts is missing the immutable {IMMUTABLE_VERSION} font cache rule"
