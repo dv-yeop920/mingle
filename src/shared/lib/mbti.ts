@@ -26,7 +26,7 @@ const TEMPERAMENT_STYLES: Record<Temperament, { bg: string; fg: string; border: 
   explorer: { bg: 'bg-explorer-bg', fg: 'text-explorer-fg', border: 'border-explorer-border' },
 };
 
-const getTemperament = (mbti: MbtiType): number => MBTI_TEMPERAMENTS[mbti];
+const getTemperament = (mbti: MbtiType): Temperament => MBTI_TEMPERAMENTS[mbti];
 
 const getTemperamentStyles = (mbti: MbtiType) => TEMPERAMENT_STYLES[getTemperament(mbti)];
 
