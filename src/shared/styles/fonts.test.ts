@@ -156,11 +156,12 @@ describe('Gothic A1 critical font contract', () => {
     ].map((match) => match[1]);
 
     expect(preloadUrls).toEqual([
+      '/fonts/v3/gothic-a1-critical-400.woff2',
       '/fonts/v3/gothic-a1-critical-700.woff2',
       '/fonts/v3/gothic-a1-critical-800.woff2',
       '/fonts/v3/gothic-a1-critical-900.woff2',
     ]);
-    expect(manifest.preload_weights).toEqual(['700', '800', '900']);
+    expect(manifest.preload_weights).toEqual(['400', '700', '800', '900']);
     expect(layout).not.toContain('href="/fonts/v1/gothic-a1-');
     expect(nextConfig).toContain("source: '/fonts/v3/:path*'");
     expect(nextConfig).toContain(

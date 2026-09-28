@@ -63,6 +63,11 @@ const ELIGIBILITY_CONTEXT = {
   isPreviousProductionRepairFailed: false,
 };
 
+const toolUseResponse = (input: Record<string, unknown>) => ({
+  content: [{ type: 'tool_use', id: 'call_1', name: 'submit_fix', input }],
+  stop_reason: 'tool_use',
+});
+
 describe('Fix Executor', () => {
   it('GitHub 연결 실패 시 stop을 반환한다', async () => {
     mockGetDefaultBranch.mockRejectedValue(new Error('network'));
@@ -71,39 +76,34 @@ describe('Fix Executor', () => {
     expect(result.decision.reason).toBe('github-unreachable');
   });
 
-  it('AI가 파싱 불가능한 응답을 반환하면 stop을 반환한다', async () => {
+  it('AI가 tool_use 없이 응답하면 stop을 반환한다', async () => {
     mockGetDefaultBranch.mockResolvedValue({ branch: 'main', sha: 'abc' });
     mockSearchCode.mockResolvedValue([]);
     mockCreate.mockResolvedValue({
-      content: [{ type: 'text', text: 'This is not JSON' }],
+      content: [{ type: 'text', text: 'This is not a tool use' }],
+      stop_reason: 'end_turn',
     });
 
     const result = await executeFix(INCIDENT, ELIGIBILITY_CONTEXT, CONFIG);
     expect(result.decision.action).toBe('stop');
-    expect(result.decision.reason).toBe('unparseable-ai-response');
+    expect(result.decision.reason).toBe('no-tool-use-in-response');
   });
 
   it('AI가 expected 에러로 분석하면 repair하지 않는다', async () => {
     mockGetDefaultBranch.mockResolvedValue({ branch: 'main', sha: 'abc' });
     mockSearchCode.mockResolvedValue([]);
-    mockCreate.mockResolvedValue({
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            analysis: {
-              isExpected: true,
-              isExternalFailure: false,
-              isReproducible: true,
-              isNormalBehaviorKnown: true,
-              changeScope: 'general-code',
-              explanation: 'This is expected behavior',
-            },
-            fix: null,
-          }),
+    mockCreate.mockResolvedValue(
+      toolUseResponse({
+        analysis: {
+          isExpected: true,
+          isExternalFailure: false,
+          isReproducible: true,
+          isNormalBehaviorKnown: true,
+          changeScope: 'general-code',
+          explanation: 'This is expected behavior',
         },
-      ],
-    });
+      }),
+    );
 
     const result = await executeFix(INCIDENT, ELIGIBILITY_CONTEXT, CONFIG);
     expect(result.decision.action).toBe('ignore');
@@ -117,27 +117,22 @@ describe('Fix Executor', () => {
     mockSearchCode.mockResolvedValue([]);
     mockCreateBranch.mockResolvedValue(undefined);
     mockCommitFiles.mockResolvedValue('b'.repeat(40));
-    mockCreate.mockResolvedValue({
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            analysis: {
-              isExpected: false,
-              isExternalFailure: false,
-              isReproducible: true,
-              isNormalBehaviorKnown: true,
-              changeScope: 'general-code',
-              explanation: 'Null check missing',
-            },
-            fix: {
-              files: [{ path: 'src/test.ts', content: 'fixed code' }],
-              description: 'Add null check',
-            },
-          }),
+    mockCreate.mockResolvedValue(
+      toolUseResponse({
+        analysis: {
+          isExpected: false,
+          isExternalFailure: false,
+          isReproducible: true,
+          isNormalBehaviorKnown: true,
+          changeScope: 'general-code',
+          explanation: 'Null check missing',
         },
-      ],
-    });
+        fix: {
+          files: [{ path: 'src/test.ts', content: 'fixed code' }],
+          description: 'Add null check',
+        },
+      }),
+    );
 
     const result = await executeFix(INCIDENT, ELIGIBILITY_CONTEXT, CONFIG);
     expect(result.decision.action).toBe('repair');

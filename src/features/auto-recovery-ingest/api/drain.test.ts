@@ -129,25 +129,30 @@ describe('서명된 Drain 수집', () => {
     ).toBe(413);
     expect(enqueue).not.toHaveBeenCalled();
   });
-  it('본문·메시지·경로·개인정보는 큐에 전달하지 않는다', async () => {
+  it('경로·개인정보·헤더는 큐에 전달하지 않고 메시지는 유지한다', async () => {
     const enqueue = vi.fn().mockResolvedValue(undefined);
     await handleDrainRequest(
       createRequest(
         JSON.stringify([
           {
             ...EVENT,
-            message: 'secret',
+            message: 'Error at line 42',
             path: '/users/private',
             email: 'private@example.test',
-            headers: { authorization: 'secret' },
+            headers: { authorization: 'bearer-token-xyz' },
           },
         ]),
       ),
       CONFIG,
       enqueue,
     );
-    expect(enqueue.mock.calls[0][0].events).toEqual([EVENT]);
-    expect(JSON.stringify(enqueue.mock.calls)).not.toContain('secret');
+    const passedEvent = enqueue.mock.calls[0][0].events[0];
+    expect(passedEvent.message).toBe('Error at line 42');
+    expect(passedEvent.email).toBeUndefined();
+    expect(passedEvent.headers).toBeUndefined();
+    expect(passedEvent.path).toBeUndefined();
+    expect(JSON.stringify(enqueue.mock.calls)).not.toContain('bearer-token-xyz');
+    expect(JSON.stringify(enqueue.mock.calls)).not.toContain('private@example.test');
   });
   it('같은 배치 재전송은 동일한 중복 제거 키를 가진다', async () => {
     const enqueue = vi.fn().mockResolvedValue(undefined);

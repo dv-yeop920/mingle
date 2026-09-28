@@ -965,7 +965,7 @@ describe('시나리오 9: Drain 보안 검증', () => {
         timestamp: Date.now(),
         source: 'lambda',
         level: 'error',
-        message: 'User john@example.com had error',
+        message: 'TypeError: Cannot read properties of null',
         path: '/users/private-page',
         email: 'leak@example.com',
         headers: { authorization: 'Bearer secret-token' },
@@ -990,7 +990,7 @@ describe('시나리오 9: Drain 보안 검증', () => {
     );
 
     const enqueuedData = JSON.stringify(enqueue.mock.calls);
-    expect(enqueuedData).not.toContain('john@example.com');
+    expect(enqueuedData).toContain('TypeError: Cannot read properties of null');
     expect(enqueuedData).not.toContain('secret-token');
     expect(enqueuedData).not.toContain('hunter2');
     expect(enqueuedData).not.toContain('leak@example.com');
