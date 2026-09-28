@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { ImageResponse } from 'next/og';
+import { connection } from 'next/server';
 
 import {
   BRAND_BACKGROUND_COLOR,
@@ -89,6 +90,7 @@ const genericImage = (fontData: Buffer) =>
   );
 
 export const GET = async (request: Request) => {
+  await connection();
   const fontData = await fontPromise;
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
