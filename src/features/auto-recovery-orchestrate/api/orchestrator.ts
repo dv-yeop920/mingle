@@ -30,7 +30,7 @@ const queryErrorEvents = async (
     .select('events')
     .eq('project_id', projectId)
     .order('received_at', { ascending: false })
-    .limit(20);
+    .limit(200);
 
   if (!batches?.length) return [];
 
