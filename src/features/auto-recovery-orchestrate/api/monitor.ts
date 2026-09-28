@@ -161,7 +161,6 @@ const handleObserving = async (
   const errors = await getRuntimeErrors(
     config.vercelToken,
     config.vercelProjectId,
-    state.deploymentId!,
   );
 
   const errorCount = errors.reduce((sum, e) => sum + e.count, 0);
