@@ -1,0 +1,10 @@
+{
+  "fingerprint": "build-3d488e6ffd25",
+  "baseSha": "3d488e6ffd25a5322b67b758b2f9eca2a313a69f",
+  "incidentCategory": "build",
+  "incidentPaths": [
+    "next.config.ts"
+  ],
+  "fixDescription": "Removed the `cacheComponents: true` experimental flag from next.config.ts, since it conflicts with the `export const dynamic = 'force-dynamic'` segment config used in src/app/api/group-stats/route.ts. This resolves the build error without needing to modify the route file's dynamic export behavior.",
+  "buildErrorCategory": "build"
+}
