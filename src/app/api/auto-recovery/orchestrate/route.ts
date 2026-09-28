@@ -40,7 +40,7 @@ const GET = async (request: Request) => {
     githubRepo,
     vercelToken: process.env.VERCEL_TOKEN,
     vercelProjectId: process.env.AUTO_RECOVERY_VERCEL_PROJECT_ID,
-    maxTokens: Number(process.env.AUTO_RECOVERY_MAX_TOKENS) || 8192,
+    maxTokens: Number(process.env.AUTO_RECOVERY_MAX_TOKENS) || 16384,
   });
 
   return NextResponse.json(result, { status: 200 });

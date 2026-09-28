@@ -237,6 +237,10 @@ const executeFix = async (
       .map((block) => block.text)
       .join('');
 
+    if (response.stop_reason === 'max_tokens') {
+      return stopped(`ai-response-truncated: ${text.length} chars, increase maxTokens`);
+    }
+
     const parsed = parseFixResult(text);
     if (!parsed) {
       const preview = text.slice(0, 300).replace(/\n/g, ' ');
