@@ -118,16 +118,24 @@ const buildPrompt = (
 };
 
 const parseFixResult = (text: string): FixResult | null => {
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) return null;
-  try {
-    const parsed = JSON.parse(jsonMatch[0]) as FixResult;
-    if (!parsed.analysis || typeof parsed.analysis.isExpected !== 'boolean')
-      return null;
-    return parsed;
-  } catch {
-    return null;
+  const stripped = text
+    .replace(/```(?:json)?\s*\n?/g, '')
+    .replace(/```\s*$/g, '')
+    .trim();
+  const candidates = [stripped, text];
+  for (const candidate of candidates) {
+    const jsonMatch = candidate.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) continue;
+    try {
+      const parsed = JSON.parse(jsonMatch[0]) as FixResult;
+      if (!parsed.analysis || typeof parsed.analysis.isExpected !== 'boolean')
+        continue;
+      return parsed;
+    } catch {
+      continue;
+    }
   }
+  return null;
 };
 
 const executeFix = async (
