@@ -292,8 +292,9 @@ const executeFix = async (
 
   try {
     await github.createBranch(branchName, defaultBranch.sha);
-  } catch {
-    return stopped('branch-creation-failed');
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return stopped(`branch-creation-failed: ${msg.slice(0, 200)}`);
   }
 
   const metaFile = {
@@ -318,8 +319,9 @@ const executeFix = async (
       [...fixResult.fix.files, metaFile],
       `fix(auto-recovery): ${fixResult.fix.description.slice(0, 72)}`,
     );
-  } catch {
-    return stopped('commit-failed');
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return stopped(`commit-failed: ${msg.slice(0, 200)}`);
   }
 
   return {
