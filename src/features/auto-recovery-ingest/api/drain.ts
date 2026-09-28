@@ -24,6 +24,8 @@ type DrainEvent = {
   source: (typeof SOURCES)[number];
   level: (typeof LEVELS)[number];
   statusCode?: number;
+  message?: string;
+  requestPath?: string;
 };
 type DrainBatch = { batchId: string; events: DrainEvent[] };
 type DrainEnqueue = (batch: DrainBatch) => Promise<void>;
@@ -64,6 +66,12 @@ const parseEvent = (value: unknown): DrainEvent | null => {
     ...(value.statusCode === undefined
       ? {}
       : { statusCode: value.statusCode as number }),
+    ...(typeof value.message === 'string'
+      ? { message: value.message.slice(0, 4000) }
+      : {}),
+    ...(typeof value.requestPath === 'string'
+      ? { requestPath: value.requestPath }
+      : {}),
   };
 };
 

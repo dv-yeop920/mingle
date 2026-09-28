@@ -130,6 +130,7 @@ const executeFix = async (
     isPreviousProductionRepairFailed: boolean;
   },
   config: FixExecutorConfig,
+  injectedErrors?: RuntimeError[],
 ): Promise<FixExecutorResult> => {
   const stopped = (reason: string): FixExecutorResult => ({
     decision: { action: 'stop', reason },
@@ -149,8 +150,8 @@ const executeFix = async (
     candidateSha: null,
   });
 
-  let errors: RuntimeError[] = [];
-  if (config.vercelToken && config.vercelProjectId) {
+  let errors: RuntimeError[] = injectedErrors ?? [];
+  if (errors.length === 0 && config.vercelToken && config.vercelProjectId) {
     try {
       errors = await getRuntimeErrors(
         config.vercelToken,

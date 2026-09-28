@@ -8,10 +8,62 @@ import type { Database } from '@/shared/types/database';
 import type {
   OrchestrateConfig,
   OrchestrateResult,
+  RuntimeError,
 } from '../model/types';
 
 import { classifyEvents } from './classifier';
 import { executeFix } from './fix-executor';
+
+type EventRow = {
+  message?: string;
+  requestPath?: string;
+  level: string;
+  timestamp: number;
+};
+
+const queryErrorEvents = async (
+  supabase: SupabaseClient<Database>,
+  projectId: string,
+): Promise<RuntimeError[]> => {
+  const { data: batches } = await supabase
+    .from('auto_recovery_events')
+    .select('events')
+    .eq('project_id', projectId)
+    .order('received_at', { ascending: false })
+    .limit(20);
+
+  if (!batches?.length) return [];
+
+  const grouped = new Map<string, RuntimeError>();
+  for (const batch of batches) {
+    const events = batch.events as unknown as EventRow[];
+    if (!Array.isArray(events)) continue;
+    for (const event of events) {
+      if (event.level !== 'error' && event.level !== 'fatal') continue;
+      const message = event.message || 'Unknown error';
+      const key = message.slice(0, 200);
+      const timestamp = event.timestamp
+        ? new Date(event.timestamp).toISOString()
+        : new Date().toISOString();
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count += 1;
+        existing.lastSeen = timestamp;
+      } else {
+        grouped.set(key, {
+          message,
+          stack: '',
+          path: event.requestPath || '',
+          count: 1,
+          firstSeen: timestamp,
+          lastSeen: timestamp,
+        });
+      }
+    }
+  }
+
+  return [...grouped.values()].sort((a, b) => b.count - a.count);
+};
 
 const handleOrchestrateRequest = async (
   supabase: SupabaseClient<Database>,
@@ -75,6 +127,8 @@ const handleOrchestrateRequest = async (
     };
   }
 
+  const runtimeErrors = await queryErrorEvents(supabase, incident.project_id);
+
   const fixResult = await executeFix(
     incident,
     {
@@ -83,6 +137,7 @@ const handleOrchestrateRequest = async (
       isPreviousProductionRepairFailed,
     },
     config,
+    runtimeErrors,
   );
 
   const attemptNumber = incident.attempt_count + 1;
