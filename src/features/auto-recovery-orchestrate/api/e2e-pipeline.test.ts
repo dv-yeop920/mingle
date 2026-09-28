@@ -8,10 +8,7 @@ import { createHmac } from 'node:crypto';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  createIncidentIdentity,
-  type MonitoringDecision,
-} from '@/shared/lib/auto-recovery';
+import { type MonitoringDecision } from '@/shared/lib/auto-recovery';
 
 import type {
   Incident,

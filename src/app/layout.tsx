@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
 };
 
-const RootLayout = ({ children }: LayoutProps<'/'>) => {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="ko">
       <head>

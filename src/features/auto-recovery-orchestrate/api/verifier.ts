@@ -19,6 +19,8 @@ import { getPreviewDeployment } from './vercel-api';
 
 const MAX_VERIFY_DURATION_MS = 1_800_000;
 
+const CI_COMBINED_CHECK = 'ci checks';
+
 const CI_CHECK_NAMES: Record<string, 'lint' | 'typeCheck' | 'test' | 'build'> =
   {
     lint: 'lint',
@@ -80,6 +82,26 @@ const handleCiPending = async (
   github: ReturnType<typeof createGitHubClient>,
 ): Promise<{ state: VerifyState; advanced: boolean }> => {
   const checkRuns = await github.getCheckRuns(candidateSha);
+
+  const combinedCheck = checkRuns.find(
+    (run) => run.name.toLowerCase() === CI_COMBINED_CHECK,
+  );
+
+  if (combinedCheck) {
+    if (combinedCheck.status !== 'completed') return waiting(state);
+
+    const isPassed = combinedCheck.conclusion === 'success';
+    const updatedChecks: typeof state.checks = {};
+    for (const key of ['lint', 'typeCheck', 'test', 'build'] as const) {
+      updatedChecks[key] = { commitSha: candidateSha, isPassed };
+    }
+
+    if (!isPassed) {
+      return stop({ ...state, checks: updatedChecks }, 'ci-check-failed');
+    }
+
+    return advance(state, 'ci_checking', { checks: updatedChecks });
+  }
 
   const ciChecks = checkRuns.filter(
     (run) => CI_CHECK_NAMES[run.name.toLowerCase()] !== undefined,
