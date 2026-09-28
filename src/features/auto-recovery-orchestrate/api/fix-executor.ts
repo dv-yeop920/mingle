@@ -238,7 +238,10 @@ const executeFix = async (
       .join('');
 
     const parsed = parseFixResult(text);
-    if (!parsed) return stopped('unparseable-ai-response');
+    if (!parsed) {
+      const preview = text.slice(0, 300).replace(/\n/g, ' ');
+      return stopped(`unparseable-ai-response: ${preview}`);
+    }
     fixResult = parsed;
   } catch {
     return stopped('ai-api-error');
