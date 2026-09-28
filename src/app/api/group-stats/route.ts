@@ -1,3 +1,4 @@
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 type GroupMember = {
@@ -17,6 +18,7 @@ const fetchGroups = (): Group[] => [
 ];
 
 export const GET = async () => {
+  await headers();
   const groups = fetchGroups();
 
   const summaries = groups.map((group) => {
@@ -31,5 +33,3 @@ export const GET = async () => {
 
   return NextResponse.json({ summaries });
 };
-
-export const dynamic = 'force-dynamic';
