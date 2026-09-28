@@ -22,12 +22,12 @@ export const GET = async () => {
   const groups = fetchGroups();
 
   const summaries = groups.map((group) => {
-    const topMember = group.members[0]!;
+    const topMember = group.members[0];
     return {
       groupId: group.id,
       title: group.title,
-      topMemberName: topMember.name,
-      topScore: topMember.score,
+      topMemberName: topMember ? topMember.name : null,
+      topScore: topMember ? topMember.score : null,
     };
   });
 

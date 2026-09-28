@@ -1,0 +1,9 @@
+{
+  "fingerprint": "3d5b755e4651e4c6b48796954389e44438f0103d5380f7cd2756f12135469338",
+  "baseSha": "ca27d62c9378542be83879d2f0d0f18cb259f227",
+  "incidentCategory": "server",
+  "incidentPaths": [
+    "src/app/api/group-stats/route.ts"
+  ],
+  "fixDescription": "Guard against groups with no members before accessing the first member's properties, avoiding the unsafe non-null assertion that caused a TypeError."
+}
