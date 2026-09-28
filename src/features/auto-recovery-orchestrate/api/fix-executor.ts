@@ -31,23 +31,56 @@ Rules:
   - "unknown": only when you truly cannot determine what the code does
   - IMPORTANT: src/app/api/ routes (including auto-recovery, health-check, etc.) are general application code, NOT protected infrastructure
 - If you cannot determine the root cause, set isReproducible to false.
-- Return your analysis AND the fix (if any) as valid JSON.
 
-Respond ONLY with a JSON object matching this schema:
-{
-  "analysis": {
-    "isExpected": boolean,
-    "isExternalFailure": boolean,
-    "isReproducible": boolean,
-    "isNormalBehaviorKnown": boolean,
-    "changeScope": "general-code" | "protected" | "unknown",
-    "explanation": string
+Use the submit_fix tool to return your analysis and fix.`;
+
+const FIX_TOOL: Anthropic.Tool = {
+  name: 'submit_fix',
+  description: 'Submit the error analysis and optional code fix',
+  input_schema: {
+    type: 'object' as const,
+    required: ['analysis'],
+    properties: {
+      analysis: {
+        type: 'object',
+        required: [
+          'isExpected',
+          'isExternalFailure',
+          'isReproducible',
+          'isNormalBehaviorKnown',
+          'changeScope',
+          'explanation',
+        ],
+        properties: {
+          isExpected: { type: 'boolean' },
+          isExternalFailure: { type: 'boolean' },
+          isReproducible: { type: 'boolean' },
+          isNormalBehaviorKnown: { type: 'boolean' },
+          changeScope: { type: 'string', enum: ['general-code', 'protected', 'unknown'] },
+          explanation: { type: 'string' },
+        },
+      },
+      fix: {
+        type: 'object',
+        required: ['files', 'description'],
+        properties: {
+          files: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['path', 'content'],
+              properties: {
+                path: { type: 'string' },
+                content: { type: 'string' },
+              },
+            },
+          },
+          description: { type: 'string' },
+        },
+      },
+    },
   },
-  "fix": {
-    "files": [{ "path": string, "content": string }],
-    "description": string
-  } | null
-}`;
+};
 
 const parseStackPaths = (errors: RuntimeError[]): string[] => {
   const paths = new Set<string>();
@@ -117,26 +150,6 @@ const buildPrompt = (
   return parts.join('\n');
 };
 
-const parseFixResult = (text: string): FixResult | null => {
-  const stripped = text
-    .replace(/```(?:json)?\s*\n?/g, '')
-    .replace(/```\s*$/g, '')
-    .trim();
-  const candidates = [stripped, text];
-  for (const candidate of candidates) {
-    const jsonMatch = candidate.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) continue;
-    try {
-      const parsed = JSON.parse(jsonMatch[0]) as FixResult;
-      if (!parsed.analysis || typeof parsed.analysis.isExpected !== 'boolean')
-        continue;
-      return parsed;
-    } catch {
-      continue;
-    }
-  }
-  return null;
-};
 
 const executeFix = async (
   incident: Incident,
@@ -229,24 +242,29 @@ const executeFix = async (
       model: 'claude-sonnet-5',
       max_tokens: config.maxTokens,
       system: SYSTEM_PROMPT,
+      tools: [FIX_TOOL],
+      tool_choice: { type: 'tool', name: 'submit_fix' },
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const text = response.content
-      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
-      .map((block) => block.text)
-      .join('');
+    const toolBlock = response.content.find(
+      (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use',
+    );
 
-    if (response.stop_reason === 'max_tokens') {
-      return stopped(`ai-response-truncated: ${text.length} chars, increase maxTokens`);
+    if (!toolBlock) {
+      return stopped('no-tool-use-in-response');
     }
 
-    const parsed = parseFixResult(text);
-    if (!parsed) {
-      const preview = text.slice(0, 300).replace(/\n/g, ' ');
-      return stopped(`unparseable-ai-response: ${preview}`);
+    const input = toolBlock.input as Record<string, unknown>;
+    const analysis = input.analysis as FixResult['analysis'] | undefined;
+    if (!analysis || typeof analysis.isExpected !== 'boolean') {
+      return stopped('invalid-tool-input');
     }
-    fixResult = parsed;
+
+    fixResult = {
+      analysis,
+      fix: (input.fix as FixResult['fix']) ?? null,
+    };
   } catch {
     return stopped('ai-api-error');
   }
