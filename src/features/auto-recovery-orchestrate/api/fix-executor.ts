@@ -52,11 +52,19 @@ Respond ONLY with a JSON object matching this schema:
 const parseStackPaths = (errors: RuntimeError[]): string[] => {
   const paths = new Set<string>();
   for (const error of errors) {
-    const matches = error.stack.matchAll(
+    const combined = `${error.stack}\n${error.message}`;
+    const srcMatches = combined.matchAll(
       /(?:at\s+.+?\s+\(|at\s+)(?:\/[^)]+\/)?src\/([^:)]+)/g,
     );
-    for (const match of matches) {
+    for (const match of srcMatches) {
       paths.add(`src/${match[1]}`);
+    }
+    const nextMatches = combined.matchAll(
+      /\.next\/server\/app\/([^:)\s]+)/g,
+    );
+    for (const match of nextMatches) {
+      const filePath = `src/app/${match[1]}`.replace(/\.js$/, '.ts');
+      paths.add(filePath);
     }
     if (error.path) {
       const routePath = error.path.replace(/^\//, '');
